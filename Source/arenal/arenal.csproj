@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<TypeScriptTarget>ES6</TypeScriptTarget>
+		<TypeScriptRemoveComments>True</TypeScriptRemoveComments>
+	</PropertyGroup>
+
+	<PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<TypeScriptTarget>ES6</TypeScriptTarget>
+		<TypeScriptRemoveComments>True</TypeScriptRemoveComments>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<AssemblyName>arenal</AssemblyName>
+		<RootNamespace>arenal</RootNamespace>
+		<Description>Arenal</Description>
+		<Copyright>Arenal Dev Studio</Copyright>
+		<PackageProjectUrl>https://github.com/EnmanuelleAcuna/arenal</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/EnmanuelleAcuna/arenal</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<StartupObject>arenal.Program</StartupObject>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<ErrorReport>none</ErrorReport>
+		<ImplicitUsings>True</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.1.35" />
+		<PackageReference Include="MailKit" Version="3.4.3" />
+		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.20" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.20" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.20" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.20" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.20" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.20">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="Views\Contactos\ConfirmacionContacto.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Contactos\Eliminar.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Contactos\Index.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Contactos\Nuevo.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Contactos\_Detalle.cshtml" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Index\Banner1.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Index\Banner2.jpg" />
+	  <_ContentIncludedByDefault Remove="wwwroot\images\Index\Banner3.jpg" />
+	  <_ContentIncludedByDefault Remove="Views\Rutinas\Agregar.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Rutinas\Detalle.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Rutinas\Listar.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Rutinas\ReporteResumido.cshtml" />
+	</ItemGroup>
+</Project>

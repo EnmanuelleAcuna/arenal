@@ -1,0 +1,56 @@
+﻿@model IniciarSesionViewModel
+
+@{
+	ViewData["Title"] = "Iniciar sesión";
+}
+
+<div class="row">
+	<div class="col-sm-12 col-md-4 offset-md-4">
+		<h4 class="text-center mt-2 mb-4 font-light">Iniciar sesión</h4>
+
+		<div class="card shadow-sm">
+			<div class="card-body">
+				@using (Html.BeginForm("IniciarSesion", "Cuentas", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, true, new { autocomplete = "off" }))
+				{
+					@Html.AntiForgeryToken()
+
+					<div class="form-group">
+						@Html.LabelFor(m => m.Correo, new { @class = "font-bold" })
+						@Html.EditorFor(m => m.Correo, new { htmlAttributes = new { @class = "form-control form-control-sm" } })
+						@Html.ValidationMessageFor(m => m.Correo, "", new { @class = "text-danger" })
+					</div>
+
+					<div class="form-group">
+						@Html.LabelFor(m => m.Contrasena, new { @class = "font-bold" })
+						@Html.PasswordFor(m => m.Contrasena, new { @class = "form-control form-control-sm" })
+						@Html.ValidationMessageFor(m => m.Contrasena, "", new { @class = "text-danger" })
+					</div>
+
+					<div class="center red-text font-bold">
+						@Html.ValidationSummary(true, "", new { @class = "data-error" })
+					</div>
+
+					<div class="w-100 text-center">
+						<button type="submit" value="Iniciar sesión" class="btn btn-sm btn-primary btn-block font-bold mb-2">
+							Iniciar sesión
+						</button>
+
+						<small>
+							@Html.ActionLink("¿Olvidó su contraseña?", "SolicitarContrasena", "Cuentas", null, new
+							{
+								@class = "text-secondary", title =
+									"¿Olvidó su contraseña?"
+							})
+						</small>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

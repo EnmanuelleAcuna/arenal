@@ -1,0 +1,34 @@
+﻿@model ErrorViewModel
+
+@{
+	ViewData["Title"] = "Error";
+}
+
+<div class="row mt-4">
+	<div class="col-sm-12 text-center">
+		<img src="~/images/error.svg" alt="Error" class="max-height-128px">
+	</div>
+
+	<div class="col-sm-12 text-center">
+		<h4 class="mt-3 text-danger">Error al procesar la solicitud.</h4>
+	</div>
+
+	@if (Model.ShowRequestId)
+	{
+		<div class="col-12 text-center">
+			<p>
+				<strong>Request Id:</strong> <code>@Model.RequestId</code>
+			</p>
+		</div>
+	}
+
+	@if (!String.IsNullOrEmpty(Model.ExceptionMessage))
+	{
+		<div class="col-12">
+			<p>
+				<small class="d-block">@Model.ExceptionMessage</small>
+				<small class="d-block">@Model.StackTrace</small>
+			</p>
+		</div>
+	}
+</div>
