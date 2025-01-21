@@ -1,16 +1,9 @@
-using System;
-using arenal.Models;
-using arenal.Models.Core;
-using arenal.Models.Entities;
-using arenal.Models.Identity;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+using arenal.Domain;
+using arenal.Identity;
+using arenal.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace arenal;
 
@@ -44,7 +37,7 @@ class Program
 
 		builder.Services.Configure<CookieOptions>(options =>
 		{
-			options.Expires = DateTime.Now.AddMinutes(20);
+			// options.Expires = DateTime.Now.AddMinutes(20);
 			options.SameSite = SameSiteMode.Strict;
 			options.Secure = true;
 		});
@@ -52,7 +45,7 @@ class Program
 		builder.Services.ConfigureApplicationCookie(options =>
 		{
 			options.Cookie.Name = ".AspNetCore.Identity.Application";
-			options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+			// options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
 			options.SlidingExpiration = true;
 			options.LoginPath = "/Cuentas/IniciarSesion";
 			options.Cookie.SameSite = SameSiteMode.Strict;
@@ -60,12 +53,10 @@ class Program
 		
 		builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 		
-		builder.Services.AddTransient<IBaseCore<TipoMaquina>, TiposMaquina>();
-		builder.Services.AddTransient<IBaseCore<Maquina>, Maquinas>();
-		builder.Services.AddTransient<IBaseCore<TipoEjercicio>, TiposEjercicio>();
-		builder.Services.AddTransient<IBaseCore<Ejercicio>, Ejercicios>();
-		builder.Services.AddTransient<IBaseCore<TipoMedida>, TiposMedida>();
-		builder.Services.AddTransient<IBaseCore<GrupoMuscular>, GruposMusculares>();
+		// builder.Services.AddTransient<IBaseCore<TipoEjercicio>, TiposEjercicio>();
+		// builder.Services.AddTransient<IBaseCore<Cliente>, Ejercicios>();
+		// builder.Services.AddTransient<IBaseCore<TipoMedida>, TiposMedida>();
+		// builder.Services.AddTransient<IBaseCore<Servicios>, GruposMusculares>();
 		builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 		builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();

@@ -57,5 +57,15 @@
 	  <_ContentIncludedByDefault Remove="Views\Rutinas\Detalle.cshtml" />
 	  <_ContentIncludedByDefault Remove="Views\Rutinas\Listar.cshtml" />
 	  <_ContentIncludedByDefault Remove="Views\Rutinas\ReporteResumido.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\AgregarMaquina.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\AgregarTipoMaquina.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\EditarMaquina.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\EditarTipoMaquina.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\EliminarMaquina.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\EliminarTipoMaquina.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\ListarMaquinas.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\ListarTiposMaquina.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\_DetalleMaquina.cshtml" />
+	  <_ContentIncludedByDefault Remove="Views\Maquinas\_DetalleTipoMaquina.cshtml" />
 	</ItemGroup>
 </Project>

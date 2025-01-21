@@ -4,7 +4,7 @@
 	ViewBag.Title = "Roles";
 }
 
-<div class="page-breadcrumb">
+<div class="container">
 	<div class="row">
 		<div class="col-5 align-self-center">
 			<h6 class="page-title">Lista de roles</h6>
@@ -31,17 +31,17 @@
 		<div class="col-12">
 			<div class="card shadow-sm">
 				<div class="card-body">
-					@Html.ActionLink("Agregar", "AgregarRol", null, null, new { @class = "btn btn-sm btn-default" })
+					@Html.ActionLink("Agregar", "AgregarRol", null, null, new { @class = "btn btn-sm btn-secondary" })
 
 					<hr />
 
 					<div class="table-responsive">
-						<table class="table table-hover table-sm">
+						<table class="table table-hover table-sm text-nowrap">
 							<thead>
 								<tr>
 									<th>@Html.DisplayNameFor(m => m.FirstOrDefault().Nombre)</th>
 									<th>@Html.DisplayNameFor(m => m.FirstOrDefault().Descripcion)</th>
-									<th>Acciones</th>
+									<th class="text-right"></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -50,11 +50,11 @@
 									<tr>
 										<td>@Rol.Nombre</td>
 										<td>@Rol.Descripcion</td>
-										<td>
+										<td class="text-right">
 											<div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-												<a class="btn btn-sm btn-secondary" asp-controller="Cuentas" asp-action="EditarRol"
+												<a class="btn btn-sm btn-light text-primary" asp-controller="Cuentas" asp-action="EditarRol"
 												asp-route-id="@Rol.IdRol">Modificar</a>
-												<a class="btn btn-sm btn-danger" asp-controller="Cuentas" asp-action="EliminarRol"
+												<a class="btn btn-sm btn-light text-danger" asp-controller="Cuentas" asp-action="EliminarRol"
 												asp-route-id="@Rol.IdRol">Eliminar</a>
 											</div>
 										</td>

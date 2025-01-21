@@ -29,7 +29,7 @@ Básico: https://docs.microsoft.com/en-us/azure/devops/boards/get-started/plan-t
 <h2 id="proceso-instalacion">Proceso de instalación</h3>
 
 - Compilar: dotnet build Source/ --no-restore
-- Build and Test: dotnet run Source/Web --no-build
+- Ejecutar: dotnet run Source/Web --no-build
 
 <h2 id="dependencias-software">Dependencias de software</h2>
 
@@ -37,7 +37,7 @@ Básico: https://docs.microsoft.com/en-us/azure/devops/boards/get-started/plan-t
 
 <h2 id="ultimos-lanzamientos">Últimos lanzamientos</h2>
 
-- Actualmente en desarrollo la versión inicial MVP.
+- Actualmente en desarrollo de la versión inicial MVP.
 
 <h2 id="referencias-api">Referencias a APIs</h2>
 TODO
@@ -79,3 +79,20 @@ TODO
   // Generar las vistas y codigo para las vistas deseadas
   dotnet aspnet-codegenerator identity --dbContext PCG.Data.ApplicationDbContext --files "Account.ForgotPassword;Account.ForgotPasswordConfirmation;Account.Login;Account.Logout;Account.ResetPassword;Account.ResetPasswordConfirmation"
   ```
+
+==LISTO
+Contratos definir si tiene o no fecha fin
+==LISTO
+
+==LISTO
+Servicios:
+Contabilidades mensuales
+Planillas
+RRHH
+==LISTO
+
+Lista de todas las contas del mes
+
+Ejemplo de asignacion:
+Cliente XXXX asignar a Carmen ese mes:
+Mes siguiente a Miguel

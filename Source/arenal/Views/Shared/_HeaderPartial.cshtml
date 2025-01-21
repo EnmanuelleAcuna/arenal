@@ -1,35 +1,20 @@
-﻿@using arenal.Models.Identity
-
-@inject SignInManager<ApplicationUser> SignInManager
+﻿@inject SignInManager<ApplicationUser> SignInManager
 
 <header>
-	<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+	<nav class="navbar navbar-expand navbar-light shadow-sm" style="background-color: rgb(33, 50, 92)">
 		<div class="container my-1">
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-				aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
+			@* <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" *@
+			@* 	aria-label="Toggle navigation"> *@
+			@* 	<span class="navbar-toggler-icon"></span> *@
+			@* </button> *@
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item active">
-						<a class="nav-link text-dark" href='@Url.Action("Index", "Home")'>
-							Inicio<span class="sr-only">(current)</span>
+						<a class="navbar-brand nav-link" href='@Url.Action("Administracion", "Home")' style="color: rgb(208, 162, 68)">
+							<img src="~/images/SC-2.svg" width="60" height="30" class="d-inline-block align-top" alt="">
+							SANDÍ CONSULTORES<span class="sr-only">(current)</span>
 						</a>
 					</li>
-					<li class="nav-item">
-						@Html.ActionLink("Contáctenos", "Contacto", "Home", null, new { @class = "nav-link text-dark" })
-					</li>
-					<li class="nav-item">
-						@Html.ActionLink("Privacidad", "Privacidad", "Home", null, new { @class = "nav-link text-dark"
-						})
-					</li>
-					@if (SignInManager.IsSignedIn(User))
-					{
-						<li class="nav-item">
-							@Html.ActionLink("Administración", "Administracion", "Home", null, new { @class = "nav-link text-dark"
-							})
-						</li>
-					}
 				</ul>
 
 				<ul class="navbar-nav">
@@ -38,7 +23,7 @@
 					<li class="nav-item">
 						<div>
 							<form class="form-inline" asp-controller="Cuentas" asp-action="CerrarSesion" asp-route-returnUrl="@Url.Action("Index", "Home")">
-								<button type="submit" class="dropdown-item">Cerrar sesión</button>
+								<button type="submit" class="dropdown-item text-light">Cerrar sesión</button>
 							</form>
 						</div>
 					</li>

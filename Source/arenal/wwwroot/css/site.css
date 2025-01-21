@@ -32,10 +32,9 @@ textarea {
 	border: 0.01rem solid lightsteelblue;
 }
 
-/* .btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.btn-primary {
+  background-color: rgb(33, 50, 92) !important;
+  border: none;
 }
 
 /* Sticky footer styles */
@@ -145,4 +144,8 @@ input[type="checkbox"].input-validation-error {
 
 .max-height-24px {
   max-height: 24px !important;
+}
+
+.breadcrumb {
+    font-size: 0.875rem !important;
 }

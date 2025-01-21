@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using arenal.Models.ViewModels;
+using arenal.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
