@@ -17,7 +17,7 @@
                             <a href="@Url.Action("Administracion", "Home")">Administración</a>
                         </li>
                         <li class="breadcrumb-item">
-                            <a href="@Url.Action("ListarRoles")">Roles</a>
+                            <a href="@Url.Action("Roles")">Roles</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
                             Modificar
@@ -34,7 +34,8 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("EditarRol", "Cuentas", FormMethod.Post, new { autocomplete = "off" })) {
+                    @using (Html.BeginForm("EditarRol", "Cuentas", FormMethod.Post, new { autocomplete = "off" }))
+                    {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.IdRol)
 
@@ -62,8 +63,8 @@
                             </div>
 
                             <div class="col-12">
-                                <input value="Guardar" class="btn btn-sm btn-primary" type="submit" />
-                                @Html.ActionLink("Regresar", "ListarRoles", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
+                                @Html.ActionLink("Regresar", "Roles", null, null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }
@@ -74,5 +75,5 @@
 </div>
 
 @section Scripts{
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

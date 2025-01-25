@@ -254,7 +254,8 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> Contratos()
     {
-        List<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).Include(c => c.Area).ToListAsync();
+        List<Contrato> contratos =
+            await _dbContext.Contratos.Include(c => c.Cliente).Include(c => c.Area).ToListAsync();
         return View(contratos);
     }
 
@@ -266,7 +267,7 @@ public class ClientesController : BaseController
 
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-        
+
         return View();
     }
 
@@ -281,10 +282,10 @@ public class ClientesController : BaseController
 
             IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
             ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-            
+
             IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
             ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-            
+
             return View(model);
         }
 
@@ -307,7 +308,7 @@ public class ClientesController : BaseController
 
         IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
         ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-        
+
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
@@ -325,7 +326,7 @@ public class ClientesController : BaseController
 
             IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
             ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-            
+
             IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
             ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
@@ -349,7 +350,8 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> EliminarContrato(Guid id)
     {
-        Contrato model = await _dbContext.Contratos.Include(c => c.Cliente).Where(c => c.Id == id).FirstOrDefaultAsync();
+        Contrato model =
+            await _dbContext.Contratos.Include(c => c.Cliente).Where(c => c.Id == id).FirstOrDefaultAsync();
 
         if (model == null) return NotFound();
 
@@ -376,9 +378,144 @@ public class ClientesController : BaseController
 
     #endregion
 
+    #region Proyectos
+
     [HttpGet]
-    public IActionResult Proyectos()
+    public async Task<IActionResult> Proyectos()
     {
+        IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos.Include(p => p.Cliente).Include(p => p.Contrato)
+            .Include(p => p.Area).ToListAsync();
+        return View(proyectos);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AgregarProyecto()
+    {
+        IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
+        ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
+
+        IEnumerable<Contrato> contratos = await _dbContext.Contratos.ToListAsync();
+        ViewBag.Contratos = contratos.Select(tc => new SelectListItem(text: tc.Identificacion, tc.Id.ToString()));
+
+        IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
+        ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
+
         return View();
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AgregarProyecto(Proyecto model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("",
+                string.Concat(Common.MensajeErrorAgregar(nameof(Proyecto)), GetModelStateErrors()));
+
+            IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
+            ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
+
+            IEnumerable<Contrato> contratos = await _dbContext.Contratos.ToListAsync();
+            ViewBag.Contratos = contratos.Select(tc => new SelectListItem(text: tc.Identificacion, tc.Id.ToString()));
+
+            IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
+            ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
+
+            return View(model);
+        }
+
+        model.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
+        await _dbContext.Proyectos.AddAsync(model);
+        int changes = await _dbContext.SaveChangesAsync();
+
+        if (changes > 0) return RedirectToAction(nameof(Proyectos));
+
+        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(Proyecto)));
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditarProyecto(Guid id)
+    {
+        Proyecto model = await _dbContext.Proyectos.FindAsync(id);
+
+        if (model == null) return NotFound();
+
+        IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
+        ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
+
+        IEnumerable<Contrato> contratos = await _dbContext.Contratos.ToListAsync();
+        ViewBag.Contratos = contratos.Select(tc => new SelectListItem(text: tc.Identificacion, tc.Id.ToString()));
+
+        IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
+        ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult> EditarProyecto(Proyecto model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("",
+                string.Concat(Common.MensajeErrorActualizar(nameof(Proyecto)), GetModelStateErrors()));
+
+            IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
+            ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
+
+            IEnumerable<Contrato> contratos = await _dbContext.Contratos.ToListAsync();
+            ViewBag.Contratos = contratos.Select(tc => new SelectListItem(text: tc.Identificacion, tc.Id.ToString()));
+
+            IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
+            ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
+
+            return View(model);
+        }
+
+        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(model.Id);
+
+        if (proyecto == null) return NotFound();
+
+        proyecto.Actualizar(model, GetCurrentUser());
+        _dbContext.Proyectos.Update(proyecto);
+        int changes = await _dbContext.SaveChangesAsync();
+
+        if (changes > 0) return RedirectToAction(nameof(Proyectos));
+        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(Proyecto)));
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EliminarProyecto(Guid id)
+    {
+        Proyecto model = await _dbContext.Proyectos.Include(c => c.Cliente).Include(p => p.Contrato)
+            .Where(c => c.Id == id).FirstOrDefaultAsync();
+
+        if (model == null) return NotFound();
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EliminarProyecto(Proyecto model)
+    {
+        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(model.Id);
+
+        if (proyecto == null) return NotFound();
+
+        proyecto.Eliminar(GetCurrentUser());
+        _dbContext.Proyectos.Update(proyecto);
+        int changes = await _dbContext.SaveChangesAsync();
+
+        if (changes > 0) return RedirectToAction(nameof(Proyectos));
+
+        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(Proyecto)));
+        return View(model);
+    }
+
+    #endregion
 }

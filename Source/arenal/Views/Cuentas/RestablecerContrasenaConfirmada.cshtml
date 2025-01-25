@@ -1,27 +1,27 @@
 @{
-	ViewData["Title"] = "Restablecer contraseña";
+    ViewData["Title"] = "Restablecer contraseña";
 }
 
 <div class="row">
-	<div class="col-sm-12 col-md-4 offset-md-4">
-		<h4 class="text-center mt-2 mb-4 font-light">Restablecer contraseña</h4>
+    <div class="col-sm-12 col-md-4 offset-md-4">
+        <h4 class="text-center mt-2 mb-4 font-light">Restablecer contraseña</h4>
 
-		<div class="card">
-			<div class="card-body">
-				<div class="form-group">
-					<p class="text-justified">
-						El cambio de contraseña ha sido realizado correctamente.
-					</p>
-				</div>
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group">
+                    <p class="text-justified">
+                        El cambio de contraseña ha sido realizado correctamente.
+                    </p>
+                </div>
 
-				<div class="w-100 text-center">
-					@Html.ActionLink("Iniciar sesión", "IniciarSesion", "Cuentas", null, new
-					{
-						@class = "btn btn-sm btn-primary btn-block font-bold",
-						title = "Iniciar sesión"
-					})
-				</div>
-			</div>
-		</div>
-	</div>
+                <div class="w-100 text-center">
+                    @Html.ActionLink("Iniciar sesión", "IniciarSesion", "Cuentas", null, new
+                    {
+                        @class = "btn btn-sm btn-primary btn-block font-bold",
+                        title = "Iniciar sesión"
+                    })
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

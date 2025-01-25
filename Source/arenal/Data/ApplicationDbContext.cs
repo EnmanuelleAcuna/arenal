@@ -11,6 +11,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<TipoCliente> TiposCliente { get; set; }
     public virtual DbSet<Cliente> Clientes { get; set; }
     public virtual DbSet<Contrato> Contratos { get; set; }
+    public virtual DbSet<Proyecto> Proyectos { get; set; }
     public virtual DbSet<Area> Areas { get; set; }
     public virtual DbSet<Modalidad> Modalidades { get; set; }
     public virtual DbSet<Servicio> Servicios { get; set; }
@@ -39,6 +40,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<TipoCliente>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Cliente>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Contrato>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Proyecto>().HasQueryFilter(e => !e.IsDeleted);
 
         modelBuilder.Entity<Area>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Modalidad>().HasQueryFilter(e => !e.IsDeleted);

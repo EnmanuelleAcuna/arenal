@@ -177,7 +177,7 @@ public class CuentasController : BaseController
     public ActionResult RestablecerContrasenaConfirmada() => View();
 
     [HttpGet]
-    public ActionResult ListarUsuarios()
+    public ActionResult Usuarios()
     {
         var listaUsuarios = _userManager.Users.ToList();
         var modelo = listaUsuarios.Select(u => new UsuarioViewModel(u)).ToList();
@@ -206,7 +206,7 @@ public class CuentasController : BaseController
                 ? await _userManager.AddToRolesAsync(usuario, rolesSeleccionados)
                 : IdentityResult.Failed();
 
-            if (usuarioCreado.Succeeded && rolesAsignados.Succeeded) return RedirectToAction(nameof(ListarUsuarios));
+            if (usuarioCreado.Succeeded && rolesAsignados.Succeeded) return RedirectToAction(nameof(Usuarios));
 
             AddErrors(usuarioCreado);
             AddErrors(rolesAsignados);
@@ -250,7 +250,7 @@ public class CuentasController : BaseController
 
             if (usuarioActualizado.Succeeded && rolesActualizados.Succeeded)
             {
-                return RedirectToAction(nameof(ListarUsuarios));
+                return RedirectToAction(nameof(Usuarios));
             }
             else
             {
@@ -289,7 +289,7 @@ public class CuentasController : BaseController
 
         IdentityResult usuarioEliminado = await _userManager.DeleteAsync(usuario);
 
-        if (usuarioEliminado.Succeeded) return RedirectToAction(nameof(ListarUsuarios));
+        if (usuarioEliminado.Succeeded) return RedirectToAction(nameof(Usuarios));
 
         // Si se llega a este punto, hubo un error
         AddErrors(usuarioEliminado);
@@ -300,7 +300,7 @@ public class CuentasController : BaseController
     }
 
     [HttpGet]
-    public IActionResult ListarRoles()
+    public IActionResult Roles()
     {
         IList<ApplicationRole> listaRoles = _roleManager.Roles.ToList();
         IList<InicioRolesViewModel> modelo = listaRoles.Select(x => new InicioRolesViewModel(x)).ToList();
@@ -319,7 +319,7 @@ public class CuentasController : BaseController
             ApplicationRole rol = modelo.Entidad();
             IdentityResult rolCreado = await _roleManager.CreateAsync(rol);
 
-            if (rolCreado.Succeeded) return RedirectToAction(nameof(ListarRoles));
+            if (rolCreado.Succeeded) return RedirectToAction(nameof(Roles));
 
             AddErrors(rolCreado);
         }
@@ -353,7 +353,7 @@ public class CuentasController : BaseController
 
             IdentityResult rolActualizado = await _roleManager.UpdateAsync(rol);
 
-            if (rolActualizado.Succeeded) return RedirectToAction(nameof(ListarRoles));
+            if (rolActualizado.Succeeded) return RedirectToAction(nameof(Roles));
 
             AddErrors(rolActualizado);
         }
@@ -384,7 +384,7 @@ public class CuentasController : BaseController
 
         IdentityResult rolEliminado = await _roleManager.DeleteAsync(rol);
 
-        if (rolEliminado.Succeeded) return RedirectToAction(nameof(ListarRoles));
+        if (rolEliminado.Succeeded) return RedirectToAction(nameof(Roles));
 
         AddErrors(rolEliminado);
 

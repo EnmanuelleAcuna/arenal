@@ -39,11 +39,11 @@
                         <table class="table table-hover table-sm text-nowrap">
                             <thead>
                             <tr>
-                                <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Identificacion)</th>
-                                <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Nombre)</th>
+                                <th>@Html.DisplayNameFor(m => m.Identificacion)</th>
+                                <th>@Html.DisplayNameFor(m => m.Nombre)</th>
                                 <th>Tipo de Cliente</th>
-                                <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Direccion)</th>
-                                <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Descripcion)</th>
+                                <th>@Html.DisplayNameFor(m => m.Direccion)</th>
+                                <th>@Html.DisplayNameFor(m => m.Descripcion)</th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -79,54 +79,8 @@
     </div>
 </div>
 
-<partial name="_DetalleCliente"/>
-
 @section Scripts {
     <script type="text/javascript">
-		$('#ModalDetalle').on('show.bs.modal', function (event)
-		{
-			var button = $(event.relatedTarget); // Button that triggered the modal
-			var IdTipoEjercicio = button.data('idtipoejercicio'); // Extract info from data-* attributes
-
-			$("#ModalDetalle").find('.modal-title .nombre').text("Cargando...");
-
-			// Initiate an AJAX request here(and then do the updating in a callback).
-			$.ajax({
-				url: '@Url.Action("DetalleTipoEjercicio")',
-				data: { Id: IdTipoEjercicio },
-				dataType: "json",
-				type: 'GET',
-				success: handleData,
-				error: handleError
-			});
-		});
-
-		function handleData(data)
-		{
-			console.log(data);
-
-			// Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-			var modal = $("#ModalDetalle");
-			modal.find('.modal-body .codigo').text(data.codigo);
-			modal.find('.modal-title .nombre').text(data.nombre);
-			modal.find('.modal-body .estado').text(data.estado);
-			modal.find('.modal-body .creado-por').text(data.creadoPor);
-			modal.find('.modal-body .creado-el').text(data.creadoEl);
-			modal.find('.modal-body .modificado-por').text(data.editadoPor);
-			modal.find('.modal-body .modificado-el').text(data.editadoEl);
-		}
-
-		function handleError()
-		{
-			// Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-			var modal = $("#ModalDetalle");
-			modal.find('.modal-body .codigo').text('N/A');
-			modal.find('.modal-title .nombre').text("Error al obtener la información");
-			modal.find('.modal-body .estado').text('N/A');
-			modal.find('.modal-body .creado-por').text('N/A');
-			modal.find('.modal-body .creado-el').text('N/A');
-			modal.find('.modal-body .modificado-por').text('N/A');
-			modal.find('.modal-body .modificado-el').text('N/A');
-		}
+		
 	</script>
 }

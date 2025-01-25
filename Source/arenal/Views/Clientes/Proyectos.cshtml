@@ -1,4 +1,6 @@
-﻿@{
+﻿@model IEnumerable<Proyecto>
+
+@{
     ViewBag.Title = "Proyectos";
 }
 
@@ -25,263 +27,61 @@
 </div>
 
 <div class="container-fluid">
-<div class="row">
-<div class="col-12">
-<div class="card shadow-sm">
-<div class="card-body">
-    <a asp-action="AgregarTipoEjercicio" class="btn btn-sm btn-secondary">Agregar proyecto</a>
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <a asp-action="AgregarProyecto" class="btn btn-sm btn-secondary">Agregar proyecto</a>
 
-    <hr/>
+                    <hr/>
 
-    <div class="table-responsive">
-        <table class="table table-hover table-sm text-nowrap">
-            <thead>
-            <tr>
-                <th>Nombre de proyecto</th>
-                <th>Fecha inicio</th>
-                <th>Fecha fin</th>
-                <th>Area</th>
-                <th>Cliente</th>
-                <th>Recursos</th>
-                <th>Servicios</th>
-                <th>Acciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>Servicio de contabilidad</td>
-                <td>01-01-2020</td>
-                <td>20-10-2024</td>
-                <td>Contabilidad</td>
-                <td>Optica Optics</td>
-                <td>2</td>
-                <td>1</td>
-                <td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                        <button id="BtnDetalle" class="btn btn-sm btn-light text-primary" data-toggle="modal" data-target="#ModalDetalle"
-                                data-idtipoejercicio="1">
-                            Detalle
-                        </button>
-                        <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarTipoEjercicio"
-                           asp-route-id="1">
-                            Modificar
-                        </a>
-                        <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarTipoEjercicio"
-                           asp-route-id="1">
-                            Eliminar
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Servicio financiero contable</td>
-                <td>01-01-2021</td>
-                <td>20-10-2025</td>
-                <td>Finanzas</td>
-                <td>The LCF Group Costa Rica</td>
-                <td>5</td>
-                <td>2</td>
-                <td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                        <button id="BtnDetalle" class="btn btn-sm btn-light text-primary" data-toggle="modal" data-target="#ModalDetalle"
-                                data-idtipoejercicio="1">
-                            Detalle
-                        </button>
-                        <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarTipoEjercicio"
-                           asp-route-id="1">
-                            Modificar
-                        </a>
-                        <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarTipoEjercicio"
-                           asp-route-id="1">
-                            Eliminar
-                        </a>
-                    </div>
-                </td>
-            </tr>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>@Html.DisplayNameFor(m => m.Nombre)</th>
+                                <th>Inicio</th>
+                                <th>Finalización</th>
+                                <th>Área</th>
+                                <th>Cliente</th>
+                                <th>Contrato</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
 
-            <tr>
-                <td>Gestión de planilla</td>
-                <td>15-05-2022</td>
-                <td>30-12-2026</td>
-                <td>Tecnología</td>
-                <td>Banco Nacional</td>
-                <td>8</td>
-                <td>3</td>
-                <td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                        <button id="BtnDetalle" class="btn btn-sm btn-light text-primary" data-toggle="modal" data-target="#ModalDetalle"
-                                data-idtipoejercicio="2">
-                            Detalle
-                        </button>
-                        <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarTipoEjercicio"
-                           asp-route-id="2">
-                            Modificar
-                        </a>
-                        <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarTipoEjercicio"
-                           asp-route-id="2">
-                            Eliminar
-                        </a>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Nombre</td>
+                                    <td>@item.FechaInicio.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.FechaFin?.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.Area.Nombre</td>
+                                    <td>@item.Cliente.Nombre</td>
+                                    <td>@item.Contrato.Identificacion</td>
+                                    <td class="text-right">
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                            <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarProyecto" asp-route-id="@item.Id">
+                                                Modificar
+                                            </a>
+                                            <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarProyecto" asp-route-id="@item.Id">
+                                                Eliminar
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
                     </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Gestión de proyectos internos</td>
-                <td>01-04-2023</td>
-                <td>01-04-2027</td>
-                <td>Producción</td>
-                <td>Cooperativa Dos Pinos</td>
-                <td>10</td>
-                <td>4</td>
-                <td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                        <button id="BtnDetalle" class="btn btn-sm btn-light text-primary" data-toggle="modal" data-target="#ModalDetalle"
-                                data-idtipoejercicio="3">
-                            Detalle
-                        </button>
-                        <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarTipoEjercicio"
-                           asp-route-id="3">
-                            Modificar
-                        </a>
-                        <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarTipoEjercicio"
-                           asp-route-id="3">
-                            Eliminar
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Contabilidad mensual</td>
-                <td>10-01-2020</td>
-                <td>10-01-2025</td>
-                <td>Contable</td>
-                <td>ICE</td>
-                <td>7</td>
-                <td>5</td>
-                <td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                        <button id="BtnDetalle" class="btn btn-sm btn-light text-primary" data-toggle="modal" data-target="#ModalDetalle"
-                                data-idtipoejercicio="4">
-                            Detalle
-                        </button>
-                        <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarTipoEjercicio"
-                           asp-route-id="4">
-                            Modificar
-                        </a>
-                        <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarTipoEjercicio"
-                           asp-route-id="4">
-                            Eliminar
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Servicio Integral Empresarial</td>
-                <td>05-03-2023</td>
-                <td>05-03-2028</td>
-                <td>Seguros</td>
-                <td>INS</td>
-                <td>12</td>
-                <td>6</td>
-                <td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                        <button id="BtnDetalle" class="btn btn-sm btn-light text-primary" data-toggle="modal" data-target="#ModalDetalle"
-                                data-idtipoejercicio="5">
-                            Detalle
-                        </button>
-                        <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarTipoEjercicio"
-                           asp-route-id="5">
-                            Modificar
-                        </a>
-                        <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarTipoEjercicio"
-                           asp-route-id="5">
-                            Eliminar
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Gestión de Créditos</td>
-                <td>01-06-2021</td>
-                <td>01-06-2026</td>
-                <td>Finanzas</td>
-                <td>Banco Promerica</td>
-                <td>9</td>
-                <td>7</td>
-                <td>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                        <button id="BtnDetalle" class="btn btn-sm btn-light text-primary" data-toggle="modal" data-target="#ModalDetalle"
-                                data-idtipoejercicio="6">
-                            Detalle
-                        </button>
-                        <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarTipoEjercicio"
-                           asp-route-id="6">
-                            Modificar
-                        </a>
-                        <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarTipoEjercicio"
-                           asp-route-id="6">
-                            Eliminar
-                        </a>
-                    </div>
-                </td>
-            </tr>
-
-            </tbody>
-        </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-</div>
-</div>
-</div>
-</div>
-
-@* <partial name="_DetalleTipoEjercicio" /> *@
 
 @section Scripts {
     <script type="text/javascript">
-		$('#ModalDetalle').on('show.bs.modal', function (event)
-		{
-			var button = $(event.relatedTarget); // Button that triggered the modal
-			var IdTipoEjercicio = button.data('idtipoejercicio'); // Extract info from data-* attributes
-
-			$("#ModalDetalle").find('.modal-title .nombre').text("Cargando...");
-
-			// Initiate an AJAX request here(and then do the updating in a callback).
-			$.ajax({
-				url: '@Url.Action("DetalleTipoEjercicio")',
-				data: { Id: IdTipoEjercicio },
-				dataType: "json",
-				type: 'GET',
-				success: handleData,
-				error: handleError
-			});
-		});
-
-		function handleData(data)
-		{
-			console.log(data);
-
-			// Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-			var modal = $("#ModalDetalle");
-			modal.find('.modal-body .codigo').text(data.codigo);
-			modal.find('.modal-title .nombre').text(data.nombre);
-			modal.find('.modal-body .estado').text(data.estado);
-			modal.find('.modal-body .creado-por').text(data.creadoPor);
-			modal.find('.modal-body .creado-el').text(data.creadoEl);
-			modal.find('.modal-body .modificado-por').text(data.editadoPor);
-			modal.find('.modal-body .modificado-el').text(data.editadoEl);
-		}
-
-		function handleError()
-		{
-			// Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
-			var modal = $("#ModalDetalle");
-			modal.find('.modal-body .codigo').text('N/A');
-			modal.find('.modal-title .nombre').text("Error al obtener la información");
-			modal.find('.modal-body .estado').text('N/A');
-			modal.find('.modal-body .creado-por').text('N/A');
-			modal.find('.modal-body .creado-el').text('N/A');
-			modal.find('.modal-body .modificado-por').text('N/A');
-			modal.find('.modal-body .modificado-el').text('N/A');
-		}
+		
 	</script>
 }

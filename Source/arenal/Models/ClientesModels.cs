@@ -16,16 +16,15 @@ public class TipoCliente : Base
     {
         Id = id;
         Nombre = nombre;
-        
+
         Clientes = new List<Cliente>();
     }
 
-    [Key]
-    public Guid Id { get; set; }
+    [Key] public Guid Id { get; set; }
 
     [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
-    
+
     public ICollection<Cliente> Clientes { get; set; }
 
     public void Actualizar(TipoCliente tipoCliente, string actualizadoPor)
@@ -44,7 +43,8 @@ public class Cliente : Base
     {
     }
 
-    public Cliente(Guid id, string identificacion, string nombre, string direccion, string descripcion, TipoCliente tipoCliente) : base()
+    public Cliente(Guid id, string identificacion, string nombre, string direccion, string descripcion,
+        TipoCliente tipoCliente) : base()
     {
         Id = id;
         Identificacion = identificacion;
@@ -56,7 +56,8 @@ public class Cliente : Base
         TipoCliente = tipoCliente;
     }
 
-    public Cliente(Guid id, string identificacion, string nombre, string direccion, string descripcion, Guid idTipoCliente) : base()
+    public Cliente(Guid id, string identificacion, string nombre, string direccion, string descripcion,
+        Guid idTipoCliente) : base()
     {
         Id = id;
         Identificacion = identificacion;
@@ -67,23 +68,21 @@ public class Cliente : Base
         IdTipoCliente = idTipoCliente;
     }
 
-    [Key]
-    public Guid Id { get; set; }
-    
+    [Key] public Guid Id { get; set; }
+
     [StringLength(100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
     public string Identificacion { get; set; }
-    
+
     [StringLength(250, ErrorMessage = "El nombre debe tener máximo 250 caracteres.")]
     public string Nombre { get; set; }
-    
+
     [StringLength(1000, ErrorMessage = "La dirección debe tener máximo 1000 caracteres.")]
     public string Direccion { get; set; }
-    
+
     [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
-    [ForeignKey(nameof(TipoCliente))]
-    public Guid IdTipoCliente { get; set; }
+    [ForeignKey(nameof(TipoCliente))] public Guid IdTipoCliente { get; set; }
     public TipoCliente TipoCliente { get; set; }
 
     public void Actualizar(Cliente cliente, string actualizadoPor)
@@ -95,7 +94,7 @@ public class Cliente : Base
         IdTipoCliente = cliente.IdTipoCliente;
         RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
     }
-    
+
     public override string ToString() => JsonSerializer.Serialize(this);
 }
 
@@ -111,38 +110,37 @@ public class Contrato : Base
         Id = id;
         Identificacion = identificacion;
         FechaInicio = fechaInicio;
-        
+
         IdCliente = idCliente;
+        IdArea = idArea;
     }
 
-    public Contrato(Guid id,  string identificacion, DateTime fechaInicio, Cliente cliente, Area area) : base()
+    public Contrato(Guid id, string identificacion, DateTime fechaInicio, Cliente cliente, Area area) : base()
     {
         Id = id;
         Identificacion = identificacion;
         FechaInicio = fechaInicio;
-        
+
         IdCliente = cliente.Id;
         Cliente = cliente;
-        
+
         IdArea = area.Id;
         Area = area;
     }
 
     public Guid Id { get; set; }
-    
+
     [StringLength(100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
     public string Identificacion { get; set; }
-    
+
     public DateTime FechaInicio { get; set; }
-    
-    [ForeignKey(nameof(Cliente))]
-    public Guid IdCliente { get; set; }
+
+    [ForeignKey(nameof(Cliente))] public Guid IdCliente { get; set; }
     public Cliente Cliente { get; set; }
-    
-    [ForeignKey(nameof(Area))]
-    public Guid IdArea { get; set; }
+
+    [ForeignKey(nameof(Area))] public Guid IdArea { get; set; }
     public Area Area { get; set; }
-    
+
     public void Actualizar(Contrato contrato, string actualizadoPor)
     {
         Identificacion = contrato.Identificacion;
@@ -151,6 +149,77 @@ public class Contrato : Base
         IdArea = contrato.IdArea;
         RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
     }
+
+    public override string ToString() => JsonSerializer.Serialize(this);
+}
+
+[Table("Proyectos")]
+public class Proyecto : Base
+{
+    public Proyecto() : base()
+    {
+    }
+
+    public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, Guid idCliente, Guid idArea,
+        Guid idContrato) : base()
+    {
+        Id = id;
+        Nombre = nombre;
+        FechaInicio = fechaInicio;
+        FechaFin = fechaFin;
+
+        IdCliente = idCliente;
+        IdArea = idArea;
+        IdContrato = idContrato;
+    }
+
+    public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, Cliente cliente, Area area, Contrato contrato) : base()
+    {
+        Id = id;
+        Nombre = nombre;
+        FechaInicio = fechaInicio;
+        FechaFin = fechaFin;
+
+        IdCliente = cliente.Id;
+        Cliente = cliente;
+
+        IdArea = area.Id;
+        Area = area;
+
+        IdContrato = contrato.Id;
+        Contrato = contrato;
+    }
+
+    public Guid Id { get; set; }
+
+    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    public string Nombre { get; set; }
+
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+    public DateTime FechaInicio { get; set; }
     
+    public DateTime? FechaFin { get; set; }
+
+    [ForeignKey(nameof(Cliente))] public Guid IdCliente { get; set; }
+    public Cliente Cliente { get; set; }
+
+    [ForeignKey(nameof(Area))] public Guid IdArea { get; set; }
+    public Area Area { get; set; }
+
+    [ForeignKey(nameof(Contrato))] public Guid IdContrato { get; set; }
+    public Contrato Contrato { get; set; }
+
+    public void Actualizar(Proyecto proyecto, string actualizadoPor)
+    {
+        Nombre = proyecto.Nombre;
+        FechaInicio = proyecto.FechaInicio;
+        FechaFin = proyecto.FechaFin;
+        IdCliente = proyecto.IdCliente;
+        IdArea = proyecto.IdArea;
+        IdContrato = proyecto.IdContrato;
+        RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
+    }
+
     public override string ToString() => JsonSerializer.Serialize(this);
 }
