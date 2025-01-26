@@ -196,9 +196,9 @@ public class Proyecto : Base
     public string Nombre { get; set; }
 
     [DataType(DataType.Date)]
-    [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
     public DateTime FechaInicio { get; set; }
     
+    [DataType(DataType.Date)]
     public DateTime? FechaFin { get; set; }
 
     [ForeignKey(nameof(Cliente))] public Guid IdCliente { get; set; }
