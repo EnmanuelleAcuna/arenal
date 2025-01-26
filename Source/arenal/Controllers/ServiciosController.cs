@@ -13,13 +13,11 @@ namespace arenal.Controllers;
 [Authorize]
 public class ServiciosController : BaseController
 {
-    // private readonly IBaseCore<Servicios> _gruposMusculares;
     private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<ServiciosController> _logger;
 
     public ServiciosController(
         ApplicationDbContext dbContext,
-        // IBaseCore<Servicios> gruposMusculares,
         ApplicationUserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
         IConfiguration configuration,
@@ -28,7 +26,6 @@ public class ServiciosController : BaseController
         IWebHostEnvironment environment)
         : base(userManager, roleManager, configuration, contextAccesor, environment)
     {
-        // _gruposMusculares = gruposMusculares;
         _dbContext = dbContext;
         _logger = logger;
     }
@@ -40,6 +37,16 @@ public class ServiciosController : BaseController
     {
         List<Area> areas = await _dbContext.Areas.ToListAsync();
         return View(areas);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DetalleArea(Guid id)
+    {
+        Area model = await _dbContext.Areas.Include(a => a.Servicios).FirstOrDefaultAsync(a => a.Id == id);
+
+        if (model == null) return NotFound();
+
+        return View(model);
     }
 
     [HttpGet]
@@ -229,6 +236,8 @@ public class ServiciosController : BaseController
 
     #endregion
 
+    #region Servicios
+
     [HttpGet]
     public async Task<IActionResult> Servicios()
     {
@@ -263,7 +272,7 @@ public class ServiciosController : BaseController
 
             IEnumerable<Modalidad> modalidades = await _dbContext.Modalidades.ToListAsync();
             ViewBag.Modalidades = modalidades.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-            
+
             return View(modelo);
         }
 
@@ -281,9 +290,9 @@ public class ServiciosController : BaseController
     public async Task<IActionResult> EditarServicio(Guid id)
     {
         Servicio servicio = await _dbContext.Servicios.FindAsync(id);
-        
+
         if (servicio == null) return NotFound();
-        
+
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
@@ -301,27 +310,27 @@ public class ServiciosController : BaseController
         {
             ModelState.AddModelError("",
                 string.Concat(Common.MensajeErrorActualizar(nameof(Servicio)), GetModelStateErrors()));
-            
+
             IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
             ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
             IEnumerable<Modalidad> modalidades = await _dbContext.Modalidades.ToListAsync();
             ViewBag.Modalidades = modalidades.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-            
+
             return View(modelo);
         }
-    
+
         Servicio servicio = await _dbContext.Servicios.FindAsync(modelo.Id);
-        
+
         if (servicio == null) return NotFound();
-        
+
         servicio.Actualizar(modelo, GetCurrentUser());
         _dbContext.Servicios.Update(servicio);
         int changes = await _dbContext.SaveChangesAsync();
-        
+
         if (changes > 0) return RedirectToAction(nameof(Servicios));
         ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(Servicio)));
-        
+
         return View(modelo);
     }
 
@@ -329,9 +338,9 @@ public class ServiciosController : BaseController
     public async Task<IActionResult> EliminarServicio(Guid id)
     {
         Servicio servicio = await _dbContext.Servicios.FindAsync(id);
-        
+
         if (servicio == null) return NotFound();
-        
+
         return View(servicio);
     }
 
@@ -339,11 +348,11 @@ public class ServiciosController : BaseController
     public async Task<IActionResult> EliminarServicio(Servicio modelo)
     {
         Servicio servicio = await _dbContext.Servicios.FindAsync(modelo.Id);
-        
+
         if (servicio == null) return NotFound();
-        
+
         servicio.Eliminar(GetCurrentUser());
-        
+
         _dbContext.Servicios.Update(servicio);
         int changes = await _dbContext.SaveChangesAsync();
 
@@ -352,4 +361,6 @@ public class ServiciosController : BaseController
         ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(Servicio)));
         return View(modelo);
     }
+
+    #endregion
 }
