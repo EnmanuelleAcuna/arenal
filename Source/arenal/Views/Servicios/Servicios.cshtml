@@ -39,9 +39,9 @@
                         <table class="table table-hover table-sm text-nowrap">
                             <thead>
                             <tr>
-                                <th>@Html.DisplayNameFor(m => m.Area)</th>
                                 <th>@Html.DisplayNameFor(m => m.Nombre)</th>
                                 <th>@Html.DisplayNameFor(m => m.Descripcion)</th>
+                                <th>@Html.DisplayNameFor(m => m.Area)</th>
                                 <th>@Html.DisplayNameFor(m => m.Modalidad)</th>
                                 <th></th>
                             </tr>
@@ -51,12 +51,15 @@
                             @foreach (var item in Model)
                             {
                                 <tr>
-                                    <td>@item.Area.Nombre</td>
                                     <td>@item.Nombre</td>
-                                    <td>@item.Descripcion</td>
+                                    <td>@item.TruncatedDescripcion</td>
+                                    <td>@item.Area.Nombre</td>
                                     <td>@item.Modalidad.Nombre</td>
                                     <td class="text-right">
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                            <a class="btn btn-sm btn-light text-primary" asp-controller="Servicios" asp-action="DetalleServicio" asp-route-id="@item.Id">
+                                                Detalle
+                                            </a>
                                             <a class="btn btn-sm btn-light" asp-controller="Servicios" asp-action="EditarServicio" asp-route-id="@item.Id">
                                                 Modificar
                                             </a>

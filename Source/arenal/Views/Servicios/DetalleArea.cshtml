@@ -7,7 +7,7 @@
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">Áreas</h6>
+            <h6 class="page-title">Área</h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -68,6 +68,62 @@
                         </div>
                     </div>
 
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="font-weight-bold">Contratos</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm text-nowrap">
+                                    <thead>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(m => m.Contratos.FirstOrDefault().Identificacion)</th>
+                                        <th>Cliente</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    @foreach (var contrato in Model.Contratos)
+                                    {
+                                        <tr>
+                                            <td>@contrato.Identificacion</td>
+                                            <td>@contrato.Cliente.Nombre</td>
+                                        </tr>
+                                    }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="font-weight-bold">Proyectos</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm text-nowrap">
+                                    <thead>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(m => m.Proyectos.FirstOrDefault().Nombre)</th>
+                                        <th>Contrato</th>
+                                        <th>Cliente</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    @foreach (var proyecto in Model.Proyectos)
+                                    {
+                                        <tr>
+                                            <td>@proyecto.Nombre</td>
+                                            <td>@proyecto.Contrato.Identificacion</td>
+                                            <td>@proyecto.Contrato.Cliente.Nombre</td>
+                                        </tr>
+                                    }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-12">
                             @Html.ActionLink("Regresar", "Areas", null, null, new { @class = "btn btn-sm btn-primary" })
@@ -78,6 +134,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-}

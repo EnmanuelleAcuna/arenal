@@ -46,26 +46,14 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-12 col-md-6">
+                            <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.Nombre)
                                     @Html.TextBoxFor(model => model.Nombre, "", new { @class = "form-control form-control-sm", placeholder = "" })
                                     @Html.ValidationMessageFor(model => model.Nombre, "", new { @class = "text-danger" })
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="form-group">
-                                    @Html.LabelFor(model => model.Descripcion)
-                                    @Html.TextAreaFor(model => model.Descripcion, new { @class = "form-control form-control-sm", placeholder = "", rows = 10, cols = 40 })
-                                    @Html.ValidationMessageFor(model => model.Descripcion, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label>Área</label>
@@ -79,6 +67,16 @@
                                     <label>Modalidad</label>
                                     @Html.DropDownListFor(model => model.IdModalidad, new List<SelectListItem>(ViewBag.Modalidades), "Seleccione un área", new { @class = "form-control form-control-sm" })
                                     @Html.ValidationMessageFor(model => model.IdModalidad)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Descripcion)
+                                    @Html.TextAreaFor(model => model.Descripcion, new { @class = "form-control form-control-sm", placeholder = "", rows = 5, cols = 40 })
+                                    @Html.ValidationMessageFor(model => model.Descripcion, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                         </div>

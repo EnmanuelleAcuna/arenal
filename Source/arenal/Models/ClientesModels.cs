@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
@@ -12,10 +13,11 @@ public class TipoCliente : Base
         Clientes = new List<Cliente>();
     }
 
-    public TipoCliente(Guid id, string nombre) : base()
+    public TipoCliente(Guid id, string nombre, string descripcion) : base()
     {
         Id = id;
         Nombre = nombre;
+        Descripcion = descripcion;
 
         Clientes = new List<Cliente>();
     }
@@ -25,11 +27,20 @@ public class TipoCliente : Base
     [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
+    [DisplayName("Descripción")]
+    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    public string Descripcion { get; set; }
+
+    [NotMapped]
+    public string TruncatedDescripcion =>
+        Descripcion?.Length > 50 ? Descripcion.Substring(0, 50) + "..." : Descripcion;
+
     public ICollection<Cliente> Clientes { get; set; }
 
     public void Actualizar(TipoCliente tipoCliente, string actualizadoPor)
     {
         Nombre = tipoCliente.Nombre;
+        Descripcion = tipoCliente.Descripcion;
         RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
     }
 
@@ -81,6 +92,10 @@ public class Cliente : Base
 
     [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
+
+    [NotMapped]
+    public string TruncatedDescripcion =>
+        Descripcion?.Length > 50 ? Descripcion.Substring(0, 50) + "..." : Descripcion;
 
     [ForeignKey(nameof(TipoCliente))] public Guid IdTipoCliente { get; set; }
     public TipoCliente TipoCliente { get; set; }
@@ -160,7 +175,7 @@ public class Proyecto : Base
     {
     }
 
-    public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, Guid idCliente, Guid idArea,
+    public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, Guid idArea,
         Guid idContrato) : base()
     {
         Id = id;
@@ -168,20 +183,17 @@ public class Proyecto : Base
         FechaInicio = fechaInicio;
         FechaFin = fechaFin;
 
-        IdCliente = idCliente;
         IdArea = idArea;
         IdContrato = idContrato;
     }
 
-    public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, Cliente cliente, Area area, Contrato contrato) : base()
+    public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, Area area,
+        Contrato contrato) : base()
     {
         Id = id;
         Nombre = nombre;
         FechaInicio = fechaInicio;
         FechaFin = fechaFin;
-
-        IdCliente = cliente.Id;
-        Cliente = cliente;
 
         IdArea = area.Id;
         Area = area;
@@ -195,14 +207,9 @@ public class Proyecto : Base
     [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
-    [DataType(DataType.Date)]
-    public DateTime FechaInicio { get; set; }
-    
-    [DataType(DataType.Date)]
-    public DateTime? FechaFin { get; set; }
+    [DataType(DataType.Date)] public DateTime FechaInicio { get; set; }
 
-    [ForeignKey(nameof(Cliente))] public Guid IdCliente { get; set; }
-    public Cliente Cliente { get; set; }
+    [DataType(DataType.Date)] public DateTime? FechaFin { get; set; }
 
     [ForeignKey(nameof(Area))] public Guid IdArea { get; set; }
     public Area Area { get; set; }
@@ -215,7 +222,6 @@ public class Proyecto : Base
         Nombre = proyecto.Nombre;
         FechaInicio = proyecto.FechaInicio;
         FechaFin = proyecto.FechaFin;
-        IdCliente = proyecto.IdCliente;
         IdArea = proyecto.IdArea;
         IdContrato = proyecto.IdContrato;
         RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);

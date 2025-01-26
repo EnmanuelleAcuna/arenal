@@ -54,6 +54,13 @@
                                 </div>
                             </div>
 
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Descripcion)
+                                    <textarea asp-for="Descripcion" class="form-control" rows=5></textarea>
+                                </div>
+                            </div>
+
                             <div class="col-12">
                                 <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
                                 @Html.ActionLink("Regresar", "Modalidades", null, null, new { @class = "btn btn-sm btn-secondary" })

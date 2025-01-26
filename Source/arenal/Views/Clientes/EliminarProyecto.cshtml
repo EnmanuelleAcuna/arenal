@@ -38,7 +38,7 @@
                     {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.Id)
-                        @Html.HiddenFor(model => model.Cliente.Nombre)
+                        @Html.HiddenFor(model => model.Contrato.Cliente.Nombre)
                         @Html.HiddenFor(model => model.Contrato.Identificacion)
 
                         <div class="row">
@@ -50,7 +50,7 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <h6>
-                                    ¿Seguro que desea eliminar el proyecto <b>@Html.DisplayFor(model => model.Nombre)</b> del cliente: <b>@Html.DisplayFor(model => model.Cliente.Nombre)</b> y contrato <b>@Html.DisplayFor(model => model.Contrato.Identificacion)</b>?
+                                    ¿Seguro que desea eliminar el proyecto <b>@Html.DisplayFor(model => model.Nombre)</b> del cliente: <b>@Html.DisplayFor(model => model.Contrato.Cliente.Nombre)</b> y contrato <b>@Html.DisplayFor(model => model.Contrato.Identificacion)</b>?
                                 </h6>
                             </div>
 

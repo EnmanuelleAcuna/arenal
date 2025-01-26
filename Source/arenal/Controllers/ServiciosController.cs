@@ -42,7 +42,14 @@ public class ServiciosController : BaseController
     [HttpGet]
     public async Task<IActionResult> DetalleArea(Guid id)
     {
-        Area model = await _dbContext.Areas.Include(a => a.Servicios).FirstOrDefaultAsync(a => a.Id == id);
+        Area model = await _dbContext.Areas
+            .Include(a => a.Servicios)
+            .Include(a => a.Contratos)
+            .ThenInclude(c => c.Cliente)
+            .Include(a => a.Proyectos)
+            .ThenInclude(p => p.Contrato)
+            .ThenInclude(p => p.Cliente)
+            .FirstOrDefaultAsync(a => a.Id == id);
 
         if (model == null) return NotFound();
 
@@ -148,6 +155,18 @@ public class ServiciosController : BaseController
     }
 
     [HttpGet]
+    public async Task<IActionResult> DetalleModalidad(Guid id)
+    {
+        Modalidad model = await _dbContext.Modalidades
+            .Include(a => a.Servicios)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (model == null) return NotFound();
+
+        return View(model);
+    }
+
+    [HttpGet]
     public IActionResult AgregarModalidad() => View();
 
     [HttpPost]
@@ -246,6 +265,19 @@ public class ServiciosController : BaseController
         return View(model);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> DetalleServicio(Guid id)
+    {
+        Servicio model = await _dbContext.Servicios
+            .Include(s => s.Area)
+            .Include(s => s.Modalidad)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (model == null) return NotFound();
+
+        return View(model);
+    }
+    
     [HttpGet]
     public async Task<IActionResult> AgregarServicio()
     {

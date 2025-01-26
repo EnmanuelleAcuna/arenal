@@ -44,6 +44,18 @@ public class ClientesController : BaseController
         List<TipoCliente> model = await _dbContext.TiposCliente.ToListAsync();
         return View(model);
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> DetalleTipoCliente(Guid id)
+    {
+        TipoCliente model = await _dbContext.TiposCliente
+            .Include(tc => tc.Clientes)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (model == null) return NotFound();
+
+        return View(model);
+    }
 
     [HttpGet]
     public IActionResult AgregarTipoCliente() => View();
@@ -383,8 +395,12 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> Proyectos()
     {
-        IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos.Include(p => p.Cliente).Include(p => p.Contrato)
-            .Include(p => p.Area).ToListAsync();
+        IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos
+            .Include(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .Include(p => p.Area)
+            .ToListAsync();
+
         return View(proyectos);
     }
 
@@ -491,8 +507,10 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> EliminarProyecto(Guid id)
     {
-        Proyecto model = await _dbContext.Proyectos.Include(c => c.Cliente).Include(p => p.Contrato)
-            .Where(c => c.Id == id).FirstOrDefaultAsync();
+        Proyecto model = await _dbContext.Proyectos
+            .Include(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (model == null) return NotFound();
 
