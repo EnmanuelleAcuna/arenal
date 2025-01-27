@@ -40,6 +40,7 @@ CREATE TABLE Contratos
     IdCliente UNIQUEIDENTIFIER CONSTRAINT FK_Contratos_Clientes_IdCliente FOREIGN KEY REFERENCES Clientes (Id),
     IdArea UNIQUEIDENTIFIER CONSTRAINT FK_Contratos_Areas_IdArea FOREIGN KEY REFERENCES Areas (Id),
     FechaInicio DATETIME NOT NULL,
+    Descripcion NVARCHAR(2000) NULL,
     DateCreated DATETIME NOT NULL CONSTRAINT DF_Contratos_DateCreated DEFAULT GETDATE(),
 	CreatedBy NVARCHAR(100) NOT NULL,
 	DateUpdated DATETIME NULL,
@@ -51,6 +52,8 @@ CREATE TABLE Contratos
 
 SELECT * FROM Contratos;
 
+EXEC SP_HELP 'Contratos';
+
 CREATE TABLE Proyectos
 (
     Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Proyectos_Id PRIMARY KEY CLUSTERED,
@@ -59,6 +62,7 @@ CREATE TABLE Proyectos
     IdContrato UNIQUEIDENTIFIER CONSTRAINT FK_Proyectos_Contratos_IdContrato FOREIGN KEY REFERENCES Contratos (Id),
     FechaInicio DATETIME NOT NULL,
     FechaFin DATETIME NULL,
+    Descripcion NVARCHAR(2000) NULL,
     DateCreated DATETIME NOT NULL CONSTRAINT DF_Proyectos_DateCreated DEFAULT GETDATE(),
 	CreatedBy NVARCHAR(100) NOT NULL,
 	DateUpdated DATETIME NULL,

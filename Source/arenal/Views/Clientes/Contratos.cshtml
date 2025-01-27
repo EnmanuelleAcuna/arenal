@@ -43,6 +43,7 @@
                                 <th>Área</th>
                                 <th>Cliente</th>
                                 <th>Inicio</th>
+                                <th>@Html.DisplayNameFor(m => m.Descripcion)</th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -54,9 +55,13 @@
                                     <td>@item.Identificacion</td>
                                     <td>@item.Area.Nombre</td>
                                     <td>@item.Cliente.Nombre</td>
-                                    <td>@item.FechaInicio.ToString("dd-MM-yyyy")</td>
+                                    <td>@item.FechaInicio.ToString("yyyy-MM-dd")</td>
+                                    <td>@item.TruncatedDescripcion</td>
                                     <td class="text-right">
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                            <a class="btn btn-sm btn-light text-primary" asp-controller="Clientes" asp-action="DetalleContrato" asp-route-id="@item.Id">
+                                                Detalle
+                                            </a>
                                             <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarContrato" asp-route-id="@item.Id">
                                                 Modificar
                                             </a>

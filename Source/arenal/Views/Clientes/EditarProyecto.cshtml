@@ -46,7 +46,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-12 col-md-4">
+                            <div class="col-sm-12 col-md-8">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.Nombre)
                                     @Html.TextBoxFor(model => model.Nombre, "", new { @class = "form-control form-control-sm", placeholder = "" })
@@ -54,24 +54,6 @@
                                 </div>
                             </div>
 
-                            @* <div class="col-sm-12 col-md-4"> *@
-                            @*     <div class="form-group"> *@
-                            @*         <label>Cliente</label> *@
-                            @*         @Html.DropDownListFor(model => model.IdCliente, new List<SelectListItem>(ViewBag.Clientes), "Seleccione cliente", new { @class = "form-control form-control-sm" }) *@
-                            @*         @Html.ValidationMessageFor(model => model.IdCliente) *@
-                            @*     </div> *@
-                            @* </div> *@
-
-                            <div class="col-sm-12 col-md-4">
-                                <div class="form-group">
-                                    <label>Contrato</label>
-                                    @Html.DropDownListFor(model => model.IdContrato, new List<SelectListItem>(ViewBag.Contratos), "Seleccione contrato", new { @class = "form-control form-control-sm" })
-                                    @Html.ValidationMessageFor(model => model.IdContrato)
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label>Área</label>
@@ -79,7 +61,28 @@
                                     @Html.ValidationMessageFor(model => model.IdArea)
                                 </div>
                             </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>Contrato</label>
+                                    @Html.DropDownListFor(model => model.IdContrato, new List<SelectListItem>(ViewBag.Contratos), "Seleccione contrato", new { @class = "form-control form-control-sm" })
+                                    @Html.ValidationMessageFor(model => model.IdContrato)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Descripcion)
+                                    <textarea asp-for="Descripcion" class="form-control"></textarea>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div class="row">
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label for="FechaInicio">Fecha de inicio</label>
@@ -90,7 +93,7 @@
 
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
-                                    <label for="FechaFin">Fecha de fin</label>
+                                    <label for="FechaFin">Fecha de finalización</label>
                                     <input asp-for="FechaFin" class="form-control form-control-sm"/>
                                 </div>
                             </div>

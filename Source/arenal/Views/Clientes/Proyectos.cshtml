@@ -40,8 +40,6 @@
                             <thead>
                             <tr>
                                 <th>@Html.DisplayNameFor(m => m.Nombre)</th>
-                                <th>Inicio</th>
-                                <th>Finalización</th>
                                 <th>Área</th>
                                 <th>Cliente</th>
                                 <th>Contrato</th>
@@ -54,13 +52,14 @@
                             {
                                 <tr>
                                     <td>@item.Nombre</td>
-                                    <td>@item.FechaInicio.ToString("dd/MM/yyyy")</td>
-                                    <td>@item.FechaFin?.ToString("dd/MM/yyyy")</td>
                                     <td>@item.Area.Nombre</td>
                                     <td>@item.Contrato.Cliente.Nombre</td>
                                     <td>@item.Contrato.Identificacion</td>
                                     <td class="text-right">
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                            <a class="btn btn-sm btn-light text-primary" asp-controller="Clientes" asp-action="DetalleProyecto" asp-route-id="@item.Id">
+                                                Detalle
+                                            </a>
                                             <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarProyecto" asp-route-id="@item.Id">
                                                 Modificar
                                             </a>

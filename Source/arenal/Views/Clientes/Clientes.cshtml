@@ -55,10 +55,13 @@
                                     <td>@item.Identificacion</td>
                                     <td>@item.Nombre</td>
                                     <td>@item.TipoCliente.Nombre</td>
-                                    <td>@item.Direccion</td>
-                                    <td>@item.Descripcion</td>
+                                    <td title="@item.Direccion">@item.TruncatedDireccion</td>
+                                    <td>@item.TruncatedDescripcion</td>
                                     <td class="text-right">
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                            <a class="btn btn-sm btn-light text-primary" asp-controller="Clientes" asp-action="DetalleCliente" asp-route-id="@item.Id">
+                                                Detalle
+                                            </a>
                                             <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarCliente" asp-route-id="@item.Id">
                                                 Modificar
                                             </a>

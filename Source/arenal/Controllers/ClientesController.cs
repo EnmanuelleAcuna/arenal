@@ -44,7 +44,7 @@ public class ClientesController : BaseController
         List<TipoCliente> model = await _dbContext.TiposCliente.ToListAsync();
         return View(model);
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> DetalleTipoCliente(Guid id)
     {
@@ -152,6 +152,20 @@ public class ClientesController : BaseController
     public async Task<IActionResult> Clientes()
     {
         IEnumerable<Cliente> model = await _dbContext.Clientes.Include(c => c.TipoCliente).ToListAsync();
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DetalleCliente(Guid id)
+    {
+        Cliente model = await _dbContext.Clientes
+            .Include(c => c.TipoCliente)
+            .Include(c => c.Contratos)
+            .ThenInclude(co => co.Area)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (model == null) return NotFound();
+
         return View(model);
     }
 
@@ -269,6 +283,21 @@ public class ClientesController : BaseController
         List<Contrato> contratos =
             await _dbContext.Contratos.Include(c => c.Cliente).Include(c => c.Area).ToListAsync();
         return View(contratos);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DetalleContrato(Guid id)
+    {
+        Contrato model = await _dbContext.Contratos
+            .Include(c => c.Area)
+            .Include(c => c.Cliente)
+            .Include(c => c.Proyectos)
+            .ThenInclude(p => p.Area)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (model == null) return NotFound();
+
+        return View(model);
     }
 
     [HttpGet]
@@ -405,13 +434,24 @@ public class ClientesController : BaseController
     }
 
     [HttpGet]
+    public async Task<IActionResult> DetalleProyecto(Guid id)
+    {
+        Proyecto model = await _dbContext.Proyectos
+            .Include(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .Include(p => p.Area)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (model == null) return NotFound();
+
+        return View(model);
+    }
+
+    [HttpGet]
     public async Task<IActionResult> AgregarProyecto()
     {
-        IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
-        ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-        IEnumerable<Contrato> contratos = await _dbContext.Contratos.ToListAsync();
-        ViewBag.Contratos = contratos.Select(tc => new SelectListItem(text: tc.Identificacion, tc.Id.ToString()));
+        IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
+        ViewBag.Contratos = contratos.Select(c => new SelectListItem(text: $"{c.Cliente.Nombre} - {c.Identificacion}", c.Id.ToString()));
 
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -428,11 +468,8 @@ public class ClientesController : BaseController
             ModelState.AddModelError("",
                 string.Concat(Common.MensajeErrorAgregar(nameof(Proyecto)), GetModelStateErrors()));
 
-            IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
-            ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            IEnumerable<Contrato> contratos = await _dbContext.Contratos.ToListAsync();
-            ViewBag.Contratos = contratos.Select(tc => new SelectListItem(text: tc.Identificacion, tc.Id.ToString()));
+            IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
+            ViewBag.Contratos = contratos.Select(c => new SelectListItem(text: $"{c.Cliente.Nombre} - {c.Identificacion}", c.Id.ToString()));
 
             IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
             ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -457,11 +494,8 @@ public class ClientesController : BaseController
 
         if (model == null) return NotFound();
 
-        IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
-        ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-        IEnumerable<Contrato> contratos = await _dbContext.Contratos.ToListAsync();
-        ViewBag.Contratos = contratos.Select(tc => new SelectListItem(text: tc.Identificacion, tc.Id.ToString()));
+        IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
+        ViewBag.Contratos = contratos.Select(c => new SelectListItem(text: $"{c.Cliente.Nombre} - {c.Identificacion}", c.Id.ToString()));
 
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -478,11 +512,8 @@ public class ClientesController : BaseController
             ModelState.AddModelError("",
                 string.Concat(Common.MensajeErrorActualizar(nameof(Proyecto)), GetModelStateErrors()));
 
-            IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
-            ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            IEnumerable<Contrato> contratos = await _dbContext.Contratos.ToListAsync();
-            ViewBag.Contratos = contratos.Select(tc => new SelectListItem(text: tc.Identificacion, tc.Id.ToString()));
+            IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
+            ViewBag.Contratos = contratos.Select(c => new SelectListItem(text: $"{c.Cliente.Nombre} - {c.Identificacion}", c.Id.ToString()));
 
             IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
             ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
