@@ -15,6 +15,8 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Area> Areas { get; set; }
     public virtual DbSet<Modalidad> Modalidades { get; set; }
     public virtual DbSet<Servicio> Servicios { get; set; }
+    public virtual DbSet<Asignacion> Asignaciones { get; set; }
+    public virtual DbSet<Sesion> Sesiones { get; set; }
 
     public ApplicationDbContext()
     {
@@ -45,5 +47,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Area>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Modalidad>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Servicio>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Asignacion>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Sesion>().HasQueryFilter(e => !e.IsDeleted);
     }
 }

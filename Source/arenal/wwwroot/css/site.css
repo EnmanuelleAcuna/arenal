@@ -2,39 +2,39 @@
 for details on configuring this project to bundle and minify static web assets. */
 
 body {
-	background-color: #f2f4f5;
+    background-color: #f2f4f5;
 }
 
 /* Set padding to keep content from hitting the edges */
 .body-content {
-	padding-left: 15px;
-	padding-right: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
 /* Provide sufficient contrast against white background */
 a {
-  color: #0366d6;
+    color: #0366d6;
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
 input,
 select,
 textarea {
-	resize: none;
+    resize: none;
 }
 
 .navbar {
-	border-bottom: 0.01rem solid lightsteelblue;
+    border-bottom: 0.01rem solid lightsteelblue;
 }
 
 .jumbotron,
 .card {
-	border: 0.01rem solid lightsteelblue;
+    border: 0.01rem solid lightsteelblue;
 }
 
 .btn-primary {
-  background-color: rgb(33, 50, 92) !important;
-  border: none;
+    background-color: rgb(33, 50, 92) !important;
+    border: none;
 }
 
 /* Sticky footer styles */
@@ -83,69 +83,73 @@ button.accept-policy {
 /* Custom styles */
 /* styles for validation helpers */
 .field-validation-error {
-  color: #b94a48;
+    color: #b94a48;
 }
 
 .field-validation-valid {
-  display: none;
+    display: none;
 }
 
 input.input-validation-error {
-  border: 1px solid #b94a48;
+    border: 1px solid #b94a48;
 }
 
 input[type="checkbox"].input-validation-error {
-  border: 0 none;
+    border: 0 none;
 }
 
 .validation-summary-errors {
-  color: #b94a48;
+    color: #b94a48;
 }
 
 .validation-summary-valid {
-  display: none;
+    display: none;
 }
 
 @-moz-document url-prefix() {
-  fieldset {
-      display: table-cell;
-  }
+    fieldset {
+        display: table-cell;
+    }
 }
 
 .img-thumbnail-sm {
-  height: 100px;
-  width: 100%;
-  align-items: center;
-  vertical-align: middle;
-  overflow: hidden;
+    height: 100px;
+    width: 100%;
+    align-items: center;
+    vertical-align: middle;
+    overflow: hidden;
 }
 
-  .img-thumbnail-sm img {
-      min-width: 100%;
-      /*background-repeat: no-repeat;
-      background-size: auto;*/
-  }
+.img-thumbnail-sm img {
+    min-width: 100%;
+    /*background-repeat: no-repeat;
+    background-size: auto;*/
+}
 
 .max-height-128px {
-  max-height: 128px !important;
+    max-height: 128px !important;
 }
 
 .max-height-96px {
-  max-height: 96px !important;
+    max-height: 96px !important;
 }
 
 .max-height-64px {
-  max-height: 64px !important;
+    max-height: 64px !important;
 }
 
 .max-height-28px {
-  max-height: 28px !important;
+    max-height: 28px !important;
 }
 
 .max-height-24px {
-  max-height: 24px !important;
+    max-height: 24px !important;
 }
 
 .breadcrumb {
     font-size: 0.875rem !important;
+}
+
+.text-sc {
+  color: rgb(33, 50, 92);
 }

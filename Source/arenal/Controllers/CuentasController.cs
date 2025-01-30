@@ -1,7 +1,9 @@
 using System.Globalization;
+using arenal.Data;
 using arenal.Domain;
 using arenal.Identity;
 using arenal.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -19,6 +21,8 @@ public class CuentasController : BaseController
     private readonly IEmailSender _emailSender;
     private readonly IConfiguration _configuration;
     private readonly ILogger<CuentasController> _logger;
+    
+    private readonly ApplicationDbContext _dbContext;
 
     public CuentasController(ApplicationUserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
@@ -27,7 +31,8 @@ public class CuentasController : BaseController
         IHttpContextAccessor contextAccesor,
         IEmailSender emailSender,
         ILogger<CuentasController> logger,
-        IWebHostEnvironment environment)
+        IWebHostEnvironment environment,
+        ApplicationDbContext dbContext)
         : base(userManager, roleManager, configuration, contextAccesor, environment)
     {
         _userManager = userManager;
@@ -36,6 +41,8 @@ public class CuentasController : BaseController
         _emailSender = emailSender;
         _configuration = configuration;
         _logger = logger;
+        
+        _dbContext = dbContext;
     }
 
     [HttpGet]
@@ -187,7 +194,15 @@ public class CuentasController : BaseController
     [HttpGet]
     public ActionResult AgregarUsuario()
     {
-        ViewBag.ListaRoles = CargarListaSeleccionRoles();
+        if (User.IsInRole("Administrador"))
+        {
+            ViewBag.ListaRoles = CargarListaSeleccionRoles();
+        }
+        else
+        {
+            ViewBag.ListaRoles = CargarListaSeleccionRoles();
+        }
+        
         return View();
     }
 
@@ -391,5 +406,32 @@ public class CuentasController : BaseController
         ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(ApplicationRole)));
 
         return View(modelo);
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> Colaboradores()
+    {
+        var usuariosColaboradores = await _userManager.GetUsersInRoleAsync("Colaborador");
+        var usuariosCoordinadores = await _userManager.GetUsersInRoleAsync("Coordinador");
+        
+        var usuarios = usuariosColaboradores.Union(usuariosCoordinadores).ToList();
+        var modelo = usuarios.Select(u => new UsuarioViewModel(u)).ToList();
+        
+        return View(modelo);
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> DetalleColaborador(Guid id)
+    {
+        ApplicationUser model = await _dbContext.Usuarios
+            .Include(u => u.Asignaciones)
+                .ThenInclude(a => a.Proyecto)
+                .ThenInclude(p => p.Contrato)
+                .ThenInclude(c => c.Cliente)
+            .FirstOrDefaultAsync(a => a.Id == id.ToString());
+
+        if (model == null) return NotFound();
+
+        return View(model);
     }
 }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Text.Json;
+using arenal.Identity;
 
 namespace arenal.Models;
 
@@ -212,6 +213,7 @@ public class Proyecto : Base
 {
     public Proyecto() : base()
     {
+        Asignaciones = new List<Asignacion>();
     }
 
     public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, string descripcion, Guid idArea,
@@ -225,6 +227,8 @@ public class Proyecto : Base
 
         IdArea = idArea;
         IdContrato = idContrato;
+        
+        Asignaciones = new List<Asignacion>();
     }
 
     public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, string descripcion, Area area,
@@ -241,6 +245,8 @@ public class Proyecto : Base
 
         IdContrato = contrato.Id;
         Contrato = contrato;
+        
+        Asignaciones = new List<Asignacion>();
     }
 
     public Guid Id { get; set; }
@@ -269,6 +275,8 @@ public class Proyecto : Base
     [NotMapped]
     public string TruncatedDescripcion =>
         Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
+    
+    public ICollection<Asignacion> Asignaciones { get; set; }
 
     public void Actualizar(Proyecto proyecto, string actualizadoPor)
     {
@@ -278,6 +286,137 @@ public class Proyecto : Base
         Descripcion = proyecto.Descripcion;
         IdArea = proyecto.IdArea;
         IdContrato = proyecto.IdContrato;
+        RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
+    }
+
+    public override string ToString() => JsonSerializer.Serialize(this);
+}
+
+[Table("Asignaciones")]
+public class Asignacion : Base
+{
+    public Asignacion() : base()
+    {
+    }
+
+    public Asignacion(Guid id, int horasEstimadas, string descripcion, Guid idProyecto, string idColaborador) : base()
+    {
+        Id = id;
+        HorasEstimadas = horasEstimadas;
+        Descripcion = descripcion;
+
+        IdProyecto = idProyecto;
+        IdColaborador = idColaborador;
+    }
+    
+    public Asignacion(Guid id, int horasEstimadas, string descripcion, Proyecto proyecto, ApplicationUser usuario) : base()
+    {
+        Id = id;
+        HorasEstimadas = horasEstimadas;
+        Descripcion = descripcion;
+
+        IdColaborador = usuario.Id;
+        ApplicationUser = usuario;
+
+        IdProyecto = proyecto.Id;
+        Proyecto = proyecto;
+    }
+    
+    public Guid Id { get; set; }
+    
+    [ForeignKey(nameof(Proyecto))] public Guid IdProyecto { get; set; }
+    public Proyecto Proyecto { get; set; }
+    
+    [ForeignKey(nameof(ApplicationUser))] public string IdColaborador { get; set; }
+    public ApplicationUser ApplicationUser { get; set; }
+
+    [DisplayName("Horas estimadas")]
+    public int HorasEstimadas { get; set; }
+    
+    [DisplayName("Descripción")]
+    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    public string Descripcion { get; set; }
+
+    [NotMapped]
+    public string TruncatedDescripcion =>
+        Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
+    
+    public void Actualizar(Asignacion asignacion, string actualizadoPor)
+    {
+        HorasEstimadas = asignacion.HorasEstimadas;
+        Descripcion = asignacion.Descripcion;
+        IdProyecto = asignacion.IdProyecto;
+        IdColaborador = asignacion.IdColaborador;
+        RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
+    }
+
+    public override string ToString() => JsonSerializer.Serialize(this);
+}
+
+[Table("Sesiones")]
+public class Sesion : Base
+{
+    public Sesion() : base()
+    {
+    }
+
+    public Sesion(Guid id, DateTime fecha, int horas, string descripcion, Guid idProyecto, string idColaborador) : base()
+    {
+        Id = id;
+        Fecha = fecha;
+        Horas = horas;
+        Descripcion = descripcion;
+
+        IdProyecto = idProyecto;
+        IdColaborador = idColaborador;
+    }
+    
+    public Sesion(Guid id, DateTime fecha, int horas, string descripcion, Proyecto proyecto, ApplicationUser usuario) : base()
+    {
+        Id = id;
+        Fecha = fecha;
+        Horas = horas;
+        Descripcion = descripcion;
+
+        IdColaborador = usuario.Id;
+        ApplicationUser = usuario;
+
+        IdProyecto = proyecto.Id;
+        Proyecto = proyecto;
+    }
+    
+    public Guid Id { get; set; }
+    
+    [ForeignKey(nameof(Proyecto))] public Guid IdProyecto { get; set; }
+    public Proyecto Proyecto { get; set; }
+    
+    [ForeignKey(nameof(ApplicationUser))] public string IdColaborador { get; set; }
+    public ApplicationUser ApplicationUser { get; set; }
+    
+    [DataType(DataType.Date)] public DateTime Fecha { get; set; }
+
+    [DisplayName("Horas")]
+    public int Horas { get; set; }
+    
+    [ForeignKey(nameof(Servicio))] public Guid IdServicio { get; set; }
+    public Servicio Servicio { get; set; }
+    
+    [DisplayName("Descripción")]
+    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    public string Descripcion { get; set; }
+
+    [NotMapped]
+    public string TruncatedDescripcion =>
+        Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
+    
+    public void Actualizar(Sesion sesion, string actualizadoPor)
+    {
+        Fecha = sesion.Fecha;
+        Horas = sesion.Horas;
+        Descripcion = sesion.Descripcion;
+        IdProyecto = sesion.IdProyecto;
+        IdColaborador = sesion.IdColaborador;
+        IdServicio = sesion.IdServicio;
         RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
     }
 

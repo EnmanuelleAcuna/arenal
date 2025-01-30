@@ -125,11 +125,13 @@ public class UsuarioViewModel
 
 	public string IdUsuario { get; set; }
 
+	[Display(Name = "Nombre completo")]
 	public string Nombre { get; set; }
 
 	[Display(Name = "Correo electrónico")]
 	public string Correo { get; set; }
 
+	[Display(Name = "Identificación")]
 	public string NumeroIdentificacion { get; set; }
 
 	public string Estado { get; set; }

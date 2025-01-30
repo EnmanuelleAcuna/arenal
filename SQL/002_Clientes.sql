@@ -73,3 +73,41 @@ CREATE TABLE Proyectos
 );
 
 SELECT * FROM Proyectos;
+
+EXEC SP_HELP 'Proyectos';
+
+CREATE TABLE Asignaciones(
+    Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Asignaciones_Id PRIMARY KEY CLUSTERED,
+    IdProyecto UNIQUEIDENTIFIER CONSTRAINT FK_Asignaciones_Proyectos_IdProyecto FOREIGN KEY REFERENCES Proyectos (Id),
+    IdColaborador NVARCHAR(450) CONSTRAINT FK_Asignaciones_Usuarios_IdUsuario FOREIGN KEY REFERENCES AspNetUsers (Id),
+    HorasEstimadas INT NOT NULL,
+    Descripcion NVARCHAR(2000) NULL,
+    DateCreated DATETIME NOT NULL CONSTRAINT DF_Asignaciones_DateCreated DEFAULT GETDATE(),
+    CreatedBy NVARCHAR(100) NOT NULL,
+    DateUpdated DATETIME NULL,
+    UpdatedBy NVARCHAR(100) NULL,
+    DateDeleted DATETIME NULL,
+    DeletedBy NVARCHAR(100) NULL,
+    IsDeleted BIT NULL
+);
+
+SELECT * FROM Asignaciones;
+
+CREATE TABLE Sesiones(
+    Id UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Sesiones_Id PRIMARY KEY CLUSTERED,
+    IdProyecto UNIQUEIDENTIFIER CONSTRAINT FK_Sesiones_Proyectos_IdProyecto FOREIGN KEY REFERENCES Proyectos (Id),
+    IdColaborador NVARCHAR(450) CONSTRAINT FK_Sesiones_Usuarios_IdUsuario FOREIGN KEY REFERENCES AspNetUsers (Id),
+    IdServicio UNIQUEIDENTIFIER CONSTRAINT FK_Sesiones_Servicios_IdServicio FOREIGN KEY REFERENCES Servicios (Id),
+    Fecha DATETIME NOT NULL,
+    Horas INT NOT NULL,
+    Descripcion NVARCHAR(2000) NULL,
+    DateCreated DATETIME NOT NULL CONSTRAINT DF_Sesiones_DateCreated DEFAULT GETDATE(),
+    CreatedBy NVARCHAR(100) NOT NULL,
+    DateUpdated DATETIME NULL,
+    UpdatedBy NVARCHAR(100) NULL,
+    DateDeleted DATETIME NULL,
+    DeletedBy NVARCHAR(100) NULL,
+    IsDeleted BIT NULL
+);
+
+SELECT * FROM Sesiones;

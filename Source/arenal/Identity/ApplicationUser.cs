@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using arenal.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace arenal.Identity;
@@ -8,14 +9,14 @@ public class ApplicationUser : IdentityUser
 {
     public ApplicationUser() : base()
     {
-        // RutinasCliente = new HashSet<Rutina>();
-        // RutinasInstructor = new HashSet<Rutina>();
+        Asignaciones = new List<Asignacion>();
+        Sesiones = new List<Sesion>();
     }
 
     public ApplicationUser(string userName) : base(userName)
     {
-        // RutinasCliente = new HashSet<Rutina>();
-        // RutinasInstructor = new HashSet<Rutina>();
+        Asignaciones = new List<Asignacion>();
+        Sesiones = new List<Sesion>();
     }
 
     public ApplicationUser(string id, string correo, string nombreUsuario, string nombre, string primerApellido,
@@ -30,8 +31,8 @@ public class ApplicationUser : IdentityUser
         IdentificationNumber = identificacion;
         Active = activo;
 
-        // RutinasCliente = new HashSet<Rutina>();
-        // RutinasInstructor = new HashSet<Rutina>();
+        Asignaciones = new List<Asignacion>();
+        Sesiones = new List<Sesion>();
     }
 
     public string IdentificationNumber { get; private set; }
@@ -42,7 +43,7 @@ public class ApplicationUser : IdentityUser
     public bool? Active { get; private set; }
 
     [NotMapped] public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
-
+    
     #region Identity properties that does not need to be mapped in the DB
 
     [NotMapped] public override bool EmailConfirmed { get; set; }
@@ -72,13 +73,10 @@ public class ApplicationUser : IdentityUser
     {
         get { return $"{Name} {FirstLastName} {SecondLastName}"; }
     }
-
-    // [InverseProperty("Instructor")]
-    // public virtual ICollection<Rutina> RutinasInstructor { get; set; } = new List<Rutina>();
-    //
-    // [InverseProperty("Cliente")]
-    // public virtual ICollection<Rutina> RutinasCliente { get; set; } = new List<Rutina>();
-
+    
+    public ICollection<Asignacion> Asignaciones { get; set; }
+    public ICollection<Sesion> Sesiones { get; set; }
+    
     public void SetNewPersonalInformation(string name, string firstLastName, string secondLastName,
         string identification)
     {
