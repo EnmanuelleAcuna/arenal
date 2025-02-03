@@ -1,13 +1,13 @@
 @model EditarRolViewModel
 
 @{
-    ViewBag.Title = "Roles";
+    ViewData["Title"] = "Eliminar rol";
 }
 
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">Eliminar rol</h6>
+            <h6 class="page-title">@ViewData["Title"]</h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -52,10 +52,11 @@
                                 </h6>
                             </div>
 
-
-                            <div class="col-12">
-                                <input value="Eliminar" class="btn btn-sm btn-danger" type="submit"/>
-                                @Html.ActionLink("Regresar", "Roles", null, null, new { @class = "btn btn-sm btn-secondary" })
+                            <div class="col-12 mt-2">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="">
+                                    <input value="Eliminar" class="btn btn-sm btn-outline-light text-danger" type="submit"/>
+                                    @Html.ActionLink("Cancelar", "Roles", null, null, new { @class = "btn btn-sm btn-outline-light text-secondary" })
+                                </div>
                             </div>
                         </div>
                     }

@@ -1,6 +1,5 @@
-using arenal.Domain;
 using arenal.Identity;
-using arenal.Data;
+using arenal.Models.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;

@@ -1,5 +1,4 @@
-using arenal.Data;
-using arenal.Domain;
+using arenal.Models.Data;
 using arenal.Identity;
 using arenal.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -69,7 +68,7 @@ public class ClientesController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorAgregar(nameof(TipoCliente)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorAgregar(nameof(TipoCliente)), GetModelStateErrors()));
             return View(model);
         }
 
@@ -78,7 +77,7 @@ public class ClientesController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(TiposCliente));
-        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(TipoCliente)));
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(TipoCliente)));
 
         return View(model);
     }
@@ -100,7 +99,7 @@ public class ClientesController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorActualizar(nameof(TipoCliente)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorActualizar(nameof(TipoCliente)), GetModelStateErrors()));
             return View(model);
         }
 
@@ -113,7 +112,7 @@ public class ClientesController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(TiposCliente));
-        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(TipoCliente)));
+        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(TipoCliente)));
 
         return View(model);
     }
@@ -142,7 +141,7 @@ public class ClientesController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(TiposCliente));
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(TipoCliente)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(TipoCliente)));
         return View(model);
     }
 
@@ -187,7 +186,7 @@ public class ClientesController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorAgregar(nameof(Cliente)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Cliente)), GetModelStateErrors()));
 
             IEnumerable<TipoCliente> tiposCliente = await _dbContext.TiposCliente.ToListAsync();
             ViewBag.TiposCliente = tiposCliente.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -201,7 +200,7 @@ public class ClientesController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Clientes));
 
-        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(Cliente)));
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Cliente)));
         return View(model);
     }
 
@@ -225,7 +224,7 @@ public class ClientesController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorActualizar(nameof(Cliente)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorActualizar(nameof(Cliente)), GetModelStateErrors()));
 
             IEnumerable<TipoCliente> tiposCliente = await _dbContext.TiposCliente.ToListAsync();
             ViewBag.TiposCliente = tiposCliente.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -242,7 +241,7 @@ public class ClientesController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Clientes));
-        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(Cliente)));
+        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Cliente)));
 
         return View(model);
     }
@@ -271,7 +270,7 @@ public class ClientesController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Clientes));
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(Cliente)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Cliente)));
         return View(model);
     }
 
@@ -321,7 +320,7 @@ public class ClientesController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorAgregar(nameof(Contrato)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Contrato)), GetModelStateErrors()));
 
             IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
             ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -338,7 +337,7 @@ public class ClientesController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Contratos));
 
-        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(Contrato)));
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Contrato)));
         return View(model);
     }
 
@@ -365,7 +364,7 @@ public class ClientesController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorActualizar(nameof(Contrato)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorActualizar(nameof(Contrato)), GetModelStateErrors()));
 
             IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
             ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -385,7 +384,7 @@ public class ClientesController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Contratos));
-        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(Contrato)));
+        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Contrato)));
 
         return View(model);
     }
@@ -415,7 +414,7 @@ public class ClientesController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Contratos));
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(Contrato)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Contrato)));
         return View(model);
     }
 
@@ -469,7 +468,7 @@ public class ClientesController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorAgregar(nameof(Proyecto)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Proyecto)), GetModelStateErrors()));
 
             IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
             ViewBag.Contratos = contratos.Select(c =>
@@ -487,7 +486,7 @@ public class ClientesController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Proyectos));
 
-        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(Proyecto)));
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Proyecto)));
         return View(model);
     }
 
@@ -515,7 +514,7 @@ public class ClientesController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorActualizar(nameof(Proyecto)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorActualizar(nameof(Proyecto)), GetModelStateErrors()));
 
             IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
             ViewBag.Contratos = contratos.Select(c =>
@@ -536,7 +535,7 @@ public class ClientesController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Proyectos));
-        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(Proyecto)));
+        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Proyecto)));
 
         return View(model);
     }
@@ -568,7 +567,7 @@ public class ClientesController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Proyectos));
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(Proyecto)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Proyecto)));
         return View(model);
     }
 
@@ -584,6 +583,37 @@ public class ClientesController : BaseController
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
+            .ToListAsync();
+
+        var viewModel = new AsignacionesIndexViewModel
+        {
+            ProyectosAsignaciones = asignaciones
+                .GroupBy(a => a.IdProyecto)
+                .Select(group => new ProyectoAsignacionesViewModel
+                {
+                    IdProyecto = group.Key,
+                    NombreProyecto = group.First().Proyecto.Nombre,
+                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
+                    Asignaciones = group.ToList()
+                })
+                .OrderBy(p => p.NombreProyecto)
+                .ToList()
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> MisAsignaciones()
+    {
+        ApplicationUser usuario = await _userManager.FindByEmailAsync(GetCurrentUser());
+
+        var asignaciones = await _dbContext.Asignaciones
+            .Include(a => a.ApplicationUser)
+            .Include(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .Where(a => a.IdColaborador == usuario.Id)
             .ToListAsync();
 
         var viewModel = new AsignacionesIndexViewModel
@@ -629,7 +659,7 @@ public class ClientesController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorAgregar(nameof(Asignacion)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Asignacion)), GetModelStateErrors()));
 
             IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos.Include(c => c.Contrato)
                 .ThenInclude(c => c.Cliente).ToListAsync();
@@ -653,7 +683,7 @@ public class ClientesController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Asignaciones));
 
-        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(Asignacion)));
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Asignacion)));
         return View(model);
     }
 
@@ -687,7 +717,7 @@ public class ClientesController : BaseController
         if (changes > 0)
             return RedirectToAction("DetalleColaborador", "Cuentas", new { id = asignacion.IdColaborador });
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(Asignacion)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Asignacion)));
         return View(model);
     }
 
@@ -722,47 +752,93 @@ public class ClientesController : BaseController
 
         return View(viewModel);
     }
-    
+
+    [HttpGet]
+    public async Task<IActionResult> MisSesiones()
+    {
+        ApplicationUser usuario = await _userManager.FindByEmailAsync(GetCurrentUser());
+
+        var sesiones = await _dbContext.Sesiones
+            .Include(a => a.ApplicationUser)
+            .Include(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .Where(s => s.IdColaborador == usuario.Id)
+            .ToListAsync();
+
+        var viewModel = new SesionesIndexViewModel
+        {
+            ProyectosSesiones = sesiones
+                .GroupBy(a => a.IdProyecto)
+                .Select(group => new ProyectoSesionesViewModel()
+                {
+                    IdProyecto = group.Key,
+                    NombreProyecto = group.First().Proyecto.Nombre,
+                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
+                    Sesiones = group.ToList()
+                })
+                .OrderBy(p => p.NombreProyecto)
+                .ToList()
+        };
+
+        return View(viewModel);
+    }
+
     [HttpGet]
     public async Task<IActionResult> AgregarSesion()
     {
         var currentUser = GetCurrentUser();
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(currentUser);
 
+        IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
+
+        ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
+
         IEnumerable<Asignacion> asignaciones =
-            await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato).ThenInclude(c => c.Cliente).Where(a => a.IdColaborador == colaborador.Id).ToListAsync();
+            await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
+                .ThenInclude(c => c.Cliente).Where(a => a.IdColaborador == colaborador.Id).ToListAsync();
+
         ViewBag.Proyectos = asignaciones.Select(c =>
-            new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.IdProyecto.ToString()));
+            new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
+                c.IdProyecto.ToString()));
 
         return View();
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AgregarSesion(AgregarSesionModel model)
     {
         var currentUser = GetCurrentUser();
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(currentUser);
-        
+
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
+
+            IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
+
+            ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
 
             IEnumerable<Asignacion> asignaciones =
-                await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato).ThenInclude(c => c.Cliente).Where(a => a.IdColaborador == colaborador.Id).ToListAsync();
+                await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
+                    .ThenInclude(c => c.Cliente).Where(a => a.IdColaborador == colaborador.Id).ToListAsync();
             ViewBag.Proyectos = asignaciones.Select(c =>
-                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.IdProyecto.ToString()));
+                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
+                    c.IdProyecto.ToString()));
 
             return View(model);
         }
-        
+
         Sesion sesion = new Sesion()
         {
             IdColaborador = colaborador.Id,
             IdProyecto = model.IdProyecto,
-            Fecha = model.Fecha,
-            Horas = model.Horas,
+            IdServicio = model.IdServicio,
+            FechaInicio = model.Fecha,
+            FechaFin = model.Fecha,
+            Horas = Convert.ToDecimal(model.Horas),
             Descripcion = model.Descripcion
         };
 
@@ -770,9 +846,140 @@ public class ClientesController : BaseController
         await _dbContext.Sesiones.AddAsync(sesion);
         int changes = await _dbContext.SaveChangesAsync();
 
-        if (changes > 0) return RedirectToAction(nameof(Sesiones));
+        if (changes > 0) return RedirectToAction(nameof(MisSesiones));
 
-        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(Sesion)));
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Sesion)));
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> IniciarSesion()
+    {
+        var currentUser = GetCurrentUser();
+        ApplicationUser colaborador = await _userManager.FindByEmailAsync(currentUser);
+
+        IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
+
+        ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
+
+        IEnumerable<Asignacion> asignaciones =
+            await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
+                .ThenInclude(c => c.Cliente).Where(a => a.IdColaborador == colaborador.Id).ToListAsync();
+
+        ViewBag.Proyectos = asignaciones.Select(c =>
+            new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
+                c.IdProyecto.ToString()));
+
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> IniciarSesion(AgregarSesionModel model)
+    {
+        var currentUser = GetCurrentUser();
+        ApplicationUser colaborador = await _userManager.FindByEmailAsync(currentUser);
+
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("",
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
+
+            IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
+
+            ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
+
+            IEnumerable<Asignacion> asignaciones =
+                await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
+                    .ThenInclude(c => c.Cliente).Where(a => a.IdColaborador == colaborador.Id).ToListAsync();
+            ViewBag.Proyectos = asignaciones.Select(c =>
+                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
+                    c.IdProyecto.ToString()));
+
+            return View(model);
+        }
+
+        Sesion sesion = new Sesion()
+        {
+            IdColaborador = colaborador.Id,
+            IdProyecto = model.IdProyecto,
+            IdServicio = model.IdServicio,
+            FechaInicio = DateTime.Now,
+            Horas = 0,
+            Descripcion = model.Descripcion
+        };
+
+        sesion.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
+        await _dbContext.Sesiones.AddAsync(sesion);
+        int changes = await _dbContext.SaveChangesAsync();
+
+        if (changes > 0) return RedirectToAction(nameof(MisSesiones));
+
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Sesion)));
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> FinalizarSesion(Guid id)
+    {
+        Sesion sesion = await _dbContext.Sesiones.FindAsync(id);
+
+        if (sesion == null) return NotFound();
+
+        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(sesion.IdProyecto);
+
+        Servicio servicio = await _dbContext.Servicios.FindAsync(sesion.IdServicio);
+
+        FinalizarSesionModel model = new FinalizarSesionModel
+        {
+            IdSesion = sesion.Id,
+            IdProyecto = sesion.IdProyecto,
+            NombreProyecto = proyecto.Nombre,
+            IdServicio = sesion.IdServicio,
+            NombreServicio = servicio.Nombre,
+            Descripcion = sesion.Descripcion
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> FinalizarSesion(FinalizarSesionModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("",
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
+
+            IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
+
+            ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
+
+            IEnumerable<Asignacion> asignaciones =
+                await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
+                    .ThenInclude(c => c.Cliente).ToListAsync();
+            ViewBag.Proyectos = asignaciones.Select(c =>
+                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
+                    c.IdProyecto.ToString()));
+
+            return View(model);
+        }
+
+        Sesion sesion = await _dbContext.Sesiones.FindAsync(model.IdSesion);
+
+        if (sesion == null) return NotFound();
+
+        sesion.FechaFin = DateTime.Now;
+        sesion.Horas = (sesion.FechaInicio - DateTime.Now).Hours + 1;
+        sesion.Descripcion = model.Descripcion;
+
+        _dbContext.Sesiones.Update(sesion);
+        int changes = await _dbContext.SaveChangesAsync();
+
+        if (changes > 0) return RedirectToAction(nameof(MisSesiones));
+
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Sesion)));
         return View(model);
     }
 
@@ -782,14 +989,15 @@ public class ClientesController : BaseController
         Sesion model = await _dbContext.Sesiones
             .Include(s => s.Servicio)
             .Include(s => s.Proyecto)
-                .ThenInclude(c => c.Contrato)
-                .ThenInclude(c => c.Cliente)
+            .ThenInclude(c => c.Contrato)
+            .ThenInclude(c => c.Cliente)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (model == null) return NotFound();
 
         return View(model);
     }
+
     #endregion
 }
 
@@ -832,7 +1040,7 @@ public class ProyectoSesionesViewModel
     public List<Sesion> Sesiones { get; set; }
 
     // Summary properties for the group
-    public int TotalHoras => Sesiones?.Sum(a => a.Horas) ?? 0;
+    public decimal TotalHoras => Sesiones?.Sum(a => a.Horas) ?? 0;
     public int CantidadSesiones => Sesiones?.Count ?? 0;
 }
 
@@ -840,8 +1048,8 @@ public class ProyectoSesionesViewModel
 public class SesionesIndexViewModel
 {
     public List<ProyectoSesionesViewModel> ProyectosSesiones { get; set; }
-    public int TotalAsignaciones => ProyectosSesiones?.Sum(p => p.CantidadSesiones) ?? 0;
-    public int TotalHoras => ProyectosSesiones?.Sum(p => p.TotalHoras) ?? 0;
+    public int TotalSesiones => ProyectosSesiones?.Sum(p => p.CantidadSesiones) ?? 0;
+    public decimal TotalHoras => ProyectosSesiones?.Sum(p => p.TotalHoras) ?? 0;
 }
 
 public class AgregarSesionModel
@@ -849,7 +1057,21 @@ public class AgregarSesionModel
     public string NombreColaborador { get; set; }
     public Guid IdProyecto { get; set; }
     public Guid IdUsuario { get; set; }
+    public Guid IdServicio { get; set; }
     public DateTime Fecha { get; set; }
-    public int Horas { get; set; }
+    public string Horas { get; set; }
+    public string Descripcion { get; set; }
+}
+
+public class FinalizarSesionModel
+{
+    public Guid IdSesion { get; set; }
+    public string NombreColaborador { get; set; }
+    public Guid IdProyecto { get; set; }
+    public string NombreProyecto { get; set; }
+    public Guid IdUsuario { get; set; }
+    public Guid IdServicio { get; set; }
+    public string NombreServicio { get; set; }
+    public DateTime Fecha { get; set; }
     public string Descripcion { get; set; }
 }

@@ -1,8 +1,8 @@
 using arenal.Identity;
 
-namespace arenal.Domain;
+namespace arenal.Models;
 
-public static class Common
+public static class Utils
 {
     public const string MensajeModeloNulo = "Modelo nulo.";
     public const string MensajeModeloInvalido = "Modelo inválido.";

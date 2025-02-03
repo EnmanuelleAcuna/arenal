@@ -1,8 +1,7 @@
-﻿using arenal.Models;
-using arenal.Identity;
+﻿using arenal.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace arenal.Data;
+namespace arenal.Models.Data;
 
 public class ApplicationDbContext : DbContext
 {

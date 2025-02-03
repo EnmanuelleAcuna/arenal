@@ -1,13 +1,13 @@
 @model IEnumerable<InicioRolesViewModel>
 
 @{
-    ViewBag.Title = "Roles";
+    ViewData["Title"] = "Roles";
 }
 
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">Lista de roles</h6>
+            <h6 class="page-title text-sc">@ViewData["Title"]</h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -31,11 +31,9 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @Html.ActionLink("Agregar", "AgregarRol", null, null, new { @class = "btn btn-sm btn-secondary" })
+                    @Html.ActionLink("Agregar", "AgregarRol", null, null, new { @class = "btn btn-sm btn-primary" })
 
-                    <hr/>
-
-                    <div class="table-responsive">
+                    <div class="table-responsive mt-3">
                         <table class="table table-hover table-sm text-nowrap">
                             <thead>
                             <tr>
@@ -51,12 +49,12 @@
                                     <td>@rol.Nombre</td>
                                     <td>@rol.Descripcion</td>
                                     <td class="text-right">
-                                        <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                                            <a class="btn btn-sm btn-light text-primary" asp-controller="Cuentas" asp-action="EditarRol"
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                            <a class="btn btn-sm btn-outline-light text-secondary" asp-controller="Cuentas" asp-action="EditarRol"
                                                asp-route-id="@rol.IdRol">
                                                 Modificar
                                             </a>
-                                            <a class="btn btn-sm btn-light text-danger" asp-controller="Cuentas" asp-action="EliminarRol"
+                                            <a class="btn btn-sm btn-outline-light text-danger" asp-controller="Cuentas" asp-action="EliminarRol"
                                                asp-route-id="@rol.IdRol">
                                                 Eliminar
                                             </a>

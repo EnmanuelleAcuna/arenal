@@ -1,6 +1,5 @@
 using System.Globalization;
-using arenal.Data;
-using arenal.Domain;
+using arenal.Models.Data;
 using arenal.Identity;
 using arenal.Models;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +20,7 @@ public class CuentasController : BaseController
     private readonly IEmailSender _emailSender;
     private readonly IConfiguration _configuration;
     private readonly ILogger<CuentasController> _logger;
-    
+
     private readonly ApplicationDbContext _dbContext;
 
     public CuentasController(ApplicationUserManager<ApplicationUser> userManager,
@@ -41,9 +40,11 @@ public class CuentasController : BaseController
         _emailSender = emailSender;
         _configuration = configuration;
         _logger = logger;
-        
+
         _dbContext = dbContext;
     }
+
+    #region Autenticación
 
     [HttpGet]
     [AllowAnonymous]
@@ -183,6 +184,8 @@ public class CuentasController : BaseController
     [AllowAnonymous]
     public ActionResult RestablecerContrasenaConfirmada() => View();
 
+    #endregion
+
     [HttpGet]
     public ActionResult Usuarios()
     {
@@ -196,13 +199,13 @@ public class CuentasController : BaseController
     {
         if (User.IsInRole("Administrador"))
         {
-            ViewBag.ListaRoles = CargarListaSeleccionRoles();
+            ViewBag.ListaRoles = CargarListaSeleccionRoles(cargarRolAdministrador: true);
         }
         else
         {
             ViewBag.ListaRoles = CargarListaSeleccionRoles();
         }
-        
+
         return View();
     }
 
@@ -227,7 +230,7 @@ public class CuentasController : BaseController
             AddErrors(rolesAsignados);
         }
 
-        ModelState.AddModelError("", Common.MensajeErrorCrear(nameof(ApplicationUser)));
+        ModelState.AddModelError("", Utils.MensajeErrorCrear(nameof(ApplicationUser)));
         ViewBag.ListaRoles = CargarListaSeleccionRoles();
         return View(modelo);
     }
@@ -274,7 +277,7 @@ public class CuentasController : BaseController
             }
         }
 
-        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(ApplicationUser)));
+        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(ApplicationUser)));
         ViewBag.ListaRoles = CargarListaSeleccionRoles();
 
         return View(modelo);
@@ -309,7 +312,7 @@ public class CuentasController : BaseController
         // Si se llega a este punto, hubo un error
         AddErrors(usuarioEliminado);
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(usuario)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(usuario)));
 
         return View(modelo);
     }
@@ -327,7 +330,7 @@ public class CuentasController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarRol(NuevoRolViewModel modelo)
+    public async Task<IActionResult> AgregarRol(AgregarRolViewModel modelo)
     {
         if (ModelState.IsValid)
         {
@@ -339,7 +342,7 @@ public class CuentasController : BaseController
             AddErrors(rolCreado);
         }
 
-        ModelState.AddModelError("", Common.MensajeErrorCrear(nameof(ApplicationRole)));
+        ModelState.AddModelError("", Utils.MensajeErrorCrear(nameof(ApplicationRole)));
 
         return View(modelo);
     }
@@ -373,7 +376,7 @@ public class CuentasController : BaseController
             AddErrors(rolActualizado);
         }
 
-        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(ApplicationRole)));
+        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(ApplicationRole)));
 
         return View(modelo);
     }
@@ -403,31 +406,31 @@ public class CuentasController : BaseController
 
         AddErrors(rolEliminado);
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(ApplicationRole)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(ApplicationRole)));
 
         return View(modelo);
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> Colaboradores()
     {
         var usuariosColaboradores = await _userManager.GetUsersInRoleAsync("Colaborador");
         var usuariosCoordinadores = await _userManager.GetUsersInRoleAsync("Coordinador");
-        
+
         var usuarios = usuariosColaboradores.Union(usuariosCoordinadores).ToList();
         var modelo = usuarios.Select(u => new UsuarioViewModel(u)).ToList();
-        
+
         return View(modelo);
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> DetalleColaborador(Guid id)
     {
         ApplicationUser model = await _dbContext.Usuarios
             .Include(u => u.Asignaciones)
-                .ThenInclude(a => a.Proyecto)
-                .ThenInclude(p => p.Contrato)
-                .ThenInclude(c => c.Cliente)
+            .ThenInclude(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
             .FirstOrDefaultAsync(a => a.Id == id.ToString());
 
         if (model == null) return NotFound();

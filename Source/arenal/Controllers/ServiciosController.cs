@@ -1,5 +1,4 @@
-using arenal.Data;
-using arenal.Domain;
+using arenal.Models.Data;
 using arenal.Identity;
 using arenal.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -66,7 +65,7 @@ public class ServiciosController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorAgregar(nameof(Area)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Area)), GetModelStateErrors()));
             return View(model);
         }
 
@@ -75,7 +74,7 @@ public class ServiciosController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Areas));
-        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(Area)));
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Area)));
 
         return View(model);
     }
@@ -97,7 +96,7 @@ public class ServiciosController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorActualizar(nameof(Area)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorActualizar(nameof(Area)), GetModelStateErrors()));
             return View(model);
         }
 
@@ -110,7 +109,7 @@ public class ServiciosController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Areas));
-        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(Area)));
+        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Area)));
 
         return View(model);
     }
@@ -139,7 +138,7 @@ public class ServiciosController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Areas));
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(Area)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Area)));
         return View(model);
     }
 
@@ -176,7 +175,7 @@ public class ServiciosController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorAgregar(nameof(Modalidad)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Modalidad)), GetModelStateErrors()));
             return View(model);
         }
 
@@ -185,7 +184,7 @@ public class ServiciosController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Modalidades));
-        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(Modalidad)));
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Modalidad)));
 
         return View(model);
     }
@@ -207,7 +206,7 @@ public class ServiciosController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorActualizar(nameof(Modalidad)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorActualizar(nameof(Modalidad)), GetModelStateErrors()));
             return View(model);
         }
 
@@ -220,7 +219,7 @@ public class ServiciosController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Modalidades));
-        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(Modalidad)));
+        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Modalidad)));
 
         return View(model);
     }
@@ -249,7 +248,7 @@ public class ServiciosController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Modalidades));
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(Modalidad)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Modalidad)));
         return View(model);
     }
 
@@ -297,7 +296,7 @@ public class ServiciosController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorAgregar(nameof(Servicio)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Servicio)), GetModelStateErrors()));
 
             IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
             ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -314,7 +313,7 @@ public class ServiciosController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Servicios));
 
-        ModelState.AddModelError("", Common.MensajeErrorAgregar(nameof(Servicio)));
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Servicio)));
         return View(modelo);
     }
 
@@ -341,7 +340,7 @@ public class ServiciosController : BaseController
         if (!ModelState.IsValid)
         {
             ModelState.AddModelError("",
-                string.Concat(Common.MensajeErrorActualizar(nameof(Servicio)), GetModelStateErrors()));
+                string.Concat(Utils.MensajeErrorActualizar(nameof(Servicio)), GetModelStateErrors()));
 
             IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
             ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -361,7 +360,7 @@ public class ServiciosController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Servicios));
-        ModelState.AddModelError("", Common.MensajeErrorActualizar(nameof(Servicio)));
+        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Servicio)));
 
         return View(modelo);
     }
@@ -390,7 +389,7 @@ public class ServiciosController : BaseController
 
         if (changes > 0) return RedirectToAction(nameof(Servicios));
 
-        ModelState.AddModelError("", Common.MensajeErrorEliminar(nameof(Servicio)));
+        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Servicio)));
         return View(modelo);
     }
 

@@ -360,10 +360,10 @@ public class Sesion : Base
     {
     }
 
-    public Sesion(Guid id, DateTime fecha, int horas, string descripcion, Guid idProyecto, string idColaborador) : base()
+    public Sesion(Guid id, DateTime fechaInicio, int horas, string descripcion, Guid idProyecto, string idColaborador) : base()
     {
         Id = id;
-        Fecha = fecha;
+        FechaInicio = fechaInicio;
         Horas = horas;
         Descripcion = descripcion;
 
@@ -371,10 +371,10 @@ public class Sesion : Base
         IdColaborador = idColaborador;
     }
     
-    public Sesion(Guid id, DateTime fecha, int horas, string descripcion, Proyecto proyecto, ApplicationUser usuario) : base()
+    public Sesion(Guid id, DateTime fechaInicio, int horas, string descripcion, Proyecto proyecto, ApplicationUser usuario) : base()
     {
         Id = id;
-        Fecha = fecha;
+        FechaInicio = fechaInicio;
         Horas = horas;
         Descripcion = descripcion;
 
@@ -393,10 +393,15 @@ public class Sesion : Base
     [ForeignKey(nameof(ApplicationUser))] public string IdColaborador { get; set; }
     public ApplicationUser ApplicationUser { get; set; }
     
-    [DataType(DataType.Date)] public DateTime Fecha { get; set; }
+    // [DataType(DataType.Date)]
+    [Column("Fecha")]
+    public DateTime FechaInicio { get; set; }
+    
+    // [DataType(DataType.Date)] 
+    public DateTime? FechaFin { get; set; }
 
     [DisplayName("Horas")]
-    public int Horas { get; set; }
+    public decimal Horas { get; set; }
     
     [ForeignKey(nameof(Servicio))] public Guid IdServicio { get; set; }
     public Servicio Servicio { get; set; }
@@ -411,7 +416,7 @@ public class Sesion : Base
     
     public void Actualizar(Sesion sesion, string actualizadoPor)
     {
-        Fecha = sesion.Fecha;
+        FechaInicio = sesion.FechaInicio;
         Horas = sesion.Horas;
         Descripcion = sesion.Descripcion;
         IdProyecto = sesion.IdProyecto;

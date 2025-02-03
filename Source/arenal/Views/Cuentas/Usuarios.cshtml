@@ -1,13 +1,13 @@
 @model IEnumerable<UsuarioViewModel>
 
 @{
-    ViewBag.Title = "Usuarios";
+    ViewData["Title"] = "Usuarios";
 }
 
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">Lista de usuarios</h6>
+            <h6 class="page-title">@ViewData["Title"]</h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -31,11 +31,9 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @Html.ActionLink("Agregar", "AgregarUsuario", null, null, new { @class = "btn btn-sm btn-secondary" })
+                    @Html.ActionLink("Agregar", "AgregarUsuario", null, null, new { @class = "btn btn-sm btn-primary" })
 
-                    <hr/>
-
-                    <div class="table-responsive">
+                    <div class="table-responsive mt-3">
                         <table class="table table-hover table-sm text-nowrap">
                             <thead>
                             <tr>
@@ -53,12 +51,12 @@
                                     <td>@usuario.Correo</td>
                                     <td>@usuario.Estado</td>
                                     <td class="text-right">
-                                        <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
-                                            <a class="btn btn-sm btn-light" asp-controller="Cuentas" asp-action="EditarUsuario"
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                            <a class="btn btn-sm btn-outline-light text-secondary" asp-controller="Cuentas" asp-action="EditarUsuario"
                                                asp-route-id="@usuario.IdUsuario">
                                                 Modificar
                                             </a>
-                                            <a class="btn btn-sm btn-light text-danger" asp-controller="Cuentas" asp-action="EliminarUsuario"
+                                            <a class="btn btn-sm btn-outline-light text-danger" asp-controller="Cuentas" asp-action="EliminarUsuario"
                                                asp-route-id="@usuario.IdUsuario">
                                                 Eliminar
                                             </a>

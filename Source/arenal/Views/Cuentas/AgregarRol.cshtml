@@ -1,13 +1,13 @@
-@model NuevoRolViewModel
+@model AgregarRolViewModel
 
 @{
-    ViewBag.Title = "Rol";
+    ViewData["Title"] = "Agregar rol";
 }
 
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">Agregar rol</h6>
+            <h6 class="page-title">@ViewData["Title"]</h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -47,22 +47,27 @@
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.Nombre)
-                                    @Html.TextBoxFor(model => model.Nombre, "", new { @class = "form-control form-control-sm", placeholder = "Digite el nombre" })
+                                    @Html.TextBoxFor(model => model.Nombre, "", new { @class = "form-control form-control-sm", placeholder = "" })
                                     @Html.ValidationMessageFor(model => model.Nombre)
                                 </div>
                             </div>
-
-                            <div class="col-sm-12 col-md-4">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-sm-12 col-md-8">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.Descripcion)
-                                    @Html.TextBoxFor(model => model.Descripcion, "", new { @class = "form-control form-control-sm", placeholder = "Digite la descripción" })
-                                    @Html.ValidationMessageFor(model => model.Descripcion)
+                                    <textarea asp-for="Descripcion" class="form-control"></textarea>
                                 </div>
                             </div>
+                        </div>
 
+                        <div class="row">
                             <div class="col-12">
-                                <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Regresar", "Roles", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                <div class="btn-group btn-group-sm" role="group" aria-label="">
+                                    <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
+                                    @Html.ActionLink("Cancelar", "Roles", null, null, new { @class = "btn btn-sm btn-outline-light text-danger" })
+                                </div>
                             </div>
                         </div>
                     }

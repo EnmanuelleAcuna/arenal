@@ -34,7 +34,7 @@ textarea {
 
 .btn-primary {
     background-color: rgb(33, 50, 92) !important;
-    border: none;
+    border-color: rgb(33, 50, 92) !important;
 }
 
 /* Sticky footer styles */

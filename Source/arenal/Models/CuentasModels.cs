@@ -63,7 +63,7 @@ public class InicioRolesViewModel
 	public string Descripcion { get; set; }
 }
 
-public class NuevoRolViewModel
+public class AgregarRolViewModel
 {
 	[Required(ErrorMessage = "El nombre es requerido.")]
 	[StringLength(50, ErrorMessage = "El nombre no puede exceder los 50 caracteres.")]

@@ -1,4 +1,4 @@
-namespace arenal.Domain;
+namespace arenal.Models;
 
 public interface IBaseCore<T>
 {

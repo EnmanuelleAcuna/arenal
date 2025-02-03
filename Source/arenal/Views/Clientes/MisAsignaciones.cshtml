@@ -1,13 +1,13 @@
-﻿@model arenal.Controllers.SesionesIndexViewModel
+﻿@model arenal.Controllers.AsignacionesIndexViewModel
 
 @{
-    ViewBag.Title = "Sesiones";
+    ViewBag.Title = "Asignaciones";
 }
 
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">Sesiones</h6>
+            <h6 class="page-title">Mis asignaciones por proyecto</h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -17,7 +17,7 @@
                             <a href='@Url.Action("Administracion", "Home")'>Administración</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Sesiones
+                            Asignaciones
                         </li>
                     </ol>
                 </nav>
@@ -31,30 +31,31 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @* <a asp-action="AgregarSesion" class="btn btn-sm btn-primary">Agregar sesión</a> *@
+                    @* <h4 class="mb-4">Asignaciones por Proyecto</h4> *@
+                    @* <a asp-action="Colaboradores" asp-controller="Cuentas" class="btn btn-sm btn-primary">Agregar asignacion</a> *@
                     @* <hr/> *@
-
+                    
                     <div class="row mb-3">
                         <div class="col">
                             <div class="card">
                                 <div class="card-body">
                                     <h6>Resumen General</h6>
-                                    <p>Total de Sesiones: @Model.TotalSesiones</p>
-                                    <p>Total de Horas: @Model.TotalHoras</p>
+                                    <p>Total de Asignaciones: @Model.TotalAsignaciones</p>
+                                    <p>Total de Horas Estimadas: @Model.TotalHorasEstimadas</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    @foreach (var proyecto in Model.ProyectosSesiones)
+                    @foreach (var proyecto in Model.ProyectosAsignaciones)
                     {
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h6 class="text-sc">@proyecto.NombreCliente</h6>
                                 <h6>@proyecto.NombreProyecto</h6>
                                 <div class="text-muted">
-                                    Asignaciones: @proyecto.CantidadSesiones |
-                                    Horas: @proyecto.TotalHoras
+                                    Asignaciones: @proyecto.CantidadAsignaciones |
+                                    Horas Estimadas: @proyecto.TotalHorasEstimadas
                                 </div>
                             </div>
                             <div class="card-body">
@@ -64,24 +65,25 @@
                                         <tr>
                                             <th>Colaborador</th>
                                             <th>Descripción</th>
-                                            <th>Horas</th>
-                                            <th></th>
+                                            <th>Horas Estimadas</th>
+                                            @* <th>Acciones</th> *@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach (var sesion in proyecto.Sesiones)
+                                        @foreach (var asignacion in proyecto.Asignaciones)
                                         {
                                             <tr>
-                                                <td>@sesion.ApplicationUser.FullName</td>
-                                                <td title="@sesion.Descripcion">@sesion.TruncatedDescripcion</td>
-                                                <td>@sesion.Horas</td>
-                                                <td class="text-right">
-                                                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                                        <a class="btn btn-sm btn-light text-primary" asp-controller="Clientes" asp-action="DetalleSesion" asp-route-id="@sesion.Id">
-                                                            Detalle
-                                                        </a>
-                                                    </div>
-                                                </td>
+                                                <td>@asignacion.ApplicationUser.FullName</td>
+                                                <td title="@asignacion.Descripcion">@asignacion.TruncatedDescripcion</td>
+                                                <td>@asignacion.HorasEstimadas</td>
+                                                @* <td> *@
+                                                @*     <a asp-action="Edit" asp-route-id="@asignacion.Id" class="btn btn-sm btn-primary"> *@
+                                                @*         Editar *@
+                                                @*     </a> *@
+                                                @*     <a asp-action="Details" asp-route-id="@asignacion.Id" class="btn btn-sm btn-info"> *@
+                                                @*         Detalles *@
+                                                @*     </a> *@
+                                                @* </td> *@
                                             </tr>
                                         }
                                         </tbody>

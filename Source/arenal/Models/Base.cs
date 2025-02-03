@@ -1,5 +1,3 @@
-using arenal.Domain;
-
 namespace arenal.Models;
 
 public class Base
@@ -19,7 +17,7 @@ public class Base
     public void Eliminar(string eliminadoPor)
     {
         if (IsDeleted)
-            throw new InvalidOperationException(Common.MensajeErrorObjetoYaEliminado);
+            throw new InvalidOperationException(Utils.MensajeErrorObjetoYaEliminado);
         
         IsDeleted = true;
         RegistrarEliminacion(eliminadoPor, DateTime.UtcNow);

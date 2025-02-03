@@ -1,8 +1,8 @@
-using arenal.Data;
 using arenal.Models;
+using arenal.Models.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace arenal.Domain;
+namespace arenal.Models;
 
 public class ClientesManager : IBaseCore<Cliente>
 {

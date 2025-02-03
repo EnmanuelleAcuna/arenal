@@ -36,8 +36,8 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-12">
-                            <p>Fecha de inicio:&nbsp;<b>@Html.DisplayFor(model => model.Fecha)</b></p>
-                            <p>@Html.DisplayFor(model => model.Descripcion)</p>
+                            <p>Fecha de inicio:&nbsp;<b>@Html.DisplayFor(model => model.FechaInicio)</b></p>
+                            <p><b>Descripción de la sesión:</b> @Html.DisplayFor(model => model.Descripcion)</p>
                         </div>
 
                         <div class="col-sm-12">
@@ -48,7 +48,7 @@
                     
                     <div class="row">
                         <div class="col-12">
-                            @Html.ActionLink("Regresar", "Sesiones", null, null, new { @class = "btn btn-sm btn-primary" })
+                            @Html.ActionLink("Regresar", "MisSesiones", null, null, new { @class = "btn btn-sm btn-primary" })
                         </div>
                     </div>
                 </div>
