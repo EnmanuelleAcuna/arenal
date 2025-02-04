@@ -162,9 +162,8 @@ CREATE TABLE Sesiones(
     IsDeleted BIT NULL
 );
 
-SELECT * FROM Sesiones WHERE Id = '1c9f0a14-b994-4ca3-e108-08dd407cc6a9';
+SELECT * FROM Sesiones;
 
 ALTER TABLE Sesiones ADD FechaFin DATETIME NULL;
 
 ALTER TABLE Sesiones ALTER COLUMN Horas DECIMAL NOT NULL;
-
