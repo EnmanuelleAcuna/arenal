@@ -15,7 +15,7 @@ namespace arenal.Controllers;
 public class CuentasController : BaseController
 {
     private readonly ApplicationUserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly ApplicationRoleManager<ApplicationRole> _roleManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IEmailSender _emailSender;
     private readonly IConfiguration _configuration;
@@ -24,7 +24,7 @@ public class CuentasController : BaseController
     private readonly ApplicationDbContext _dbContext;
 
     public CuentasController(ApplicationUserManager<ApplicationUser> userManager,
-        RoleManager<ApplicationRole> roleManager,
+        ApplicationRoleManager<ApplicationRole> roleManager,
         SignInManager<ApplicationUser> signInManager,
         IConfiguration configuration,
         IHttpContextAccessor contextAccesor,
@@ -190,7 +190,7 @@ public class CuentasController : BaseController
     public ActionResult Usuarios()
     {
         var listaUsuarios = _userManager.Users.ToList();
-        var modelo = listaUsuarios.Select(u => new UsuarioViewModel(u)).ToList();
+        var modelo = listaUsuarios.Select(u => new UsuariosIndexViewModel(u)).ToList();
         return View(modelo);
     }
 
@@ -321,7 +321,7 @@ public class CuentasController : BaseController
     public IActionResult Roles()
     {
         IList<ApplicationRole> listaRoles = _roleManager.Roles.ToList();
-        IList<InicioRolesViewModel> modelo = listaRoles.Select(x => new InicioRolesViewModel(x)).ToList();
+        IList<RolesIndexViewModel> modelo = listaRoles.Select(x => new RolesIndexViewModel(x)).ToList();
         return View(modelo);
     }
 
@@ -334,7 +334,7 @@ public class CuentasController : BaseController
     {
         if (ModelState.IsValid)
         {
-            ApplicationRole rol = modelo.Entidad();
+            ApplicationRole rol = modelo.ToApplicationRole();
             IdentityResult rolCreado = await _roleManager.CreateAsync(rol);
 
             if (rolCreado.Succeeded) return RedirectToAction(nameof(Roles));
@@ -361,15 +361,11 @@ public class CuentasController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarRol(EditarRolViewModel modelo)
+    public async Task<ActionResult> EditarRol(EditarRolViewModel model)
     {
         if (ModelState.IsValid)
         {
-            ApplicationRole rol = await _roleManager.FindByIdAsync(modelo.IdRol);
-
-            // TODO rol.ActualizarDatos(modelo.Nombre, modelo.Descripcion);
-
-            IdentityResult rolActualizado = await _roleManager.UpdateAsync(rol);
+            IdentityResult rolActualizado = await _roleManager.UpdateAsync(model.ToApplicationRole());
 
             if (rolActualizado.Succeeded) return RedirectToAction(nameof(Roles));
 
@@ -378,7 +374,7 @@ public class CuentasController : BaseController
 
         ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(ApplicationRole)));
 
-        return View(modelo);
+        return View(model);
     }
 
     [HttpGet]
@@ -418,7 +414,7 @@ public class CuentasController : BaseController
         var usuariosCoordinadores = await _userManager.GetUsersInRoleAsync("Coordinador");
 
         var usuarios = usuariosColaboradores.Union(usuariosCoordinadores).ToList();
-        var modelo = usuarios.Select(u => new UsuarioViewModel(u)).ToList();
+        var modelo = usuarios.Select(u => new UsuariosIndexViewModel(u)).ToList();
 
         return View(modelo);
     }

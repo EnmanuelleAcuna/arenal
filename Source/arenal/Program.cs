@@ -26,7 +26,8 @@ class Program
 		})
 		.AddEntityFrameworkStores<IdentityDBContext>()
 		.AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider)
-		.AddUserManager<ApplicationUserManager<ApplicationUser>>();
+		.AddUserManager<ApplicationUserManager<ApplicationUser>>()
+		.AddRoleManager<ApplicationRoleManager<ApplicationRole>>();
 
 		builder.Services.Configure<CookiePolicyOptions>(options =>
 		{

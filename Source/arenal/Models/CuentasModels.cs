@@ -46,9 +46,9 @@ public class RestablecerContrasenaViewModel
 	public string Code { get; set; }
 }
 
-public class InicioRolesViewModel
+public class RolesIndexViewModel
 {
-	public InicioRolesViewModel(ApplicationRole rol)
+	public RolesIndexViewModel(ApplicationRole rol)
 	{
 		IdRol = rol.Id;
 		Nombre = rol.Name;
@@ -74,7 +74,7 @@ public class AgregarRolViewModel
 	[StringLength(250, ErrorMessage = "La descripción no debe exceder los 250 caracteres.")]
 	public string Descripcion { get; set; }
 
-	public ApplicationRole Entidad()
+	public ApplicationRole ToApplicationRole()
 	{
 		ApplicationRole rol = new(Guid.NewGuid().ToString(), Nombre, Descripcion);
 		return rol;
@@ -103,18 +103,14 @@ public class EditarRolViewModel
 	[StringLength(250, ErrorMessage = "La descripción no puede exceder los 250 caracteres.")]
 	public string Descripcion { get; set; }
 
-	public ApplicationRole Entidad()
-	{
-		ApplicationRole rol = new(IdRol, Nombre, Descripcion);
-		return rol;
-	}
+	public ApplicationRole ToApplicationRole() => new (IdRol, Nombre, Descripcion);
 }
 
-public class UsuarioViewModel
+public class UsuariosIndexViewModel
 {
-	public UsuarioViewModel() { }
+	public UsuariosIndexViewModel() { }
 
-	public UsuarioViewModel(ApplicationUser usuario)
+	public UsuariosIndexViewModel(ApplicationUser usuario)
 	{
 		IdUsuario = usuario.Id;
 		Nombre = string.Format(new CultureInfo("es-CR"), "{0} {1} {2}", usuario.Name, usuario.FirstLastName, usuario.SecondLastName);
@@ -245,7 +241,7 @@ public class EditarUsuarioViewModel
 	}
 }
 
-public class AgregarInstructorViewModel : UsuarioViewModel
+public class AgregarInstructorViewModel : UsuariosIndexViewModel
 {
 	public AgregarInstructorViewModel() : base() { }
 
@@ -275,7 +271,7 @@ public class AgregarInstructorViewModel : UsuarioViewModel
 	public ApplicationUser Entidad() => new(IdUsuario);
 }
 
-public class AgregarClienteViewModel : UsuarioViewModel
+public class AgregarClienteViewModel : UsuariosIndexViewModel
 {
 	public AgregarClienteViewModel() : base() { }
 
