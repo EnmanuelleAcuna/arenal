@@ -1,0 +1,119 @@
+@{
+    ViewData["Title"] = "Administración";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="mb-0"><i class="fa fa-house-user text-info">&nbsp;</i>Bienvenido <b>@ViewBag.NombreUsuario</b></h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card-deck">
+
+                @* Menú de Servicios *@
+                <div class="card">
+                    <img src="~/images/service.svg" alt="Servicios" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light">
+
+                    <div class="card-body">
+                        <h5 class="card-title text-center font-weight-bold">Servicios</h5>
+                        <p class="card-text text-center">Gestión de servicios</p>
+                        <a href='@Url.Action("Areas", "Servicios")' class="btn btn-sm btn-block btn-primary">Areas de servicio</a>
+                        <a href='@Url.Action("Modalidades", "Servicios")' class="btn btn-sm btn-block btn-primary">Modalidades de servicio</a>
+                        <a href='@Url.Action("Servicios", "Servicios")' class="btn btn-sm btn-block btn-primary">Servicios</a>
+                    </div>
+                </div>
+
+                @* Menú de Cliente *@
+                <div class="card">
+                    <img src="~/images/building.svg" alt="Clientes" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light">
+
+                    <div class="card-body">
+                        <h5 class="card-title text-center font-weight-bold">Clientes</h5>
+                        <p class="card-text text-center">Gestión de clientes</p>
+                        <a href='@Url.Action("TiposCliente", "Clientes")' class="btn btn-sm btn-block btn-primary">Tipos de cliente</a>
+                        <a href='@Url.Action("Clientes", "Clientes")' class="btn btn-sm btn-block btn-primary">Clientes</a>
+                        <a href='@Url.Action("Contratos", "Clientes")' class="btn btn-sm btn-block btn-primary">Contratos</a>
+                        <a href='@Url.Action("Proyectos", "Clientes")' class="btn btn-sm btn-block btn-primary">Proyectos</a>
+                    </div>
+                </div>
+
+                @* Menú de Sesiones *@
+                <div class="card">
+                    <img src="~/images/work.svg" alt="Sesiones" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light">
+
+                    <div class="card-body">
+                        <h5 class="card-title text-center font-weight-bold">Sesiones</h5>
+                        <p class="card-text text-center">Gestión de sesiones de trabajo</p>
+                        <a href='@Url.Action("Colaboradores", "Cuentas")' class="btn btn-sm btn-block btn-primary">Colaboradores</a>
+
+                        @if (User.IsInRole("Colaborador") || User.IsInRole("Coordinador"))
+                        {
+                            <a href='@Url.Action("MisAsignaciones", "Clientes")' class="btn btn-sm btn-block btn-primary">Mis Asignaciones</a>
+                        }
+
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                        {
+                            <a href='@Url.Action("Asignaciones", "Clientes")' class="btn btn-sm btn-block btn-primary">Asignaciones</a>
+                        }
+
+                        @if (User.IsInRole("Colaborador") || User.IsInRole("Coordinador"))
+                        {
+                            <a href='@Url.Action("MisSesiones", "Clientes")' class="btn btn-sm btn-block btn-primary">Mis Sesiones</a>
+                        }
+
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                        {
+                            <a href='@Url.Action("Sesiones", "Clientes")' class="btn btn-sm btn-block btn-primary">Sesiones</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col s12">
+            <div class="card-deck">
+                @if (User.IsInRole("Administrador"))
+                {
+                    @* Menú de reportes*@
+                    @* <div class="card"> *@
+                    @* 	<img src="~/images/report.svg" alt="Reportes" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light"> *@
+                    @* *@
+                    @* 	<div class="card-body"> *@
+                    @* 		<h5 class="card-title text-center font-weight-bold">Reportes</h5> *@
+                    @* 		<p class="card-text text-center">Reportes del sistema</p> *@
+                    @* 		<a href='@Url.Action("Construccion", "Clientes")' class="btn btn-sm btn-block btn-primary">Reporte por proyecto</a> *@
+                    @* 		<a href='@Url.Action("Construccion", "Clientes")' class="btn btn-sm btn-block btn-primary">Reporte por colaborador</a> *@
+                    @* 	</div> *@
+                    @* </div> *@
+                }
+
+                @if (User.IsInRole("Administrador"))
+                {
+                    @* Menú de roles y usuarios*@
+                    <div class="card" style="max-width: 340px">
+                        <img src="~/images/users.svg" alt="Cuentas" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light">
+
+                        <div class="card-body">
+                            <h5 class="card-title text-center font-weight-bold">Cuentas</h5>
+                            <p class="card-text text-center">Gestión de usuarios y roles</p>
+                            <a href='@Url.Action("Roles", "Cuentas")' class="btn btn-sm btn-block btn-primary">Roles</a>
+                            <a href='@Url.Action("Usuarios", "Cuentas")' class="btn btn-sm btn-block btn-primary">Usuarios</a>
+                        </div>
+                    </div>
+                }
+
+                @* Contenedor de relleno*@
+                <div class="card" style="background-color: transparent; border: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>

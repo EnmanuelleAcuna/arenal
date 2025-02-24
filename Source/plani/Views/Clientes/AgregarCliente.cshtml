@@ -1,0 +1,108 @@
+﻿@model Cliente
+
+@{
+    ViewBag.Title = "Agregar cliente";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h6 class="page-title">Agregar nuevo cliente</h6>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="@Url.Action("Administracion", "Home")">Administración</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="@Url.Action("Clientes")">Clientes</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Agregar
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    @using (Html.BeginForm("AgregarCliente", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                @Html.ValidationSummary(true, "")
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Identificacion)
+                                    @Html.TextBoxFor(model => model.Identificacion, "", new { @class = "form-control form-control-sm", placeholder = "" })
+                                    @Html.ValidationMessageFor(model => model.Identificacion, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Nombre)
+                                    @Html.TextBoxFor(model => model.Nombre, "", new { @class = "form-control form-control-sm", placeholder = "" })
+                                    @Html.ValidationMessageFor(model => model.Nombre, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-4">
+                                <div class="form-group">
+                                    <label>Tipo de Cliente</label>
+                                    @Html.DropDownListFor(model => model.IdTipoCliente, new List<SelectListItem>(ViewBag.TiposCliente), "Seleccione un tipo de cliente", new { @class = "form-control form-control-sm" })
+                                    @Html.ValidationMessageFor(model => model.IdTipoCliente)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Direccion)
+                                    @Html.TextAreaFor(model => model.Direccion, new { @class = "form-control form-cotrol-sm" })
+                                    @Html.ValidationMessageFor(model => model.Direccion)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Descripcion)
+                                    @Html.TextAreaFor(model => model.Descripcion, new { @class = "form-control form-cotrol-sm" })
+                                    @Html.ValidationMessageFor(model => model.Descripcion)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
+                                @Html.ActionLink("Regresar", "Clientes", null, null, new { @class = "btn btn-sm btn-secondary" })
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

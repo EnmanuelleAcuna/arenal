@@ -1,0 +1,67 @@
+@model Proyecto
+
+@{
+    ViewBag.Title = "Eliminar proyecto";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-5 align-self-center">
+            <h6 class="page-title">Eliminar proyecto</h6>
+        </div>
+        <div class="col-7 align-self-center">
+            <div class="d-flex align-items-center justify-content-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="@Url.Action("Administracion", "Home")">Administración</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="@Url.Action("Proyectos")">Proyectos</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Eliminar
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    @using (Html.BeginForm("EliminarProyecto", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.Id)
+                        @Html.HiddenFor(model => model.Contrato.Cliente.Nombre)
+                        @Html.HiddenFor(model => model.Contrato.Identificacion)
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h6>
+                                    ¿Seguro que desea eliminar el proyecto <b>@Html.DisplayFor(model => model.Nombre)</b> del cliente: <b>@Html.DisplayFor(model => model.Contrato.Cliente.Nombre)</b> y contrato <b>@Html.DisplayFor(model => model.Contrato.Identificacion)</b>?
+                                </h6>
+                            </div>
+
+                            <div class="col-12">
+                                <input value="Eliminar" class="btn btn-sm btn-danger" type="submit"/>
+                                @Html.ActionLink("Regresar", "Proyectos", null, null, new { @class = "btn btn-sm btn-secondary" })
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
