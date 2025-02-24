@@ -1,13 +1,20 @@
-CREATE TABLE dbo.AspNetRoles(
+CREATE TABLE dbo.Roles(
 	Id NVARCHAR(450) NOT NULL,
 	[Description] NVARCHAR(MAX) NULL,
 	ConcurrencyStamp NVARCHAR(MAX) NULL,
 	[Name] NVARCHAR(256) NULL,
 	NormalizedName NVARCHAR(256) NULL,
-    CONSTRAINT PK_AspNetRoles PRIMARY KEY CLUSTERED (Id ASC)
+    DateCreated DATETIME NOT NULL CONSTRAINT DF_Roles_DateCreated DEFAULT GETDATE(),
+    CreatedBy NVARCHAR(100) NOT NULL,
+    DateUpdated DATETIME NULL,
+    UpdatedBy NVARCHAR(100) NULL,
+    DateDeleted DATETIME NULL,
+    DeletedBy NVARCHAR(100) NULL,
+	IsDeleted BIT NULL,
+    CONSTRAINT PK_Roles PRIMARY KEY CLUSTERED (Id ASC)
 );
 
-SELECT * FROM dbo.AspNetRoles;
+SELECT * FROM Roles;
 
 CREATE TABLE dbo.AspNetRoleClaims(
 	Id INT IDENTITY(1,1) NOT NULL,
@@ -20,7 +27,7 @@ CREATE TABLE dbo.AspNetRoleClaims(
 
 SELECT * FROM dbo.AspNetRoleClaims;
 
-CREATE TABLE dbo.AspNetUsers(
+CREATE TABLE dbo.Usuarios (
 	Id NVARCHAR(450) NOT NULL,
 	IdentificationNumber NVARCHAR(MAX) NULL,
 	[Name] NVARCHAR(MAX) NULL,
@@ -34,10 +41,17 @@ CREATE TABLE dbo.AspNetUsers(
 	PasswordHash NVARCHAR(MAX) NULL,
 	SecurityStamp NVARCHAR(MAX) NULL,
 	ConcurrencyStamp NVARCHAR(MAX) NULL,
-    CONSTRAINT PK_AspNetUsers PRIMARY KEY CLUSTERED (Id ASC)
+ 	DateCreated DATETIME NOT NULL CONSTRAINT DF_Usuarios_DateCreated DEFAULT GETDATE(),
+    CreatedBy NVARCHAR(100) NOT NULL,
+    DateUpdated DATETIME NULL,
+    UpdatedBy NVARCHAR(100) NULL,
+    DateDeleted DATETIME NULL,
+    DeletedBy NVARCHAR(100) NULL,
+	IsDeleted BIT NULL,
+    CONSTRAINT PK_Usuarios PRIMARY KEY CLUSTERED (Id ASC)
 );
 
-SELECT * FROM dbo.AspNetUsers;
+SELECT * FROM Usuarios;
 
 CREATE TABLE dbo.AspNetUserClaims(
 	Id INT IDENTITY(1,1) NOT NULL,
