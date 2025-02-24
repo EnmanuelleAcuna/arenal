@@ -2,7 +2,7 @@
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "arenal", "arenal\arenal.csproj", "{8C222ED0-C776-4666-A3FA-7CEB501BA437}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "plani", "plani\plani.csproj", "{8C222ED0-C776-4666-A3FA-7CEB501BA437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
