@@ -1,9 +1,9 @@
-# arenal
-Plataforma para la gestión de trabajo mediante el control de sesiones de trabajo, proyectos, recursos y contratos.
+# plani
+Plataforma para la gestión de trabajo mediante el control de sesiones de trabajo, proyectos y colaboradores.
 
 Gestión de estructura organizacional de el recurso humano de la organizacion, como empleados, areas, jefaturas, tambien de los servicios ofrecidos.
 
-Gestión de proyectos mediante el control de clientes (empresas), contratos, proyectos, registro de sesiones de trabajo, mediante la especificacion de horas empleadas ofreciendo los servicios.
+Gestión de proyectos mediante el control de clientes (empresas), proyectos, registro de sesiones de trabajo, mediante la especificacion de horas empleadas ofreciendo los servicios.
 
 ## Proceso de planificación y seguimiento de trabajo
 Básico: https://docs.microsoft.com/en-us/azure/devops/boards/get-started/plan-track-work?view=azure-devops&tabs=basic-process&source=docs
@@ -79,20 +79,3 @@ TODO
   // Generar las vistas y codigo para las vistas deseadas
   dotnet aspnet-codegenerator identity --dbContext PCG.Data.ApplicationDbContext --files "Account.ForgotPassword;Account.ForgotPasswordConfirmation;Account.Login;Account.Logout;Account.ResetPassword;Account.ResetPasswordConfirmation"
   ```
-
-==LISTO
-Contratos definir si tiene o no fecha fin
-==LISTO
-
-==LISTO
-Servicios:
-Contabilidades mensuales
-Planillas
-RRHH
-==LISTO
-
-Lista de todas las contas del mes
-
-Ejemplo de asignacion:
-Cliente XXXX asignar a Carmen ese mes:
-Mes siguiente a Miguel
