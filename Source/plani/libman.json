@@ -3,7 +3,6 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "provider": "unpkg",
       "library": "bootstrap@4.5.3",
       "destination": "wwwroot/lib/bootstrap/",
       "files": [
