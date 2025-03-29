@@ -397,6 +397,9 @@ public class Sesion : Base
     [Column("Fecha")]
     public DateTime FechaInicio { get; set; }
     
+    [Column("FechaPausa")]
+    public DateTime? FechaPausa { get; set; }
+    
     // [DataType(DataType.Date)] 
     public DateTime? FechaFin { get; set; }
 

@@ -34,6 +34,35 @@
                     @* <a asp-action="AgregarSesion" class="btn btn-sm btn-primary">Agregar sesión</a> *@
                     @* <hr/> *@
 
+                    @if (Model.ProyectosSesiones.Count == 0)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            No hay asignaciones registradas.
+                        </div>
+                    }
+
+                    @using (Html.BeginForm("Sesiones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
+                    {
+                    @Html.AntiForgeryToken()
+                    @* @Html.HiddenFor(model => model.Idusuario) *@
+
+                    <div class="row">
+                        <div class="col-sm-12 col-md-4">
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.IdUsuario)
+                                @Html.DropDownListFor(model => model.IdUsuario, new List<SelectListItem>(ViewBag.Colaboradores), "Seleccione un colaborador", new { @class = "form-control form-control-sm" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row my-2">
+                        <div class="col-12">
+                            <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
+                            @Html.ActionLink("Exportar", "ExportarSesiones", null, null, new { @class = "btn btn-sm btn-secondary" })
+                        </div>
+                    </div>
+                    }
+
                     <div class="row mb-3">
                         <div class="col">
                             <div class="card">

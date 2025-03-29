@@ -48,23 +48,23 @@
 
                     <div class="row mt-4">
                         <div class="col-12">
-                            <h6 class="font-weight-bold">Contratos</h6>
+                            <h6 class="font-weight-bold">Proyectos</h6>
                             <div class="table-responsive">
                                 <table class="table table-hover table-sm text-nowrap">
                                     <thead>
                                     <tr>
-                                        <th>@Html.DisplayNameFor(m => m.Contratos.FirstOrDefault().Identificacion)</th>
+                                        <th>@Html.DisplayNameFor(m => m.Contratos.FirstOrDefault().Proyectos.FirstOrDefault().Nombre)</th>
                                         <th>Área</th>
                                     </tr>
                                     </thead>
 
                                     <tbody>
 
-                                    @foreach (var contrato in Model.Contratos)
+                                    @foreach (var proyecto in Model.Contratos.FirstOrDefault().Proyectos)
                                     {
                                         <tr>
-                                            <td>@contrato.Identificacion</td>
-                                            <td>@contrato.Area.Nombre</td>
+                                            <td>@proyecto.Nombre</td>
+                                            <td>@proyecto.Area.Nombre</td>
                                         </tr>
                                     }
 

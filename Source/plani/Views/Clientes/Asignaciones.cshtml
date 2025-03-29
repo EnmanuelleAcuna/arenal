@@ -34,7 +34,35 @@
                     @* <h4 class="mb-4">Asignaciones por Proyecto</h4> *@
                     <a asp-action="Colaboradores" asp-controller="Cuentas" class="btn btn-sm btn-primary">Agregar asignacion</a>
                     <hr/>
-                    
+
+                    @if (Model.ProyectosAsignaciones.Count == 0)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            No hay asignaciones registradas.
+                        </div>
+                    }
+
+                    @using (Html.BeginForm("Asignaciones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @* @Html.HiddenFor(model => model.Idusuario) *@
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.IdUsuario)
+                                    @Html.DropDownListFor(model => model.IdUsuario, new List<SelectListItem>(ViewBag.Colaboradores), "Seleccione un colaborador", new { @class = "form-control form-control-sm" })
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row my-2">
+                            <div class="col-12">
+                                <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
+                            </div>
+                        </div>
+                    }
+
                     <div class="row mb-3">
                         <div class="col">
                             <div class="card">

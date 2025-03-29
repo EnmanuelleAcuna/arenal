@@ -35,8 +35,8 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<ApplicationUser>(b => { b.ToTable("AspNetUsers", "dbo"); });
-        modelBuilder.Entity<ApplicationRole>(b => { b.ToTable("AspNetRoles", "dbo"); });
+        modelBuilder.Entity<ApplicationUser>(b => { b.ToTable("Usuarios"); });
+        modelBuilder.Entity<ApplicationRole>(b => { b.ToTable("Roles"); });
 
         modelBuilder.Entity<TipoCliente>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Cliente>().HasQueryFilter(e => !e.IsDeleted);

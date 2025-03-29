@@ -81,6 +81,19 @@
                                                     <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
                                                         @if (!sesion.FechaFin.HasValue)
                                                         {
+                                                            if (sesion.FechaPausa.HasValue)
+                                                            {
+                                                                <a class="btn btn-sm btn-success" asp-controller="Clientes" asp-action="ReanudarSesion" asp-route-id="@sesion.Id">
+                                                                    Reanudar sesión
+                                                                </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a class="btn btn-sm btn-warning" asp-controller="Clientes" asp-action="PausarSesion" asp-route-id="@sesion.Id">
+                                                                    Pausar sesión
+                                                                </a>
+                                                            }
+
                                                             <a class="btn btn-sm btn-primary" asp-controller="Clientes" asp-action="FinalizarSesion" asp-route-id="@sesion.Id">
                                                                 Finalizar sesión
                                                             </a>

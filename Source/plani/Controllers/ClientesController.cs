@@ -1,6 +1,6 @@
+using System.ComponentModel;
 using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -162,8 +162,8 @@ public class ClientesController : BaseController
     {
         Cliente model = await _dbContext.Clientes
             .Include(c => c.TipoCliente)
-            .Include(c => c.Contratos)
-            .ThenInclude(co => co.Area)
+            .Include(c => c.Contratos).ThenInclude(c => c.Proyectos)
+            .ThenInclude(p => p.Area)
             .FirstOrDefaultAsync(a => a.Id == id);
 
         if (model == null) return NotFound();
@@ -197,6 +197,20 @@ public class ClientesController : BaseController
 
         model.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
         await _dbContext.Clientes.AddAsync(model);
+        
+        // Add new Contrato for that Cliente
+        Contrato contrato = new Contrato
+        {
+            IdCliente = model.Id,
+            Identificacion = "CONTRATO-" + model.Id,
+            Descripcion = "Contrato de " + model.Nombre,
+            FechaInicio = DateTime.UtcNow,
+            IdArea = Guid.Parse("f9c46324-5f71-4faf-0171-08dd2fd1b693")
+        };
+        
+        contrato.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
+        await _dbContext.Contratos.AddAsync(contrato);
+        
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Clientes));
@@ -454,7 +468,7 @@ public class ClientesController : BaseController
     {
         IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
         ViewBag.Contratos = contratos.Select(c =>
-            new SelectListItem(text: $"{c.Cliente.Nombre} - {c.Identificacion}", c.Id.ToString()));
+            new SelectListItem(text: $"{c.Cliente.Nombre}", c.Id.ToString()));
 
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -500,7 +514,7 @@ public class ClientesController : BaseController
 
         IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
         ViewBag.Contratos = contratos.Select(c =>
-            new SelectListItem(text: $"{c.Cliente.Nombre} - {c.Identificacion}", c.Id.ToString()));
+            new SelectListItem(text: $"{c.Cliente.Nombre}", c.Id.ToString()));
 
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -579,6 +593,9 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> Asignaciones()
     {
+        var colaboradores = _dbContext.Usuarios.ToList();
+        ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
+
         var asignaciones = await _dbContext.Asignaciones
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
@@ -588,6 +605,39 @@ public class ClientesController : BaseController
 
         var viewModel = new AsignacionesIndexViewModel
         {
+            ProyectosAsignaciones = asignaciones
+                .GroupBy(a => a.IdProyecto)
+                .Select(group => new ProyectoAsignacionesViewModel
+                {
+                    IdProyecto = group.Key,
+                    NombreProyecto = group.First().Proyecto.Nombre,
+                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
+                    Asignaciones = group.ToList()
+                })
+                .OrderBy(p => p.NombreProyecto)
+                .ToList()
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Asignaciones(AsignacionesIndexViewModel model)
+    {
+        var colaboradores = _dbContext.Usuarios.ToList();
+        ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
+
+        var asignaciones = await _dbContext.Asignaciones
+            .Include(a => a.ApplicationUser)
+            .Include(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .Where(a => model.IdUsuario == null || a.IdColaborador == model.IdUsuario)
+            .ToListAsync();
+
+        var viewModel = new AsignacionesIndexViewModel
+        {
+            IdUsuario = model.IdUsuario,
             ProyectosAsignaciones = asignaciones
                 .GroupBy(a => a.IdProyecto)
                 .Select(group => new ProyectoAsignacionesViewModel
@@ -729,6 +779,9 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> Sesiones()
     {
+        var colaboradores = _dbContext.Usuarios.ToList();
+        ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
+
         var sesiones = await _dbContext.Sesiones
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
@@ -753,6 +806,72 @@ public class ClientesController : BaseController
 
         return View(viewModel);
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Sesiones(SesionesIndexViewModel model)
+    {
+        var colaboradores = _dbContext.Usuarios.ToList();
+        ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
+
+        var sesiones = await _dbContext.Sesiones
+            .Include(a => a.ApplicationUser)
+            .Include(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .Where(s => model.IdUsuario == null || s.IdColaborador == model.IdUsuario)
+            .ToListAsync();
+
+        var viewModel = new SesionesIndexViewModel
+        {
+            IdUsuario = model.IdUsuario,
+            ProyectosSesiones = sesiones
+                .GroupBy(a => a.IdProyecto)
+                .Select(group => new ProyectoSesionesViewModel()
+                {
+                    IdProyecto = group.Key,
+                    NombreProyecto = group.First().Proyecto.Nombre,
+                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
+                    Sesiones = group.ToList()
+                })
+                .OrderBy(p => p.NombreProyecto)
+                .ToList()
+        };
+
+        return View(viewModel);
+    }
+    
+    // [HttpPost]
+    // public async Task<IActionResult> ExportarSesiones(string id)
+    // {
+    //     var colaboradores = _dbContext.Usuarios.ToList();
+    //     ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
+    //
+    //     var sesiones = await _dbContext.Sesiones
+    //         .Include(a => a.ApplicationUser)
+    //         .Include(a => a.Proyecto)
+    //         .ThenInclude(p => p.Contrato)
+    //         .ThenInclude(c => c.Cliente)
+    //         .Where(s => model.IdUsuario == null || s.IdColaborador == model.IdUsuario)
+    //         .ToListAsync();
+    //
+    //     var viewModel = new SesionesIndexViewModel
+    //     {
+    //         IdUsuario = model.IdUsuario,
+    //         ProyectosSesiones = sesiones
+    //             .GroupBy(a => a.IdProyecto)
+    //             .Select(group => new ProyectoSesionesViewModel()
+    //             {
+    //                 IdProyecto = group.Key,
+    //                 NombreProyecto = group.First().Proyecto.Nombre,
+    //                 NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
+    //                 Sesiones = group.ToList()
+    //             })
+    //             .OrderBy(p => p.NombreProyecto)
+    //             .ToList()
+    //     };
+    //
+    //     return View(viewModel);
+    // }
 
     [HttpGet]
     public async Task<IActionResult> MisSesiones()
@@ -854,10 +973,27 @@ public class ClientesController : BaseController
     }
 
     [HttpGet]
+    public ActionResult ErrorIniciarSesion()
+    {
+        return View();
+    }
+
+    [HttpGet]
     public async Task<IActionResult> IniciarSesion()
     {
         var currentUser = GetCurrentUser();
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(currentUser);
+        
+        // Get user's active sesiones
+        var activeSesiones = await _dbContext.Sesiones
+            .Where(s => s.IdColaborador == colaborador.Id && s.FechaFin == null)
+            .ToListAsync();
+        
+        if (activeSesiones.Count > 1)
+        {
+            ModelState.AddModelError("", "No puede iniciar una nueva sesión si tienes dos sesiones activa.");
+            return RedirectToAction(nameof(ErrorIniciarSesion));
+        }
 
         IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
 
@@ -921,6 +1057,76 @@ public class ClientesController : BaseController
     }
 
     [HttpGet]
+    public async Task<IActionResult> PausarSesion(Guid id)
+    {
+        Sesion sesion = await _dbContext.Sesiones.FindAsync(id);
+
+        if (sesion == null) return NotFound();
+
+        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(sesion.IdProyecto);
+
+        Servicio servicio = await _dbContext.Servicios.FindAsync(sesion.IdServicio);
+
+        PausarSesionModel model = new PausarSesionModel
+        {
+            IdSesion = sesion.Id,
+            IdProyecto = sesion.IdProyecto,
+            NombreProyecto = proyecto.Nombre,
+            IdServicio = sesion.IdServicio,
+            NombreServicio = servicio.Nombre,
+            Descripcion = sesion.Descripcion,
+            Horas = sesion.Horas
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> PausarSesion(PausarSesionModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("",
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
+
+            IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
+
+            ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
+
+            IEnumerable<Asignacion> asignaciones =
+                await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
+                    .ThenInclude(c => c.Cliente).ToListAsync();
+            ViewBag.Proyectos = asignaciones.Select(c =>
+                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
+                    c.IdProyecto.ToString()));
+
+            return View(model);
+        }
+
+        Sesion sesion = await _dbContext.Sesiones.FindAsync(model.IdSesion);
+
+        if (sesion == null) return NotFound();
+
+        sesion.FechaPausa = DateTime.Now;
+
+        double horas = (sesion.FechaPausa - sesion.FechaInicio).Value.Hours + 1;
+
+        double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
+
+        sesion.Horas += roundedHours;
+        sesion.Descripcion = model.Descripcion;
+
+        _dbContext.Sesiones.Update(sesion);
+        int changes = await _dbContext.SaveChangesAsync();
+
+        if (changes > 0) return RedirectToAction(nameof(MisSesiones));
+
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Sesion)));
+        return View(model);
+    }
+
+    [HttpGet]
     public async Task<IActionResult> FinalizarSesion(Guid id)
     {
         Sesion sesion = await _dbContext.Sesiones.FindAsync(id);
@@ -972,7 +1178,79 @@ public class ClientesController : BaseController
         if (sesion == null) return NotFound();
 
         sesion.FechaFin = DateTime.Now;
-        sesion.Horas = (sesion.FechaInicio - DateTime.Now).Hours + 1;
+
+        // sesion.Horas = (sesion.FechaInicio - DateTime.Now).Hours + 1;
+
+        double horas = (sesion.FechaFin - sesion.FechaInicio).Value.Hours + 1;
+
+        double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
+
+        sesion.Horas += roundedHours;
+        sesion.Descripcion = model.Descripcion;
+
+        _dbContext.Sesiones.Update(sesion);
+        int changes = await _dbContext.SaveChangesAsync();
+
+        if (changes > 0) return RedirectToAction(nameof(MisSesiones));
+
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Sesion)));
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ReanudarSesion(Guid id)
+    {
+        Sesion sesion = await _dbContext.Sesiones.FindAsync(id);
+
+        if (sesion == null) return NotFound();
+
+        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(sesion.IdProyecto);
+
+        Servicio servicio = await _dbContext.Servicios.FindAsync(sesion.IdServicio);
+
+        PausarSesionModel model = new PausarSesionModel
+        {
+            IdSesion = sesion.Id,
+            IdProyecto = sesion.IdProyecto,
+            NombreProyecto = proyecto.Nombre,
+            IdServicio = sesion.IdServicio,
+            NombreServicio = servicio.Nombre,
+            Descripcion = sesion.Descripcion,
+            Horas = sesion.Horas
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ReanudarSesion(PausarSesionModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("",
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
+
+            IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
+
+            ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
+
+            IEnumerable<Asignacion> asignaciones =
+                await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
+                    .ThenInclude(c => c.Cliente).ToListAsync();
+            ViewBag.Proyectos = asignaciones.Select(c =>
+                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
+                    c.IdProyecto.ToString()));
+
+            return View(model);
+        }
+
+        Sesion sesion = await _dbContext.Sesiones.FindAsync(model.IdSesion);
+
+        if (sesion == null) return NotFound();
+
+        sesion.FechaInicio = DateTime.Now;
+        sesion.FechaPausa = null;
         sesion.Descripcion = model.Descripcion;
 
         _dbContext.Sesiones.Update(sesion);
@@ -1021,6 +1299,8 @@ public class AsignacionesIndexViewModel
     public List<ProyectoAsignacionesViewModel> ProyectosAsignaciones { get; set; }
     public int TotalAsignaciones => ProyectosAsignaciones?.Sum(p => p.CantidadAsignaciones) ?? 0;
     public int TotalHorasEstimadas => ProyectosAsignaciones?.Sum(p => p.TotalHorasEstimadas) ?? 0;
+
+    [DisplayName("Colaborador")] public string IdUsuario { get; set; }
 }
 
 public class AgregarAsignacionModel
@@ -1051,6 +1331,8 @@ public class SesionesIndexViewModel
     public List<ProyectoSesionesViewModel> ProyectosSesiones { get; set; }
     public int TotalSesiones => ProyectosSesiones?.Sum(p => p.CantidadSesiones) ?? 0;
     public double TotalHoras => ProyectosSesiones?.Sum(p => p.TotalHoras) ?? 0;
+
+    [DisplayName("Colaborador")] public string IdUsuario { get; set; }
 }
 
 public class AgregarSesionModel
@@ -1062,6 +1344,20 @@ public class AgregarSesionModel
     public DateTime Fecha { get; set; }
     public string Horas { get; set; }
     public string Descripcion { get; set; }
+}
+
+public class PausarSesionModel
+{
+    public Guid IdSesion { get; set; }
+    public string NombreColaborador { get; set; }
+    public Guid IdProyecto { get; set; }
+    public string NombreProyecto { get; set; }
+    public Guid IdUsuario { get; set; }
+    public Guid IdServicio { get; set; }
+    public string NombreServicio { get; set; }
+    public DateTime Fecha { get; set; }
+    public string Descripcion { get; set; }
+    public double Horas { get; set; }
 }
 
 public class FinalizarSesionModel

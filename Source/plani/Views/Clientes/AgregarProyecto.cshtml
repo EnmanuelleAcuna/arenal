@@ -65,8 +65,8 @@
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="form-group">
-                                    <label>Contrato</label>
-                                    @Html.DropDownListFor(model => model.IdContrato, new List<SelectListItem>(ViewBag.Contratos), "Seleccione contrato", new { @class = "form-control form-control-sm" })
+                                    <label>Cliente</label>
+                                    @Html.DropDownListFor(model => model.IdContrato, new List<SelectListItem>(ViewBag.Contratos), "Seleccione cliente", new { @class = "form-control form-control-sm" })
                                     @Html.ValidationMessageFor(model => model.IdContrato)
                                 </div>
                             </div>
