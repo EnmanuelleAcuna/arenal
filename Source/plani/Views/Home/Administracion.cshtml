@@ -51,7 +51,11 @@
                     <div class="card-body">
                         <h5 class="card-title text-center font-weight-bold">Sesiones</h5>
                         <p class="card-text text-center">Gestión de sesiones de trabajo</p>
-                        <a href='@Url.Action("Colaboradores", "Cuentas")' class="btn btn-sm btn-block btn-primary">Colaboradores</a>
+
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                        {
+                            <a href='@Url.Action("Colaboradores", "Cuentas")' class="btn btn-sm btn-block btn-primary">Colaboradores</a>
+                        }
 
                         @if (User.IsInRole("Colaborador") || User.IsInRole("Coordinador"))
                         {
@@ -105,8 +109,8 @@
                         <div class="card-body">
                             <h5 class="card-title text-center font-weight-bold">Cuentas</h5>
                             <p class="card-text text-center">Gestión de usuarios y roles</p>
-                            <a href='@Url.Action("Roles", "Cuentas")' class="btn btn-sm btn-block btn-primary">Roles</a>
                             <a href='@Url.Action("Usuarios", "Cuentas")' class="btn btn-sm btn-block btn-primary">Usuarios</a>
+                            <a href='@Url.Action("Roles", "Cuentas")' class="btn btn-sm btn-block btn-primary">Roles</a>
                         </div>
                     </div>
                 }

@@ -195,7 +195,7 @@ public class AgregarUsuarioViewModel
 
     public ApplicationUser Entidad()
     {
-        ApplicationUser usuario = new(Guid.NewGuid().ToString(), CorreoElectronico, CorreoElectronico, Nombre,
+        ApplicationUser usuario = new(Guid.NewGuid().ToString(), CorreoElectronico, Nombre,
             PrimerApellido, SegundoApellido, NumeroIdentificacion, true);
         return usuario;
     }
@@ -258,7 +258,7 @@ public class EditarUsuarioViewModel
 
     public ApplicationUser Entidad()
     {
-        ApplicationUser usuario = new(IdUsuario, CorreoElectronico, CorreoElectronico, Nombre, PrimerApellido,
+        ApplicationUser usuario = new(IdUsuario, CorreoElectronico, Nombre, PrimerApellido,
             SegundoApellido, NumeroIdentificacion, true);
         return usuario;
     }

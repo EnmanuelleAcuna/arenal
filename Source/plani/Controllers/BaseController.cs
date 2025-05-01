@@ -42,7 +42,7 @@ public class BaseController : Controller
         await _roleManager.CreateAsync(rolColaborador);
         await _roleManager.CreateAsync(rolCoordinador);
 
-        var usuario = new ApplicationUser(Guid.NewGuid().ToString(), "emanuelacu@gmail.com", "emanuelacu@gmail.com",
+        var usuario = new ApplicationUser(Guid.NewGuid().ToString(), "emanuelacu@gmail.com",
             "Enmanuelle", "Acuña", "Arguedas", "206830685", true);
 
         var rolesSeleccionados = new List<string> { "Administrador", "Colaborador" };

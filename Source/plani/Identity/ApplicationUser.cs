@@ -19,12 +19,12 @@ public class ApplicationUser : IdentityUser
         Sesiones = new List<Sesion>();
     }
 
-    public ApplicationUser(string id, string correo, string nombreUsuario, string nombre, string primerApellido,
+    public ApplicationUser(string id, string correo, string nombre, string primerApellido,
         string segundoApellido, string identificacion, bool activo)
     {
         Id = id;
-        Email = correo;
-        UserName = nombreUsuario;
+        Email = correo.ToLower();
+        UserName = correo.ToLower();
         Name = nombre;
         FirstLastName = primerApellido;
         SecondLastName = segundoApellido;

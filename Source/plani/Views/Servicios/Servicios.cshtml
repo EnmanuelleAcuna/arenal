@@ -31,10 +31,13 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <a asp-action="AgregarServicio" class="btn btn-sm btn-secondary">Agregar servicio</a>
 
-                    <hr/>
-
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                    {
+                        <a asp-action="AgregarServicio" class="btn btn-sm btn-secondary">Agregar servicio</a>
+                        <hr/>
+                    }
+                    
                     <div class="table-responsive">
                         <table class="table table-hover table-sm text-nowrap">
                             <thead>
@@ -60,12 +63,16 @@
                                             <a class="btn btn-sm btn-light text-primary" asp-controller="Servicios" asp-action="DetalleServicio" asp-route-id="@item.Id">
                                                 Detalle
                                             </a>
-                                            <a class="btn btn-sm btn-light" asp-controller="Servicios" asp-action="EditarServicio" asp-route-id="@item.Id">
-                                                Modificar
-                                            </a>
-                                            <a class="btn btn-sm btn-light text-danger" asp-controller="Servicios" asp-action="EliminarServicio" asp-route-id="@item.Id">
-                                                Eliminar
-                                            </a>
+
+                                            @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                                            {
+                                                <a class="btn btn-sm btn-light" asp-controller="Servicios" asp-action="EditarServicio" asp-route-id="@item.Id">
+                                                    Modificar
+                                                </a>
+                                                <a class="btn btn-sm btn-light text-danger" asp-controller="Servicios" asp-action="EliminarServicio" asp-route-id="@item.Id">
+                                                    Eliminar
+                                                </a>
+                                            }
                                         </div>
                                     </td>
                                 </tr>

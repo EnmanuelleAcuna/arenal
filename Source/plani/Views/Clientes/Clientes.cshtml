@@ -31,9 +31,11 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <a asp-action="AgregarCliente" class="btn btn-sm btn-primary">Agregar cliente</a>
-
-                    <hr/>
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                    {
+                        <a asp-action="AgregarCliente" class="btn btn-sm btn-primary">Agregar cliente</a>
+                        <hr/>
+                    }
 
                     <div class="table-responsive">
                         <table class="table table-hover table-sm text-nowrap">
@@ -62,12 +64,16 @@
                                             <a class="btn btn-sm btn-light text-primary" asp-controller="Clientes" asp-action="DetalleCliente" asp-route-id="@item.Id">
                                                 Detalle
                                             </a>
-                                            <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarCliente" asp-route-id="@item.Id">
-                                                Modificar
-                                            </a>
-                                            <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarCliente" asp-route-id="@item.Id">
-                                                Eliminar
-                                            </a>
+
+                                            @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                                            {
+                                                <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarCliente" asp-route-id="@item.Id">
+                                                    Modificar
+                                                </a>
+                                                <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarCliente" asp-route-id="@item.Id">
+                                                    Eliminar
+                                                </a>
+                                            }
                                         </div>
                                     </td>
                                 </tr>

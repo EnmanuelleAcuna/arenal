@@ -31,9 +31,12 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <a asp-action="AgregarModalidad" class="btn btn-sm btn-secondary">Agregar modalidad</a>
 
-                    <hr/>
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                    {
+                        <a asp-action="AgregarModalidad" class="btn btn-sm btn-secondary">Agregar modalidad</a>
+                        <hr/>
+                    }
 
                     <div class="table-responsive">
                         <table class="table table-hover table-sm text-nowrap">
@@ -56,12 +59,16 @@
                                             <a class="btn btn-sm btn-light text-primary" asp-controller="Servicios" asp-action="DetalleModalidad" asp-route-id="@item.Id">
                                                 Detalle
                                             </a>
-                                            <a class="btn btn-sm btn-light" asp-controller="Servicios" asp-action="EditarModalidad" asp-route-id="@item.Id">
-                                                Modificar
-                                            </a>
-                                            <a class="btn btn-sm btn-light text-danger" asp-controller="Servicios" asp-action="EliminarModalidad" asp-route-id="@item.Id">
-                                                Eliminar
-                                            </a>
+
+                                            @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                                            {
+                                                <a class="btn btn-sm btn-light" asp-controller="Servicios" asp-action="EditarModalidad" asp-route-id="@item.Id">
+                                                    Modificar
+                                                </a>
+                                                <a class="btn btn-sm btn-light text-danger" asp-controller="Servicios" asp-action="EliminarModalidad" asp-route-id="@item.Id">
+                                                    Eliminar
+                                                </a>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
