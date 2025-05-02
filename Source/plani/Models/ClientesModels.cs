@@ -49,6 +49,14 @@ public class TipoCliente : Base
     public override string ToString() => JsonSerializer.Serialize(this);
 }
 
+public class IndexClientesViewModel
+{
+    [DisplayName("Filtrar por")]
+    public string PalabraClave { get; set; }
+    
+    public IEnumerable<Cliente> Clientes { get; set; }
+}
+
 [Table("Clientes")]
 public class Cliente : Base
 {
@@ -206,6 +214,14 @@ public class Contrato : Base
     }
 
     public override string ToString() => JsonSerializer.Serialize(this);
+}
+
+public class IndexProyectosViewModel
+{
+    [DisplayName("Filtrar por")]
+    public string PalabraClave { get; set; }
+    
+    public IEnumerable<Proyecto> Proyectos { get; set; }
 }
 
 [Table("Proyectos")]

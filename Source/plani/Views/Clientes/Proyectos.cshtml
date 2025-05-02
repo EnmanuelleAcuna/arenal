@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Proyecto>
+﻿@model IndexProyectosViewModel
 
 @{
     ViewBag.Title = "Proyectos";
@@ -7,7 +7,7 @@
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">Proyectos</h6>
+            <h6 class="page-title">@ViewBag.Title</h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -33,24 +33,23 @@
                 <div class="card-body">
                     @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
                     {
-                        <a asp-action="AgregarProyecto" class="btn btn-sm btn-secondary">Agregar proyecto</a>
+                        <a asp-action="AgregarProyecto" class="btn btn-sm btn-primary">Agregar proyecto</a>
                         <hr/>
                     }
-                    
+
                     <div class="table-responsive">
-                        <table class="table table-hover table-sm text-nowrap">
+                        <table id="tablaProyectos" class="table table-hover table-sm text-nowrap">
                             <thead>
                             <tr>
-                                <th>@Html.DisplayNameFor(m => m.Nombre)</th>
+                                <th>Proyecto</th>
                                 <th>Área</th>
                                 <th>Cliente</th>
-                                @* <th>Contrato</th> *@
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
 
-                            @foreach (var item in Model)
+                            @foreach (var item in Model.Proyectos)
                             {
                                 <tr>
                                     <td>@item.Nombre</td>
@@ -85,7 +84,20 @@
 </div>
 
 @section Scripts {
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
     <script type="text/javascript">
-		
-	</script>
+        $(document).ready(function () {
+            $('#tablaProyectos').DataTable({
+                "language": {
+                    "url": "/dataTables_es-ES.json"
+                }
+            });
+        });
+        
+        function limpiarFiltro() {
+            document.getElementById("PalabraClave").value = "";
+            window.location.href = window.location.href.split('?')[0];
+        }	
+    </script>
 }

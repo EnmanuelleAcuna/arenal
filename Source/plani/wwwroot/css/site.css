@@ -153,3 +153,7 @@ input[type="checkbox"].input-validation-error {
 .text-sc {
   color: rgb(33, 50, 92);
 }
+
+.p-0-5 {
+    padding: 0.5rem !important;
+}

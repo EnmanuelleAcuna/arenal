@@ -1,7 +1,4 @@
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using plani.Identity;
 
 namespace plani.Models;
 
@@ -24,6 +21,9 @@ public class AsignacionesIndexViewModel
 
     [DisplayName("Colaborador")]
     public string IdUsuario { get; set; }
+    
+    [DisplayName("Cliente & Proyecto")]
+    public string IdProyecto { get; set; }
 }
 
 public class AgregarAsignacionModel

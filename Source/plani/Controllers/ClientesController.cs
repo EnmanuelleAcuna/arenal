@@ -43,7 +43,7 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> TiposCliente()
     {
-        List<TipoCliente> model = await _dbContext.TiposCliente.ToListAsync();
+        List<TipoCliente> model = await _dbContext.TiposCliente.OrderBy(tc => tc.Nombre).ToListAsync();
         return View(model);
     }
 
@@ -151,9 +151,17 @@ public class ClientesController : BaseController
     #region Clientes
 
     [HttpGet]
-    public async Task<IActionResult> Clientes()
+    public async Task<IActionResult> Clientes(string palabraClave)
     {
-        IEnumerable<Cliente> model = await _dbContext.Clientes.Include(c => c.TipoCliente).ToListAsync();
+        IEnumerable<Cliente> clientes = await _dbContext.Clientes
+            .Where(c => palabraClave == null || (c.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
+                                                          (c.Descripcion.ToLower().Contains(palabraClave.ToLower())) ||
+                                                          (c.Direccion.ToLower().Contains(palabraClave.ToLower())))
+            .OrderBy(c => c.Nombre)
+            .Include(c => c.TipoCliente)
+            .ToListAsync();
+        
+        IndexClientesViewModel model = new() { PalabraClave = palabraClave, Clientes = clientes };
         return View(model);
     }
 
@@ -195,22 +203,26 @@ public class ClientesController : BaseController
             return View(model);
         }
 
+        model.Nombre = model.Nombre.Trim();
+        model.Descripcion = model.Descripcion.Trim();
+        model.Direccion = model.Direccion.Trim();
+
         model.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
         await _dbContext.Clientes.AddAsync(model);
-        
+
         // Add new Contrato for that Cliente
         Contrato contrato = new Contrato
         {
             IdCliente = model.Id,
             Identificacion = "CONTRATO-" + model.Id,
-            Descripcion = "Contrato de " + model.Nombre,
+            Descripcion = "Contrato de " + model.Nombre.Trim(),
             FechaInicio = DateTime.UtcNow,
             IdArea = Guid.Parse("f9c46324-5f71-4faf-0171-08dd2fd1b693")
         };
-        
+
         contrato.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
         await _dbContext.Contratos.AddAsync(contrato);
-        
+
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Clientes));
@@ -438,15 +450,20 @@ public class ClientesController : BaseController
     #region Proyectos
 
     [HttpGet]
-    public async Task<IActionResult> Proyectos()
+    public async Task<IActionResult> Proyectos(string palabraClave)
     {
         IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos
+            .Where(c => palabraClave == null || (c.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
+                        (c.Contrato.Cliente.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
+                        (c.Area.Nombre.ToLower().Contains(palabraClave.ToLower())))
+            .OrderBy(p => p.Nombre)
             .Include(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
             .Include(p => p.Area)
             .ToListAsync();
 
-        return View(proyectos);
+        IndexProyectosViewModel model = new() { PalabraClave = palabraClave, Proyectos = proyectos };
+        return View(model);
     }
 
     [HttpGet]
@@ -593,8 +610,13 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> Asignaciones()
     {
-        var colaboradores = _dbContext.Usuarios.ToList();
+        var colaboradores = _dbContext.Usuarios.OrderBy(u => u.Name).ToList();
         ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
+
+        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
 
         var asignaciones = await _dbContext.Asignaciones
             .Include(a => a.ApplicationUser)
@@ -624,15 +646,21 @@ public class ClientesController : BaseController
     [HttpPost]
     public async Task<IActionResult> Asignaciones(AsignacionesIndexViewModel model)
     {
-        var colaboradores = _dbContext.Usuarios.ToList();
+        var colaboradores = _dbContext.Usuarios.OrderBy(u => u.Name).ToList();
         ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
 
+        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
+
         var asignaciones = await _dbContext.Asignaciones
+            .Where(a => (model.IdUsuario == null || a.IdColaborador == model.IdUsuario) &&
+                        (model.IdProyecto == null || a.IdProyecto.ToString() == model.IdProyecto))
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
-            .Where(a => model.IdUsuario == null || a.IdColaborador == model.IdUsuario)
             .ToListAsync();
 
         var viewModel = new AsignacionesIndexViewModel
@@ -839,7 +867,7 @@ public class ClientesController : BaseController
 
         return View(viewModel);
     }
-    
+
     // [HttpPost]
     // public async Task<IActionResult> ExportarSesiones(string id)
     // {
@@ -983,12 +1011,12 @@ public class ClientesController : BaseController
     {
         var currentUser = GetCurrentUser();
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(currentUser);
-        
+
         // Get user's active sesiones
         var activeSesiones = await _dbContext.Sesiones
             .Where(s => s.IdColaborador == colaborador.Id && s.FechaFin == null)
             .ToListAsync();
-        
+
         if (activeSesiones.Count > 1)
         {
             ModelState.AddModelError("", "No puede iniciar una nueva sesión si tienes dos sesiones activa.");
