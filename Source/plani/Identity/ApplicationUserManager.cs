@@ -53,7 +53,7 @@ public class ApplicationUserManager : UserManager<ApplicationUser>
 
     public async Task<IdentityResult> UpdateLastSession(ApplicationUser user)
     {
-        // user.LastSession = DateTime.Now;
+        // user.LastSession = DateTime.UtcNow;
         IdentityResult result = await _store.UpdateAsync(user, CancellationToken);
         return result;
     }

@@ -1041,7 +1041,7 @@ public class ClientesController : BaseController
             IdColaborador = colaborador.Id,
             IdProyecto = model.IdProyecto,
             IdServicio = model.IdServicio,
-            FechaInicio = DateTime.Now,
+            FechaInicio = DateTime.UtcNow,
             Horas = 0,
             Descripcion = model.Descripcion
         };
@@ -1108,9 +1108,9 @@ public class ClientesController : BaseController
 
         if (sesion == null) return NotFound();
 
-        sesion.FechaPausa = DateTime.Now;
+        sesion.FechaPausa = DateTime.UtcNow;
 
-        double horas = (sesion.FechaPausa - sesion.FechaInicio).Value.Hours + 1;
+        double horas = (sesion.FechaPausa - sesion.FechaInicio).Value.Hours;
 
         double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
 
@@ -1177,11 +1177,9 @@ public class ClientesController : BaseController
 
         if (sesion == null) return NotFound();
 
-        sesion.FechaFin = DateTime.Now;
+        sesion.FechaFin = DateTime.UtcNow;
 
-        // sesion.Horas = (sesion.FechaInicio - DateTime.Now).Hours + 1;
-
-        double horas = (sesion.FechaFin - sesion.FechaInicio).Value.Hours + 1;
+        double horas = (sesion.FechaFin - sesion.FechaInicio).Value.Hours;
 
         double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
 
@@ -1249,7 +1247,7 @@ public class ClientesController : BaseController
 
         if (sesion == null) return NotFound();
 
-        sesion.FechaInicio = DateTime.Now;
+        sesion.FechaInicio = DateTime.UtcNow;
         sesion.FechaPausa = null;
         sesion.Descripcion = model.Descripcion;
 
@@ -1278,97 +1276,4 @@ public class ClientesController : BaseController
     }
 
     #endregion
-}
-
-// ViewModels/ProyectoAsignacionesViewModel.cs
-public class ProyectoAsignacionesViewModel
-{
-    public Guid IdProyecto { get; set; }
-    public string NombreProyecto { get; set; }
-    public string NombreCliente { get; set; }
-    public List<Asignacion> Asignaciones { get; set; }
-
-    // Summary properties for the group
-    public int TotalHorasEstimadas => Asignaciones?.Sum(a => a.HorasEstimadas) ?? 0;
-    public int CantidadAsignaciones => Asignaciones?.Count ?? 0;
-}
-
-// ViewModels/AsignacionesIndexViewModel.cs
-public class AsignacionesIndexViewModel
-{
-    public List<ProyectoAsignacionesViewModel> ProyectosAsignaciones { get; set; }
-    public int TotalAsignaciones => ProyectosAsignaciones?.Sum(p => p.CantidadAsignaciones) ?? 0;
-    public int TotalHorasEstimadas => ProyectosAsignaciones?.Sum(p => p.TotalHorasEstimadas) ?? 0;
-
-    [DisplayName("Colaborador")] public string IdUsuario { get; set; }
-}
-
-public class AgregarAsignacionModel
-{
-    public string NombreColaborador { get; set; }
-    public Guid IdProyecto { get; set; }
-    public Guid IdUsuario { get; set; }
-    public int HorasEstimadas { get; set; }
-    public string Descripcion { get; set; }
-}
-
-// ViewModels/ProyectoAsignacionesViewModel.cs
-public class ProyectoSesionesViewModel
-{
-    public Guid IdProyecto { get; set; }
-    public string NombreProyecto { get; set; }
-    public string NombreCliente { get; set; }
-    public List<Sesion> Sesiones { get; set; }
-
-    // Summary properties for the group
-    public double TotalHoras => Sesiones?.Sum(a => a.Horas) ?? 0;
-    public int CantidadSesiones => Sesiones?.Count ?? 0;
-}
-
-// ViewModels/AsignacionesIndexViewModel.cs
-public class SesionesIndexViewModel
-{
-    public List<ProyectoSesionesViewModel> ProyectosSesiones { get; set; }
-    public int TotalSesiones => ProyectosSesiones?.Sum(p => p.CantidadSesiones) ?? 0;
-    public double TotalHoras => ProyectosSesiones?.Sum(p => p.TotalHoras) ?? 0;
-
-    [DisplayName("Colaborador")] public string IdUsuario { get; set; }
-}
-
-public class AgregarSesionModel
-{
-    public string NombreColaborador { get; set; }
-    public Guid IdProyecto { get; set; }
-    public Guid IdUsuario { get; set; }
-    public Guid IdServicio { get; set; }
-    public DateTime Fecha { get; set; }
-    public string Horas { get; set; }
-    public string Descripcion { get; set; }
-}
-
-public class PausarSesionModel
-{
-    public Guid IdSesion { get; set; }
-    public string NombreColaborador { get; set; }
-    public Guid IdProyecto { get; set; }
-    public string NombreProyecto { get; set; }
-    public Guid IdUsuario { get; set; }
-    public Guid IdServicio { get; set; }
-    public string NombreServicio { get; set; }
-    public DateTime Fecha { get; set; }
-    public string Descripcion { get; set; }
-    public double Horas { get; set; }
-}
-
-public class FinalizarSesionModel
-{
-    public Guid IdSesion { get; set; }
-    public string NombreColaborador { get; set; }
-    public Guid IdProyecto { get; set; }
-    public string NombreProyecto { get; set; }
-    public Guid IdUsuario { get; set; }
-    public Guid IdServicio { get; set; }
-    public string NombreServicio { get; set; }
-    public DateTime Fecha { get; set; }
-    public string Descripcion { get; set; }
 }

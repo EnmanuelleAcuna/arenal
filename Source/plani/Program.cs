@@ -37,7 +37,7 @@ class Program
 
 		builder.Services.Configure<CookieOptions>(options =>
 		{
-			// options.Expires = DateTime.Now.AddMinutes(20);
+			// options.Expires = DateTime.UtcNow.AddMinutes(20);
 			options.SameSite = SameSiteMode.Strict;
 			options.Secure = true;
 		});
