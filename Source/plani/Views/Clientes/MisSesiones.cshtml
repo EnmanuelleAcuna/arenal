@@ -55,7 +55,7 @@
                                         @foreach (var sesion in proyecto.Sesiones)
                                         {
                                             <tr>
-                                                <td title="@sesion.Descripcion">@sesion.Descripcion</td>
+                                                <td title="@sesion.Descripcion">@sesion.FechaInicio.ToString("dd-MM-yyyy") -  @sesion.Descripcion</td>
                                                 <td>@sesion.Horas</td>
                                                 <td class="text-right">
                                                     <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
