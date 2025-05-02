@@ -398,7 +398,7 @@ public class CuentasController : BaseController
         var usuariosCoordinadores = await _userManager.GetUsersInRoleAsync("Coordinador");
 
         var usuarios = usuariosColaboradores.Union(usuariosCoordinadores).ToList();
-        var modelo = usuarios.Select(u => new UsuariosIndexViewModel(u)).ToList();
+        var modelo = usuarios.OrderBy(u => u.Name).Select(u => new UsuariosIndexViewModel(u)).ToList();
 
         return View(modelo);
     }

@@ -43,7 +43,7 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> TiposCliente()
     {
-        List<TipoCliente> model = await _dbContext.TiposCliente.ToListAsync();
+        List<TipoCliente> model = await _dbContext.TiposCliente.OrderBy(tc => tc.Nombre).ToListAsync();
         return View(model);
     }
 
@@ -151,9 +151,17 @@ public class ClientesController : BaseController
     #region Clientes
 
     [HttpGet]
-    public async Task<IActionResult> Clientes()
+    public async Task<IActionResult> Clientes(string palabraClave)
     {
-        IEnumerable<Cliente> model = await _dbContext.Clientes.Include(c => c.TipoCliente).ToListAsync();
+        IEnumerable<Cliente> clientes = await _dbContext.Clientes
+            .Where(c => palabraClave == null || (c.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
+                        (c.Descripcion.ToLower().Contains(palabraClave.ToLower())) ||
+                        (c.Direccion.ToLower().Contains(palabraClave.ToLower())))
+            .OrderBy(c => c.Nombre)
+            .Include(c => c.TipoCliente)
+            .ToListAsync();
+
+        IndexClientesViewModel model = new() { PalabraClave = palabraClave, Clientes = clientes };
         return View(model);
     }
 
@@ -195,22 +203,26 @@ public class ClientesController : BaseController
             return View(model);
         }
 
+        model.Nombre = model.Nombre.Trim();
+        model.Descripcion = model.Descripcion.Trim();
+        model.Direccion = model.Direccion.Trim();
+
         model.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
         await _dbContext.Clientes.AddAsync(model);
-        
+
         // Add new Contrato for that Cliente
         Contrato contrato = new Contrato
         {
             IdCliente = model.Id,
             Identificacion = "CONTRATO-" + model.Id,
-            Descripcion = "Contrato de " + model.Nombre,
+            Descripcion = "Contrato de " + model.Nombre.Trim(),
             FechaInicio = DateTime.UtcNow,
             IdArea = Guid.Parse("f9c46324-5f71-4faf-0171-08dd2fd1b693")
         };
-        
+
         contrato.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
         await _dbContext.Contratos.AddAsync(contrato);
-        
+
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Clientes));
@@ -438,15 +450,20 @@ public class ClientesController : BaseController
     #region Proyectos
 
     [HttpGet]
-    public async Task<IActionResult> Proyectos()
+    public async Task<IActionResult> Proyectos(string palabraClave)
     {
         IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos
+            .Where(c => palabraClave == null || (c.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
+                        (c.Contrato.Cliente.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
+                        (c.Area.Nombre.ToLower().Contains(palabraClave.ToLower())))
+            .OrderBy(p => p.Nombre)
             .Include(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
             .Include(p => p.Area)
             .ToListAsync();
 
-        return View(proyectos);
+        IndexProyectosViewModel model = new() { PalabraClave = palabraClave, Proyectos = proyectos };
+        return View(model);
     }
 
     [HttpGet]
@@ -593,8 +610,14 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> Asignaciones()
     {
-        var colaboradores = _dbContext.Usuarios.ToList();
+        var colaboradores = _dbContext.Usuarios.OrderBy(u => u.Name).ToList();
         ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
+
+        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
 
         var asignaciones = await _dbContext.Asignaciones
             .Include(a => a.ApplicationUser)
@@ -624,15 +647,21 @@ public class ClientesController : BaseController
     [HttpPost]
     public async Task<IActionResult> Asignaciones(AsignacionesIndexViewModel model)
     {
-        var colaboradores = _dbContext.Usuarios.ToList();
+        var colaboradores = _dbContext.Usuarios.OrderBy(u => u.Name).ToList();
         ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
 
+        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
+
         var asignaciones = await _dbContext.Asignaciones
+            .Where(a => (model.IdUsuario == null || a.IdColaborador == model.IdUsuario) &&
+                        (model.IdProyecto == null || a.IdProyecto.ToString() == model.IdProyecto))
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
-            .Where(a => model.IdUsuario == null || a.IdColaborador == model.IdUsuario)
             .ToListAsync();
 
         var viewModel = new AsignacionesIndexViewModel
@@ -779,10 +808,17 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> Sesiones()
     {
-        var colaboradores = _dbContext.Usuarios.ToList();
+        var colaboradores = _dbContext.Usuarios.OrderBy(u => u.Name).ToList();
         ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
 
+        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
+
         var sesiones = await _dbContext.Sesiones
+            .Where(s => s.FechaInicio >= DateTime.UtcNow.AddDays(-10))
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -813,7 +849,25 @@ public class ClientesController : BaseController
         var colaboradores = _dbContext.Usuarios.ToList();
         ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
 
+        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
+
+        if (model.FechaInicio?.Year == 1)
+            model.FechaInicio = null;
+
+        if (model.FechaFin?.Year == 1)
+            model.FechaInicio = null;
+
+        model.FechaFin = model.FechaFin?.AddHours(24);
+
         var sesiones = await _dbContext.Sesiones
+            .Where(s => (model.FechaInicio == null || s.FechaInicio >= model.FechaInicio) &&
+                        (model.FechaFin == null || s.FechaFin <= model.FechaFin) &&
+                        (model.IdUsuario == null || s.IdColaborador == model.IdUsuario) &&
+                        (model.IdProyecto == null || s.IdProyecto.ToString() == model.IdProyecto))
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -839,7 +893,7 @@ public class ClientesController : BaseController
 
         return View(viewModel);
     }
-    
+
     // [HttpPost]
     // public async Task<IActionResult> ExportarSesiones(string id)
     // {
@@ -879,6 +933,7 @@ public class ClientesController : BaseController
         ApplicationUser usuario = await _userManager.FindByEmailAsync(GetCurrentUser());
 
         var sesiones = await _dbContext.Sesiones
+            .OrderByDescending(s => s.FechaInicio)
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -956,11 +1011,12 @@ public class ClientesController : BaseController
             IdColaborador = colaborador.Id,
             IdProyecto = model.IdProyecto,
             IdServicio = model.IdServicio,
-            FechaInicio = model.Fecha,
-            FechaFin = model.Fecha,
             Horas = float.Parse(model.Horas, CultureInfo.InvariantCulture),
             Descripcion = model.Descripcion
         };
+
+        sesion.FechaInicio = model.Fecha.AddHours(6);
+        sesion.FechaFin = model.Fecha.AddHours(6);
 
         sesion.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
         await _dbContext.Sesiones.AddAsync(sesion);
@@ -983,12 +1039,12 @@ public class ClientesController : BaseController
     {
         var currentUser = GetCurrentUser();
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(currentUser);
-        
+
         // Get user's active sesiones
         var activeSesiones = await _dbContext.Sesiones
             .Where(s => s.IdColaborador == colaborador.Id && s.FechaFin == null)
             .ToListAsync();
-        
+
         if (activeSesiones.Count > 1)
         {
             ModelState.AddModelError("", "No puede iniciar una nueva sesión si tienes dos sesiones activa.");
@@ -1041,7 +1097,7 @@ public class ClientesController : BaseController
             IdColaborador = colaborador.Id,
             IdProyecto = model.IdProyecto,
             IdServicio = model.IdServicio,
-            FechaInicio = DateTime.Now,
+            FechaInicio = DateTime.UtcNow,
             Horas = 0,
             Descripcion = model.Descripcion
         };
@@ -1108,9 +1164,9 @@ public class ClientesController : BaseController
 
         if (sesion == null) return NotFound();
 
-        sesion.FechaPausa = DateTime.Now;
+        sesion.FechaPausa = DateTime.UtcNow;
 
-        double horas = (sesion.FechaPausa - sesion.FechaInicio).Value.Hours + 1;
+        double horas = (sesion.FechaPausa - sesion.FechaInicio).Value.Hours;
 
         double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
 
@@ -1177,11 +1233,9 @@ public class ClientesController : BaseController
 
         if (sesion == null) return NotFound();
 
-        sesion.FechaFin = DateTime.Now;
+        sesion.FechaFin = DateTime.UtcNow;
 
-        // sesion.Horas = (sesion.FechaInicio - DateTime.Now).Hours + 1;
-
-        double horas = (sesion.FechaFin - sesion.FechaInicio).Value.Hours + 1;
+        double horas = (sesion.FechaFin - sesion.FechaInicio).Value.Hours;
 
         double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
 
@@ -1249,7 +1303,7 @@ public class ClientesController : BaseController
 
         if (sesion == null) return NotFound();
 
-        sesion.FechaInicio = DateTime.Now;
+        sesion.FechaInicio = DateTime.UtcNow;
         sesion.FechaPausa = null;
         sesion.Descripcion = model.Descripcion;
 
@@ -1278,97 +1332,4 @@ public class ClientesController : BaseController
     }
 
     #endregion
-}
-
-// ViewModels/ProyectoAsignacionesViewModel.cs
-public class ProyectoAsignacionesViewModel
-{
-    public Guid IdProyecto { get; set; }
-    public string NombreProyecto { get; set; }
-    public string NombreCliente { get; set; }
-    public List<Asignacion> Asignaciones { get; set; }
-
-    // Summary properties for the group
-    public int TotalHorasEstimadas => Asignaciones?.Sum(a => a.HorasEstimadas) ?? 0;
-    public int CantidadAsignaciones => Asignaciones?.Count ?? 0;
-}
-
-// ViewModels/AsignacionesIndexViewModel.cs
-public class AsignacionesIndexViewModel
-{
-    public List<ProyectoAsignacionesViewModel> ProyectosAsignaciones { get; set; }
-    public int TotalAsignaciones => ProyectosAsignaciones?.Sum(p => p.CantidadAsignaciones) ?? 0;
-    public int TotalHorasEstimadas => ProyectosAsignaciones?.Sum(p => p.TotalHorasEstimadas) ?? 0;
-
-    [DisplayName("Colaborador")] public string IdUsuario { get; set; }
-}
-
-public class AgregarAsignacionModel
-{
-    public string NombreColaborador { get; set; }
-    public Guid IdProyecto { get; set; }
-    public Guid IdUsuario { get; set; }
-    public int HorasEstimadas { get; set; }
-    public string Descripcion { get; set; }
-}
-
-// ViewModels/ProyectoAsignacionesViewModel.cs
-public class ProyectoSesionesViewModel
-{
-    public Guid IdProyecto { get; set; }
-    public string NombreProyecto { get; set; }
-    public string NombreCliente { get; set; }
-    public List<Sesion> Sesiones { get; set; }
-
-    // Summary properties for the group
-    public double TotalHoras => Sesiones?.Sum(a => a.Horas) ?? 0;
-    public int CantidadSesiones => Sesiones?.Count ?? 0;
-}
-
-// ViewModels/AsignacionesIndexViewModel.cs
-public class SesionesIndexViewModel
-{
-    public List<ProyectoSesionesViewModel> ProyectosSesiones { get; set; }
-    public int TotalSesiones => ProyectosSesiones?.Sum(p => p.CantidadSesiones) ?? 0;
-    public double TotalHoras => ProyectosSesiones?.Sum(p => p.TotalHoras) ?? 0;
-
-    [DisplayName("Colaborador")] public string IdUsuario { get; set; }
-}
-
-public class AgregarSesionModel
-{
-    public string NombreColaborador { get; set; }
-    public Guid IdProyecto { get; set; }
-    public Guid IdUsuario { get; set; }
-    public Guid IdServicio { get; set; }
-    public DateTime Fecha { get; set; }
-    public string Horas { get; set; }
-    public string Descripcion { get; set; }
-}
-
-public class PausarSesionModel
-{
-    public Guid IdSesion { get; set; }
-    public string NombreColaborador { get; set; }
-    public Guid IdProyecto { get; set; }
-    public string NombreProyecto { get; set; }
-    public Guid IdUsuario { get; set; }
-    public Guid IdServicio { get; set; }
-    public string NombreServicio { get; set; }
-    public DateTime Fecha { get; set; }
-    public string Descripcion { get; set; }
-    public double Horas { get; set; }
-}
-
-public class FinalizarSesionModel
-{
-    public Guid IdSesion { get; set; }
-    public string NombreColaborador { get; set; }
-    public Guid IdProyecto { get; set; }
-    public string NombreProyecto { get; set; }
-    public Guid IdUsuario { get; set; }
-    public Guid IdServicio { get; set; }
-    public string NombreServicio { get; set; }
-    public DateTime Fecha { get; set; }
-    public string Descripcion { get; set; }
 }

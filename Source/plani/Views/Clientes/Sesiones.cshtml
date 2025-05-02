@@ -1,4 +1,4 @@
-﻿@model plani.Controllers.SesionesIndexViewModel
+﻿@model plani.Models.SesionesIndexViewModel
 
 @{
     ViewBag.Title = "Sesiones";
@@ -7,7 +7,7 @@
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">Sesiones</h6>
+            <h6 class="page-title">@ViewBag.Title</h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -31,8 +31,50 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @* <a asp-action="AgregarSesion" class="btn btn-sm btn-primary">Agregar sesión</a> *@
-                    @* <hr/> *@
+                    @using (Html.BeginForm("Sesiones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-4 col-lg-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.IdUsuario)
+                                    @Html.DropDownListFor(model => model.IdUsuario, new List<SelectListItem>(ViewBag.Colaboradores), "Todos", new { @class = "form-control form-control-sm" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-8 col-lg-8">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.IdProyecto)
+                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Todos", new { @class = "form-control form-control-sm" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-3 col-lg-2">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FechaInicio, "Inicio")
+                                    @Html.TextBoxFor(model => model.FechaInicio, new { @class = "form-control form-control-sm", type = "date" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-3 col-lg-2">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FechaFin, "Fin")
+                                    @Html.TextBoxFor(model => model.FechaFin, new { @class = "form-control form-control-sm", type = "date" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-6">
+                                <span class="d-block d-sm-none d-md-block">
+                                    <label>&nbsp;</label>
+                                </span>
+                                <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
+                                @Html.ActionLink("Exportar", "Construccion", null, null, new { @class = "btn btn-sm btn-secondary" })
+                            </div>
+                        </div>
+                    }
+
+                    <hr/>
 
                     @if (Model.ProyectosSesiones.Count == 0)
                     {
@@ -41,185 +83,22 @@
                         </div>
                     }
 
-                    @using (Html.BeginForm("Sesiones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
-                    {
-                    @Html.AntiForgeryToken()
-                    @* @Html.HiddenFor(model => model.Idusuario) *@
-
-                    <div class="row">
-                        <div class="col-sm-12 col-md-4">
-                            <div class="form-group">
-                                @Html.LabelFor(model => model.IdUsuario)
-                                @Html.DropDownListFor(model => model.IdUsuario, new List<SelectListItem>(ViewBag.Colaboradores), "Seleccione un colaborador", new { @class = "form-control form-control-sm" })
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row my-2">
-                        <div class="col-12">
-                            <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
-                            @Html.ActionLink("Exportar", "ExportarSesiones", null, null, new { @class = "btn btn-sm btn-secondary" })
-                        </div>
-                    </div>
-                    }
-
-                    <div class="row mb-3">
-                        <div class="col">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6>Resumen General</h6>
-                                    <p>Total de Sesiones: @Model.TotalSesiones</p>
-                                    <p>Total de Horas: @Model.TotalHoras</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     @foreach (var proyecto in Model.ProyectosSesiones)
                     {
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="text-sc">@proyecto.NombreCliente</h6>
-                                <h6>@proyecto.NombreProyecto</h6>
-                                <div class="text-muted">
-                                    Asignaciones: @proyecto.CantidadSesiones |
-                                    Horas: @proyecto.TotalHoras
-                                </div>
+                            <div class="card-header p-0-5">
+                                <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto | @proyecto.TotalHoras hora(s)</h6>
                             </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                        <tr>
-                                            <th>Colaborador</th>
-                                            <th>Descripción</th>
-                                            <th>Horas</th>
-                                            <th></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach (var sesion in proyecto.Sesiones)
-                                        {
-                                            <tr>
-                                                <td>@sesion.ApplicationUser.FullName</td>
-                                                <td title="@sesion.Descripcion">@sesion.TruncatedDescripcion</td>
-                                                <td>@sesion.Horas</td>
-                                                <td class="text-right">
-                                                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                                        <a class="btn btn-sm btn-light text-primary" asp-controller="Clientes" asp-action="DetalleSesion" asp-route-id="@sesion.Id">
-                                                            Detalle
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        }
-                                        </tbody>
-                                    </table>
-                                </div>
+                            <div class="card-body pl-4 py-2">
+                                @foreach (var sesion in proyecto.Sesiones)
+                                {
+                                    <p class="mb-0">
+                                        @sesion.FechaInicio.ToString("dd-MM-yyyy") | <span class="font-weight-bold">@sesion.ApplicationUser.FullName</span> | @sesion.Horas hora(s) | @sesion.TruncatedDescripcion <a asp-action="DetalleSesion" asp-controller="Clientes" asp-route-id="@sesion.Id">Ver detalle</a>
+                                    </p>
+                                }
                             </div>
                         </div>
                     }
-
-                    @* <div class="row"> *@
-                    @*     <div class="col-sm-12"> *@
-                    @*         <h6 class="font-weight-bold">@Html.DisplayFor(model => model.Nombre)</h6> *@
-                    @*         <p>@Html.DisplayFor(model => model.Descripcion)</p> *@
-                    @*     </div> *@
-                    @* *@
-                    @*     <div class="col-sm-12"> *@
-                    @*         <p>Área: <b>@Html.DisplayFor(model => model.Area.Nombre)</b></p> *@
-                    @*         <p>Modalidad: <b>@Html.DisplayFor(model => model.Modalidad.Nombre)</b></p> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Servicios</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Nombre)</th> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Descripcion)</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var servicio in Model.Servicios) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@servicio.Nombre</td> *@
-                    @*                         <td>@servicio.TruncatedDescripcion</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Contratos</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Contratos.FirstOrDefault().Identificacion)</th> *@
-                    @*                     <th>Cliente</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var contrato in Model.Contratos) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@contrato.Identificacion</td> *@
-                    @*                         <td>@contrato.Cliente.Nombre</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Proyectos</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Proyectos.FirstOrDefault().Nombre)</th> *@
-                    @*                     <th>Contrato</th> *@
-                    @*                     <th>Cliente</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var proyecto in Model.Proyectos) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@proyecto.Nombre</td> *@
-                    @*                         <td>@proyecto.Contrato.Identificacion</td> *@
-                    @*                         <td>@proyecto.Contrato.Cliente.Nombre</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row"> *@
-                    @*     <div class="col-12"> *@
-                    @*         @Html.ActionLink("Regresar", "", null, null, new { @class = "btn btn-sm btn-primary" }) *@
-                    @*     </div> *@
-                    @* </div> *@
                 </div>
             </div>
         </div>

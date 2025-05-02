@@ -36,7 +36,7 @@ public class ClientesManager : IBaseCore<Cliente>
 		else
 			cliente.TipoCliente = existingTipoEjercicio;
 
-		cliente.RegristrarCreacion(user, DateTime.Now);
+		cliente.RegristrarCreacion(user, DateTime.UtcNow);
 
 		await _dbContext.AddAsync(cliente);
 		await _dbContext.SaveChangesAsync();
@@ -46,7 +46,7 @@ public class ClientesManager : IBaseCore<Cliente>
 	{
 		var record = await ReadByIdAsync(cliente.Id);
 
-		record.RegistrarActualizacion(user, DateTime.Now);
+		record.RegistrarActualizacion(user, DateTime.UtcNow);
 
 		_dbContext.Update(record);
 		await _dbContext.SaveChangesAsync();

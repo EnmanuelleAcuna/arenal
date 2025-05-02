@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Cliente>
+﻿@model IndexClientesViewModel
 
 @{
     ViewBag.Title = "Clientes";
@@ -38,20 +38,20 @@
                     }
 
                     <div class="table-responsive">
-                        <table class="table table-hover table-sm text-nowrap">
+                        <table id="tablaClientes" class="table table-hover table-sm text-nowrap">
                             <thead>
                             <tr>
-                                <th>@Html.DisplayNameFor(m => m.Identificacion)</th>
-                                <th>@Html.DisplayNameFor(m => m.Nombre)</th>
+                                <th>@Html.DisplayNameFor(m => m.Clientes.FirstOrDefault().Identificacion)</th>
+                                <th>@Html.DisplayNameFor(m => m.Clientes.FirstOrDefault().Nombre)</th>
                                 <th>Tipo de Cliente</th>
-                                <th>@Html.DisplayNameFor(m => m.Direccion)</th>
-                                <th>@Html.DisplayNameFor(m => m.Descripcion)</th>
+                                <th>@Html.DisplayNameFor(m => m.Clientes.FirstOrDefault().Direccion)</th>
+                                <th>@Html.DisplayNameFor(m => m.Clientes.FirstOrDefault().Descripcion)</th>
                                 <th></th>
                             </tr>
                             </thead>
                             <tbody>
 
-                            @foreach (var item in Model)
+                            @foreach (var item in Model.Clientes)
                             {
                                 <tr>
                                     <td>@item.Identificacion</td>
@@ -89,7 +89,21 @@
 </div>
 
 @section Scripts {
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
     <script type="text/javascript">
-		
+        $(document).ready(function () {
+            $('#tablaClientes').DataTable({
+                "order": [[1, "asc"]],
+                "language": {
+                    "url": "/dataTables_es-ES.json"
+                }
+            });
+        });
+    
+        function limpiarFiltro() {
+            document.getElementById("PalabraClave").value = "";
+            window.location.href = window.location.href.split('?')[0];
+        }
 	</script>
 }

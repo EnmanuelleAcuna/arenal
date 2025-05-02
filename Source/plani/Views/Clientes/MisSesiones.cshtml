@@ -1,4 +1,4 @@
-﻿@model plani.Controllers.SesionesIndexViewModel
+﻿@model plani.Models.SesionesIndexViewModel
 
 @{
     ViewBag.Title = "Sesiones";
@@ -35,37 +35,18 @@
                     <a asp-action="AgregarSesion" class="btn btn-sm btn-outline-primary">Registrar sesión</a>
                     <hr/>
 
-                    <div class="row mb-3">
-                        <div class="col">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6>Resumen General</h6>
-                                    <p>Total de Sesiones: @Model.TotalSesiones</p>
-                                    <p>Total de Horas: @Model.TotalHoras</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     @foreach (var proyecto in Model.ProyectosSesiones)
                     {
                         <div class="card mb-4">
                             <div class="card-header">
-                                <h6 class="text-sc">@proyecto.NombreCliente</h6>
-                                <h6>
-                                    @proyecto.NombreProyecto |
-                                    <span class="text-muted">
-                                        Horas: @proyecto.TotalHoras
-                                    </span>
-                                </h6>
+                                <h6><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto | <span class="text-muted">@proyecto.TotalHoras hora(s)</span></h6>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
                                         <tr>
-                                            <th>Colaborador</th>
-                                            <th>Descripción</th>
+                                            <th>Sesión</th>
                                             <th>Horas</th>
                                             <th></th>
                                         </tr>
@@ -74,8 +55,7 @@
                                         @foreach (var sesion in proyecto.Sesiones)
                                         {
                                             <tr>
-                                                <td>@sesion.ApplicationUser.FullName</td>
-                                                <td title="@sesion.Descripcion">@sesion.TruncatedDescripcion</td>
+                                                <td title="@sesion.Descripcion">@sesion.Descripcion</td>
                                                 <td>@sesion.Horas</td>
                                                 <td class="text-right">
                                                     <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
