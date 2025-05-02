@@ -432,7 +432,7 @@ public class Sesion : Base
 
     [NotMapped]
     public string TruncatedDescripcion =>
-        Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
+        Descripcion?.Length > 50 ? Descripcion.Substring(0, 50) + "..." : Descripcion;
     
     public void Actualizar(Sesion sesion, string actualizadoPor)
     {

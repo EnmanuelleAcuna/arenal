@@ -155,12 +155,12 @@ public class ClientesController : BaseController
     {
         IEnumerable<Cliente> clientes = await _dbContext.Clientes
             .Where(c => palabraClave == null || (c.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
-                                                          (c.Descripcion.ToLower().Contains(palabraClave.ToLower())) ||
-                                                          (c.Direccion.ToLower().Contains(palabraClave.ToLower())))
+                        (c.Descripcion.ToLower().Contains(palabraClave.ToLower())) ||
+                        (c.Direccion.ToLower().Contains(palabraClave.ToLower())))
             .OrderBy(c => c.Nombre)
             .Include(c => c.TipoCliente)
             .ToListAsync();
-        
+
         IndexClientesViewModel model = new() { PalabraClave = palabraClave, Clientes = clientes };
         return View(model);
     }
@@ -615,6 +615,7 @@ public class ClientesController : BaseController
 
         var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
             .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+
         ViewBag.Proyectos = proyectos.Select(c =>
             new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
 
@@ -807,10 +808,17 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> Sesiones()
     {
-        var colaboradores = _dbContext.Usuarios.ToList();
+        var colaboradores = _dbContext.Usuarios.OrderBy(u => u.Name).ToList();
         ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
 
+        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
+
         var sesiones = await _dbContext.Sesiones
+            .Where(s => s.FechaInicio >= DateTime.UtcNow.AddDays(-10))
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -841,7 +849,25 @@ public class ClientesController : BaseController
         var colaboradores = _dbContext.Usuarios.ToList();
         ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
 
+        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
+
+        if (model.FechaInicio?.Year == 1)
+            model.FechaInicio = null;
+
+        if (model.FechaFin?.Year == 1)
+            model.FechaInicio = null;
+
+        model.FechaFin = model.FechaFin?.AddHours(24);
+
         var sesiones = await _dbContext.Sesiones
+            .Where(s => (model.FechaInicio == null || s.FechaInicio >= model.FechaInicio) &&
+                        (model.FechaFin == null || s.FechaFin <= model.FechaFin) &&
+                        (model.IdUsuario == null || s.IdColaborador == model.IdUsuario) &&
+                        (model.IdProyecto == null || s.IdProyecto.ToString() == model.IdProyecto))
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -907,6 +933,7 @@ public class ClientesController : BaseController
         ApplicationUser usuario = await _userManager.FindByEmailAsync(GetCurrentUser());
 
         var sesiones = await _dbContext.Sesiones
+            .OrderByDescending(s => s.FechaInicio)
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -984,11 +1011,12 @@ public class ClientesController : BaseController
             IdColaborador = colaborador.Id,
             IdProyecto = model.IdProyecto,
             IdServicio = model.IdServicio,
-            FechaInicio = model.Fecha,
-            FechaFin = model.Fecha,
             Horas = float.Parse(model.Horas, CultureInfo.InvariantCulture),
             Descripcion = model.Descripcion
         };
+
+        sesion.FechaInicio = model.Fecha.AddHours(6);
+        sesion.FechaFin = model.Fecha.AddHours(6);
 
         sesion.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
         await _dbContext.Sesiones.AddAsync(sesion);

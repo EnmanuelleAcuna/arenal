@@ -157,3 +157,11 @@ input[type="checkbox"].input-validation-error {
 .p-0-5 {
     padding: 0.5rem !important;
 }
+
+table.dataTable.table-sm .sorting:after, table.dataTable.table-sm .sorting_asc:after, table.dataTable.table-sm .sorting_desc:after {
+    right: 0.7em !important;
+}
+
+table.dataTable.table-sm .sorting:after, table.dataTable.table-sm .sorting_asc:after, table.dataTable.table-sm .sorting_desc:after {
+    right: 0 !important;
+}

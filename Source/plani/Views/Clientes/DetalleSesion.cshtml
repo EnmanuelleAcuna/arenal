@@ -36,16 +36,39 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-12">
-                            <p>Fecha de inicio:&nbsp;<b>@Html.DisplayFor(model => model.FechaInicio)</b></p>
-                            <p><b>Descripción de la sesión:</b> @Html.DisplayFor(model => model.Descripcion)</p>
+                            <p>
+                                <b>Descripción de la sesión:</b> @Html.DisplayFor(model => model.Descripcion)
+                            </p>
                         </div>
 
                         <div class="col-sm-12">
                             <p>Servicio:&nbsp;<b>@Html.DisplayFor(model => model.Servicio.Nombre)</b></p>
                             <p>Cliente:&nbsp;<b>@Html.DisplayFor(model => model.Proyecto.Contrato.Cliente.Nombre)</b></p>
                         </div>
+
+                        <div class="col-sm-12">
+                            <p>Horas: @Model.Horas</p>
+
+                            @if (Model.FechaInicio is { Hour: 6, Minute: 0, Second: 0 })
+                            {
+                                <p>Inicio:&nbsp;<b>@(Model.FechaInicio.AddHours(-6).ToString("dd-MM-yyyy"))</b></p>
+                            }
+                            else
+                            {
+                                <p>Inicio:&nbsp;<b>@(Model.FechaInicio.AddHours(-6).ToString("dd-MM-yyyy hh:mm:ss tt"))</b></p>
+                            }
+
+                            @if (Model.FechaFin is { Hour: 6, Minute: 0, Second: 0 })
+                            {
+                                <p>Fin:&nbsp;<b>@(Model.FechaFin?.AddHours(-6).ToString("dd-MM-yyyy"))</b></p>
+                            }
+                            else
+                            {
+                                <p>Fin:&nbsp;<b>@(Model.FechaFin?.AddHours(-6).ToString("dd-MM-yyyy hh:mm:ss tt"))</b></p>
+                            }
+                        </div>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-12">
                             @Html.ActionLink("Regresar", "MisSesiones", null, null, new { @class = "btn btn-sm btn-primary" })

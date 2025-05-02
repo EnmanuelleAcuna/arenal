@@ -24,6 +24,15 @@ public class SesionesIndexViewModel
 
     [DisplayName("Colaborador")]
     public string IdUsuario { get; set; }
+    
+    [DisplayName("Cliente & Proyecto")]
+    public string IdProyecto { get; set; }
+
+    [DisplayName("Inicio")]
+    public DateTime? FechaInicio { get; set; }
+    
+    [DisplayName("Fin")]
+    public DateTime? FechaFin { get; set; }
 }
 
 public class AgregarSesionModel

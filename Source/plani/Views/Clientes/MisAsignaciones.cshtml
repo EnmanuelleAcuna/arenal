@@ -31,168 +31,22 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @* <h4 class="mb-4">Asignaciones por Proyecto</h4> *@
-                    @* <a asp-action="Colaboradores" asp-controller="Cuentas" class="btn btn-sm btn-primary">Agregar asignacion</a> *@
-                    @* <hr/> *@
-                    
-                    <div class="row mb-3">
-                        <div class="col">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6>Resumen General</h6>
-                                    <p>Total de Asignaciones: @Model.TotalAsignaciones</p>
-                                    <p>Total de Horas Estimadas: @Model.TotalHorasEstimadas</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     @foreach (var proyecto in Model.ProyectosAsignaciones)
                     {
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h6 class="text-sc">@proyecto.NombreCliente</h6>
-                                <h6>@proyecto.NombreProyecto</h6>
-                                <div class="text-muted">
-                                    Asignaciones: @proyecto.CantidadAsignaciones |
-                                    Horas Estimadas: @proyecto.TotalHorasEstimadas
-                                </div>
+                            <div class="card-header  p-0-5">
+                                <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto</h6>
                             </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                        <tr>
-                                            <th>Colaborador</th>
-                                            <th>Descripción</th>
-                                            <th>Horas Estimadas</th>
-                                            @* <th>Acciones</th> *@
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach (var asignacion in proyecto.Asignaciones)
-                                        {
-                                            <tr>
-                                                <td>@asignacion.ApplicationUser.FullName</td>
-                                                <td title="@asignacion.Descripcion">@asignacion.TruncatedDescripcion</td>
-                                                <td>@asignacion.HorasEstimadas</td>
-                                                @* <td> *@
-                                                @*     <a asp-action="Edit" asp-route-id="@asignacion.Id" class="btn btn-sm btn-primary"> *@
-                                                @*         Editar *@
-                                                @*     </a> *@
-                                                @*     <a asp-action="Details" asp-route-id="@asignacion.Id" class="btn btn-sm btn-info"> *@
-                                                @*         Detalles *@
-                                                @*     </a> *@
-                                                @* </td> *@
-                                            </tr>
-                                        }
-                                        </tbody>
-                                    </table>
-                                </div>
+                            <div class="card-body pl-4">
+                                @foreach (var asignacion in proyecto.Asignaciones)
+                                {
+                                    <p>
+                                        Asignación: <b>@asignacion.Descripcion</b>
+                                    </p>
+                                }
                             </div>
                         </div>
                     }
-
-                    @* <div class="row"> *@
-                    @*     <div class="col-sm-12"> *@
-                    @*         <h6 class="font-weight-bold">@Html.DisplayFor(model => model.Nombre)</h6> *@
-                    @*         <p>@Html.DisplayFor(model => model.Descripcion)</p> *@
-                    @*     </div> *@
-                    @* *@
-                    @*     <div class="col-sm-12"> *@
-                    @*         <p>Área: <b>@Html.DisplayFor(model => model.Area.Nombre)</b></p> *@
-                    @*         <p>Modalidad: <b>@Html.DisplayFor(model => model.Modalidad.Nombre)</b></p> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Servicios</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Nombre)</th> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Descripcion)</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var servicio in Model.Servicios) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@servicio.Nombre</td> *@
-                    @*                         <td>@servicio.TruncatedDescripcion</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Contratos</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Contratos.FirstOrDefault().Identificacion)</th> *@
-                    @*                     <th>Cliente</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var contrato in Model.Contratos) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@contrato.Identificacion</td> *@
-                    @*                         <td>@contrato.Cliente.Nombre</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Proyectos</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Proyectos.FirstOrDefault().Nombre)</th> *@
-                    @*                     <th>Contrato</th> *@
-                    @*                     <th>Cliente</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var proyecto in Model.Proyectos) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@proyecto.Nombre</td> *@
-                    @*                         <td>@proyecto.Contrato.Identificacion</td> *@
-                    @*                         <td>@proyecto.Contrato.Cliente.Nombre</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row"> *@
-                    @*     <div class="col-12"> *@
-                    @*         @Html.ActionLink("Regresar", "", null, null, new { @class = "btn btn-sm btn-primary" }) *@
-                    @*     </div> *@
-                    @* </div> *@
                 </div>
             </div>
         </div>
