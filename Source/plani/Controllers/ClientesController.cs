@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Globalization;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +18,7 @@ public class ClientesController : BaseController
     private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<ClientesController> _logger;
     private readonly ApplicationUserManager _userManager;
+    private readonly IEmailSender _emailSender;
 
     public ClientesController(
         ApplicationDbContext dbContext,
@@ -24,12 +27,14 @@ public class ClientesController : BaseController
         IConfiguration configuration,
         ILogger<ClientesController> logger,
         IHttpContextAccessor contextAccesor,
-        IWebHostEnvironment environment)
+        IWebHostEnvironment environment,
+        IEmailSender emailSender)
         : base(userManager, roleManager, configuration, contextAccesor, environment)
     {
         _dbContext = dbContext;
         _logger = logger;
         _userManager = userManager;
+        _emailSender = emailSender;
     }
 
     [HttpGet]
@@ -761,7 +766,35 @@ public class ClientesController : BaseController
         await _dbContext.Asignaciones.AddAsync(asignacion);
         int changes = await _dbContext.SaveChangesAsync();
 
-        if (changes > 0) return RedirectToAction(nameof(Asignaciones));
+        if (changes > 0)
+        {
+            var colaborador = await _dbContext.Usuarios.Where(u => u.Id == model.IdUsuario.ToString()).FirstOrDefaultAsync();
+            var proyecto = await _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente).Where(p => p.Id == model.IdProyecto).FirstOrDefaultAsync();
+            
+            var asignacionesColaborador = await _dbContext.Asignaciones
+                .Include(a => a.Proyecto)
+                .ThenInclude(p => p.Contrato)
+                .ThenInclude(c => c.Cliente)
+                .Where(a => a.IdColaborador == colaborador.Id)
+                .OrderBy(a => a.Proyecto.Nombre)
+                .ToListAsync();
+
+            StringBuilder sbProyectos = new StringBuilder();
+            sbProyectos.AppendLine("Proyectos asignados actualmente:");
+            foreach (var asignacionColaborador in asignacionesColaborador)
+            {
+                sbProyectos.AppendLine($"{asignacionColaborador.Proyecto.Nombre} - {asignacionColaborador.Proyecto.Contrato.Cliente.Nombre}");
+            }
+
+            StringBuilder mensajeCorreo = new StringBuilder();
+            mensajeCorreo.AppendLine($"{colaborador.FullName}, Se le ha asignado un nuevo proyecto {proyecto.Nombre} del cliente {proyecto.Contrato.Cliente.Nombre}.");
+            /*
+            mensajeCorreo.AppendLine(sbProyectos.ToString());
+            */
+            await _emailSender.SendEmailAsync(colaborador.Email, "Asignación de proyecto", mensajeCorreo.ToString());
+            
+            return RedirectToAction(nameof(Asignaciones));
+        }
 
         ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Asignacion)));
         return View(model);
