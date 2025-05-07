@@ -33,7 +33,94 @@
                 <div class="card-body">
                     <a asp-action="IniciarSesion" class="btn btn-sm btn-primary">Iniciar sesión</a>
                     <a asp-action="AgregarSesion" class="btn btn-sm btn-outline-primary">Registrar sesión</a>
+
+                    @using (Html.BeginForm("MisSesiones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="row mt-4">
+                            <div class="col-sm-12 col-md-6 col-lg-8">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.IdProyecto)
+                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Todos", new { @class = "form-control form-control-sm" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-3 col-lg-2">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FechaInicio, "Inicio")
+                                    @Html.TextBoxFor(model => model.FechaInicio, new { @class = "form-control form-control-sm", type = "date" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-3 col-lg-2">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FechaFin, "Fin")
+                                    @Html.TextBoxFor(model => model.FechaFin, new { @class = "form-control form-control-sm", type = "date" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-6">
+                                <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
+                                <a asp-action="MisSesiones" class="btn btn-sm btn-secondary">Limpiar</a>
+                            </div>
+                        </div>
+                    }
+
                     <hr/>
+
+                    @if (Model.ProyectosSesiones.Count == 0)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            No hay sesiones registradas.
+                        </div>
+                    }
+
+                    <h6>Sesiones activas</h6>
+                    @if (Model.SesionesActivas.Count == 0)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            No hay sesiones activas.
+                        </div>
+                    }
+
+                    @foreach (var sesion in Model.SesionesActivas)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h6><span class="text-sc">@sesion.Proyecto.Contrato.Cliente.Nombre</span> | @sesion.Proyecto.Nombre | <span class="text-muted">@sesion.Horas hora(s)</span></h6>
+                                <p>@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</p>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                    @if (!sesion.FechaFin.HasValue)
+                                    {
+                                        if (sesion.FechaPausa.HasValue)
+                                        {
+                                            <a class="btn btn-sm btn-success" asp-controller="Clientes" asp-action="ReanudarSesion" asp-route-id="@sesion.Id">
+                                                Reanudar sesión
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="btn btn-sm btn-warning" asp-controller="Clientes" asp-action="PausarSesion" asp-route-id="@sesion.Id">
+                                                Pausar sesión
+                                            </a>
+                                        }
+
+                                        <a class="btn btn-sm btn-primary" asp-controller="Clientes" asp-action="FinalizarSesion" asp-route-id="@sesion.Id">
+                                            Finalizar sesión
+                                        </a>
+                                    }
+                                    <a class="btn btn-sm btn-outline-primary text-primary" asp-controller="Clientes" asp-action="DetalleSesion" asp-route-id="@sesion.Id">
+                                        Detalle
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <hr/>
+
+                    <h6>Mis ultimas sesiones</h6>
 
                     @foreach (var proyecto in Model.ProyectosSesiones)
                     {
@@ -48,41 +135,14 @@
                                         <tr>
                                             <th>Sesión</th>
                                             <th>Horas</th>
-                                            <th></th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @foreach (var sesion in proyecto.Sesiones)
                                         {
                                             <tr>
-                                                <td title="@sesion.Descripcion">@sesion.FechaInicio.ToString("dd-MM-yyyy") -  @sesion.Descripcion</td>
+                                                <td title="@sesion.Descripcion">@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</td>
                                                 <td>@sesion.Horas</td>
-                                                <td class="text-right">
-                                                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                                        @if (!sesion.FechaFin.HasValue)
-                                                        {
-                                                            if (sesion.FechaPausa.HasValue)
-                                                            {
-                                                                <a class="btn btn-sm btn-success" asp-controller="Clientes" asp-action="ReanudarSesion" asp-route-id="@sesion.Id">
-                                                                    Reanudar sesión
-                                                                </a>
-                                                            }
-                                                            else
-                                                            {
-                                                                <a class="btn btn-sm btn-warning" asp-controller="Clientes" asp-action="PausarSesion" asp-route-id="@sesion.Id">
-                                                                    Pausar sesión
-                                                                </a>
-                                                            }
-
-                                                            <a class="btn btn-sm btn-primary" asp-controller="Clientes" asp-action="FinalizarSesion" asp-route-id="@sesion.Id">
-                                                                Finalizar sesión
-                                                            </a>
-                                                        }
-                                                        <a class="btn btn-sm btn-outline-primary text-primary" asp-controller="Clientes" asp-action="DetalleSesion" asp-route-id="@sesion.Id">
-                                                            Detalle
-                                                        </a>
-                                                    </div>
-                                                </td>
                                             </tr>
                                         }
                                         </tbody>
