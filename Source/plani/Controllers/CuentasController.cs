@@ -188,7 +188,7 @@ public class CuentasController : BaseController
     [HttpGet]
     public ActionResult Usuarios()
     {
-        List<ApplicationUser> listaUsuarios = _userManager.Users.ToList();
+        List<ApplicationUser> listaUsuarios = _userManager.Users.OrderBy(u => u.Name).ToList();
         List<UsuariosIndexViewModel> modelo = listaUsuarios.Select(u => new UsuariosIndexViewModel(u)).ToList();
         return View(modelo);
     }
@@ -382,14 +382,16 @@ public class CuentasController : BaseController
         rol.Eliminar(GetCurrentUser());
         IdentityResult rolEliminado = await _roleManager.UpdateAsync(rol);
         if (rolEliminado.Succeeded) return RedirectToAction(nameof(Roles));
-        
+
         AddErrors(rolEliminado);
         ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(ApplicationRole)));
-        
+
         return View(modelo);
     }
 
     #endregion
+
+    #region Colaboradores
 
     [HttpGet]
     public async Task<IActionResult> Colaboradores()
@@ -417,4 +419,6 @@ public class CuentasController : BaseController
 
         return View(model);
     }
+
+    #endregion
 }

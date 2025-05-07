@@ -19,6 +19,7 @@ public class ProyectoSesionesViewModel
 public class SesionesIndexViewModel
 {
     public List<ProyectoSesionesViewModel> ProyectosSesiones { get; set; }
+    public List<Sesion> SesionesActivas { get; set; }
     public int TotalSesiones => ProyectosSesiones?.Sum(p => p.CantidadSesiones) ?? 0;
     public double TotalHoras => ProyectosSesiones?.Sum(p => p.TotalHoras) ?? 0;
 

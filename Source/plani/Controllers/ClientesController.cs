@@ -768,9 +768,11 @@ public class ClientesController : BaseController
 
         if (changes > 0)
         {
-            var colaborador = await _dbContext.Usuarios.Where(u => u.Id == model.IdUsuario.ToString()).FirstOrDefaultAsync();
-            var proyecto = await _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente).Where(p => p.Id == model.IdProyecto).FirstOrDefaultAsync();
-            
+            var colaborador = await _dbContext.Usuarios.Where(u => u.Id == model.IdUsuario.ToString())
+                .FirstOrDefaultAsync();
+            var proyecto = await _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
+                .Where(p => p.Id == model.IdProyecto).FirstOrDefaultAsync();
+
             var asignacionesColaborador = await _dbContext.Asignaciones
                 .Include(a => a.Proyecto)
                 .ThenInclude(p => p.Contrato)
@@ -783,16 +785,18 @@ public class ClientesController : BaseController
             sbProyectos.AppendLine("Proyectos asignados actualmente:");
             foreach (var asignacionColaborador in asignacionesColaborador)
             {
-                sbProyectos.AppendLine($"{asignacionColaborador.Proyecto.Nombre} - {asignacionColaborador.Proyecto.Contrato.Cliente.Nombre}");
+                sbProyectos.AppendLine(
+                    $"{asignacionColaborador.Proyecto.Nombre} - {asignacionColaborador.Proyecto.Contrato.Cliente.Nombre}");
             }
 
             StringBuilder mensajeCorreo = new StringBuilder();
-            mensajeCorreo.AppendLine($"{colaborador.FullName}, Se le ha asignado un nuevo proyecto {proyecto.Nombre} del cliente {proyecto.Contrato.Cliente.Nombre}.");
+            mensajeCorreo.AppendLine(
+                $"{colaborador.FullName}, Se le ha asignado un nuevo proyecto {proyecto.Nombre} del cliente {proyecto.Contrato.Cliente.Nombre}.");
             /*
             mensajeCorreo.AppendLine(sbProyectos.ToString());
             */
             await _emailSender.SendEmailAsync(colaborador.Email, "Asignación de proyecto", mensajeCorreo.ToString());
-            
+
             return RedirectToAction(nameof(Asignaciones));
         }
 
@@ -965,6 +969,13 @@ public class ClientesController : BaseController
     {
         ApplicationUser usuario = await _userManager.FindByEmailAsync(GetCurrentUser());
 
+        var proyectos = _dbContext.Asignaciones.Where(a => a.IdColaborador == usuario.Id).Include(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(a => a.Proyecto.Contrato.Cliente.Nombre).ToList();
+
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.Id.ToString()));
+
         var sesiones = await _dbContext.Sesiones
             .OrderByDescending(s => s.FechaInicio)
             .Include(a => a.ApplicationUser)
@@ -972,6 +983,61 @@ public class ClientesController : BaseController
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
             .Where(s => s.IdColaborador == usuario.Id)
+            .Take(25)
+            .ToListAsync();
+
+        var viewModel = new SesionesIndexViewModel
+        {
+            ProyectosSesiones = sesiones
+                .GroupBy(a => a.IdProyecto)
+                .Select(group => new ProyectoSesionesViewModel()
+                {
+                    IdProyecto = group.Key,
+                    NombreProyecto = group.First().Proyecto.Nombre,
+                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
+                    Sesiones = group.ToList()
+                })
+                .OrderBy(p => p.NombreProyecto)
+                .ToList()
+        };
+        
+        viewModel.SesionesActivas = viewModel.ProyectosSesiones
+            .SelectMany(p => p.Sesiones.Where(s => s.FechaFin == null))
+            .ToList();
+
+        return View(viewModel);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> MisSesiones(SesionesIndexViewModel model)
+    {
+        ApplicationUser usuario = await _userManager.FindByEmailAsync(GetCurrentUser());
+
+        var proyectos = _dbContext.Asignaciones.Where(a => a.IdColaborador == usuario.Id).Include(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato).ThenInclude(c => c.Cliente)
+            .OrderBy(a => a.Proyecto.Contrato.Cliente.Nombre).ToList();
+
+        ViewBag.Proyectos = proyectos.Select(c =>
+            new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.Id.ToString()));
+
+        if (model.FechaInicio?.Year == 1)
+            model.FechaInicio = null;
+
+        if (model.FechaFin?.Year == 1)
+            model.FechaInicio = null;
+
+        model.FechaFin = model.FechaFin?.AddHours(24);
+
+        var sesiones = await _dbContext.Sesiones
+            .OrderByDescending(s => s.FechaInicio)
+            .Include(a => a.ApplicationUser)
+            .Include(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .Where(s => s.IdColaborador == usuario.Id &&
+                        (model.FechaInicio == null || s.FechaInicio >= model.FechaInicio) &&
+                        (model.FechaFin == null || s.FechaFin <= model.FechaFin) &&
+                        (model.IdProyecto == null || s.IdProyecto.ToString() == model.IdProyecto))
             .ToListAsync();
 
         var viewModel = new SesionesIndexViewModel
