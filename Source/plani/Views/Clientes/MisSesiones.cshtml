@@ -27,233 +27,239 @@
 </div>
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <a asp-action="IniciarSesion" class="btn btn-sm btn-primary">Iniciar sesión</a>
-                    <a asp-action="AgregarSesion" class="btn btn-sm btn-outline-primary">Registrar sesión</a>
+<div class="row">
+<div class="col-12">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <a asp-action="IniciarSesion" class="btn btn-sm btn-primary">Iniciar sesión</a>
+            <a asp-action="AgregarSesion" class="btn btn-sm btn-outline-primary">Registrar sesión</a>
 
-                    <hr/>
+            <hr/>
 
-                    <h6>Sesiones activas</h6>
-                    @if (Model.SesionesActivas.Count == 0)
-                    {
-                        <div class="alert alert-warning" role="alert">
-                            No hay sesiones activas.
-                        </div>
-                    }
-
-                    @foreach (var sesion in Model.SesionesActivas)
-                    {
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <h6><span class="text-sc">@sesion.Proyecto.Contrato.Cliente.Nombre</span> | @sesion.Proyecto.Nombre | <span class="text-muted">@sesion.Horas hora(s)</span></h6>
-                                <p>@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</p>
-                                <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                    @if (!sesion.FechaFin.HasValue)
-                                    {
-                                        if (sesion.FechaPausa.HasValue)
-                                        {
-                                            <a class="btn btn-sm btn-success" asp-controller="Clientes" asp-action="ReanudarSesion" asp-route-id="@sesion.Id">
-                                                Reanudar sesión
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <a class="btn btn-sm btn-warning" asp-controller="Clientes" asp-action="PausarSesion" asp-route-id="@sesion.Id">
-                                                Pausar sesión
-                                            </a>
-                                        }
-
-                                        <a class="btn btn-sm btn-primary" asp-controller="Clientes" asp-action="FinalizarSesion" asp-route-id="@sesion.Id">
-                                            Finalizar sesión
-                                        </a>
-                                    }
-                                    <a class="btn btn-sm btn-outline-primary text-primary" asp-controller="Clientes" asp-action="DetalleSesion" asp-route-id="@sesion.Id">
-                                        Detalle
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    <hr/>
-
-                    <h6>Mis ultimas sesiones</h6>
-
-                    @using (Html.BeginForm("MisSesiones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
-                    {
-                        @Html.AntiForgeryToken()
-
-                        <div class="row mb-4">
-                            <div class="col-sm-12 col-md-6 col-lg-8">
-                                <div class="form-group">
-                                    @Html.LabelFor(model => model.IdProyecto)
-                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Todos", new { @class = "form-control form-control-sm" })
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12 col-md-3 col-lg-2">
-                                <div class="form-group">
-                                    @Html.LabelFor(model => model.FechaInicio, "Inicio")
-                                    @Html.TextBoxFor(model => model.FechaInicio, new { @class = "form-control form-control-sm", type = "date" })
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12 col-md-3 col-lg-2">
-                                <div class="form-group">
-                                    @Html.LabelFor(model => model.FechaFin, "Fin")
-                                    @Html.TextBoxFor(model => model.FechaFin, new { @class = "form-control form-control-sm", type = "date" })
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12 col-md-6">
-                                <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
-                                <a asp-action="MisSesiones" class="btn btn-sm btn-secondary">Limpiar</a>
-                            </div>
-                        </div>
-                    }
-
-                    @if (Model.ProyectosSesiones.Count == 0)
-                    {
-                        <div class="alert alert-warning" role="alert">
-                            No hay sesiones registradas.
-                        </div>
-                    }
-
-                    @foreach (var proyecto in Model.ProyectosSesiones)
-                    {
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h6><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto | <span class="text-muted">@proyecto.TotalHoras hora(s)</span></h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                        <tr>
-                                            <th>Sesión</th>
-                                            <th>Horas</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach (var sesion in proyecto.Sesiones)
-                                        {
-                                            <tr>
-                                                <td title="@sesion.Descripcion">@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</td>
-                                                <td>@sesion.Horas</td>
-                                            </tr>
-                                        }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    @* <div class="row"> *@
-                    @*     <div class="col-sm-12"> *@
-                    @*         <h6 class="font-weight-bold">@Html.DisplayFor(model => model.Nombre)</h6> *@
-                    @*         <p>@Html.DisplayFor(model => model.Descripcion)</p> *@
-                    @*     </div> *@
-                    @* *@
-                    @*     <div class="col-sm-12"> *@
-                    @*         <p>Área: <b>@Html.DisplayFor(model => model.Area.Nombre)</b></p> *@
-                    @*         <p>Modalidad: <b>@Html.DisplayFor(model => model.Modalidad.Nombre)</b></p> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Servicios</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Nombre)</th> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Descripcion)</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var servicio in Model.Servicios) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@servicio.Nombre</td> *@
-                    @*                         <td>@servicio.TruncatedDescripcion</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Contratos</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Contratos.FirstOrDefault().Identificacion)</th> *@
-                    @*                     <th>Cliente</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var contrato in Model.Contratos) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@contrato.Identificacion</td> *@
-                    @*                         <td>@contrato.Cliente.Nombre</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Proyectos</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Proyectos.FirstOrDefault().Nombre)</th> *@
-                    @*                     <th>Contrato</th> *@
-                    @*                     <th>Cliente</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var proyecto in Model.Proyectos) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@proyecto.Nombre</td> *@
-                    @*                         <td>@proyecto.Contrato.Identificacion</td> *@
-                    @*                         <td>@proyecto.Contrato.Cliente.Nombre</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
-                    @* <div class="row"> *@
-                    @*     <div class="col-12"> *@
-                    @*         @Html.ActionLink("Regresar", "", null, null, new { @class = "btn btn-sm btn-primary" }) *@
-                    @*     </div> *@
-                    @* </div> *@
+            <h6>Sesiones activas</h6>
+            @if (Model.SesionesActivas.Count == 0)
+            {
+                <div class="alert alert-warning" role="alert">
+                    No hay sesiones activas.
                 </div>
-            </div>
+            }
+
+            @foreach (var sesion in Model.SesionesActivas)
+            {
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h6><span class="text-sc">@sesion.Proyecto.Contrato.Cliente.Nombre</span> | @sesion.Proyecto.Nombre | <span class="text-muted">@sesion.Horas hora(s)</span></h6>
+                        <p>@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</p>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                            @if (!sesion.FechaFin.HasValue)
+                            {
+                                if (sesion.FechaPausa.HasValue)
+                                {
+                                    <a class="btn btn-sm btn-success" asp-controller="Clientes" asp-action="ReanudarSesion" asp-route-id="@sesion.Id">
+                                        Reanudar sesión
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-sm btn-warning" asp-controller="Clientes" asp-action="PausarSesion" asp-route-id="@sesion.Id">
+                                        Pausar sesión
+                                    </a>
+                                }
+
+                                <a class="btn btn-sm btn-primary" asp-controller="Clientes" asp-action="FinalizarSesion" asp-route-id="@sesion.Id">
+                                    Finalizar sesión
+                                </a>
+                            }
+                            <a class="btn btn-sm btn-outline-primary text-primary" asp-controller="Clientes" asp-action="DetalleSesion" asp-route-id="@sesion.Id">
+                                Detalle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <hr/>
+
+            <h6>Mis ultimas sesiones</h6>
+
+            @using (Html.BeginForm("MisSesiones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="row mb-4">
+                    <div class="col-sm-12 col-md-6 col-lg-8">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.IdProyecto)
+                            @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Todos", new { @class = "form-control form-control-sm" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-3 col-lg-2">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.FechaInicio, "Inicio")
+                            @Html.TextBoxFor(model => model.FechaInicio, new { @class = "form-control form-control-sm", type = "date" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-3 col-lg-2">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.FechaFin, "Fin")
+                            @Html.TextBoxFor(model => model.FechaFin, new { @class = "form-control form-control-sm", type = "date" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6">
+                        <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
+                        <a asp-action="MisSesiones" class="btn btn-sm btn-secondary">Limpiar</a>
+                    </div>
+                </div>
+            }
+
+            @if (Model.ProyectosSesiones.Count == 0)
+            {
+                <div class="alert alert-warning" role="alert">
+                    No hay sesiones registradas.
+                </div>
+            }
+
+            @foreach (var proyecto in Model.ProyectosSesiones)
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto | <span class="text-muted">@proyecto.TotalHoras hora(s)</span></h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Sesión</th>
+                                    <th>Horas</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var sesion in proyecto.Sesiones)
+                                {
+                                    <tr>
+                                        <td title="@sesion.Descripcion">@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</td>
+                                        <td>@sesion.Horas</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-outline-primary text-primary" asp-controller="Clientes" asp-action="DetalleSesion" asp-route-id="@sesion.Id">
+                                                Detalle
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @* <div class="row"> *@
+            @*     <div class="col-sm-12"> *@
+            @*         <h6 class="font-weight-bold">@Html.DisplayFor(model => model.Nombre)</h6> *@
+            @*         <p>@Html.DisplayFor(model => model.Descripcion)</p> *@
+            @*     </div> *@
+            @* *@
+            @*     <div class="col-sm-12"> *@
+            @*         <p>Área: <b>@Html.DisplayFor(model => model.Area.Nombre)</b></p> *@
+            @*         <p>Modalidad: <b>@Html.DisplayFor(model => model.Modalidad.Nombre)</b></p> *@
+            @*     </div> *@
+            @* </div> *@
+
+            @* <div class="row mt-4"> *@
+            @*     <div class="col-12"> *@
+            @*         <h6 class="font-weight-bold">Servicios</h6> *@
+            @*         <div class="table-responsive"> *@
+            @*             <table class="table table-hover table-sm text-nowrap"> *@
+            @*                 <thead> *@
+            @*                 <tr> *@
+            @*                     <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Nombre)</th> *@
+            @*                     <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Descripcion)</th> *@
+            @*                 </tr> *@
+            @*                 </thead> *@
+            @*                 <tbody> *@
+            @* *@
+            @*                 @foreach (var servicio in Model.Servicios) *@
+            @*                 { *@
+            @*                     <tr> *@
+            @*                         <td>@servicio.Nombre</td> *@
+            @*                         <td>@servicio.TruncatedDescripcion</td> *@
+            @*                     </tr> *@
+            @*                 } *@
+            @* *@
+            @*                 </tbody> *@
+            @*             </table> *@
+            @*         </div> *@
+            @*     </div> *@
+            @* </div> *@
+
+            @* <div class="row mt-4"> *@
+            @*     <div class="col-12"> *@
+            @*         <h6 class="font-weight-bold">Contratos</h6> *@
+            @*         <div class="table-responsive"> *@
+            @*             <table class="table table-hover table-sm text-nowrap"> *@
+            @*                 <thead> *@
+            @*                 <tr> *@
+            @*                     <th>@Html.DisplayNameFor(m => m.Contratos.FirstOrDefault().Identificacion)</th> *@
+            @*                     <th>Cliente</th> *@
+            @*                 </tr> *@
+            @*                 </thead> *@
+            @*                 <tbody> *@
+            @* *@
+            @*                 @foreach (var contrato in Model.Contratos) *@
+            @*                 { *@
+            @*                     <tr> *@
+            @*                         <td>@contrato.Identificacion</td> *@
+            @*                         <td>@contrato.Cliente.Nombre</td> *@
+            @*                     </tr> *@
+            @*                 } *@
+            @* *@
+            @*                 </tbody> *@
+            @*             </table> *@
+            @*         </div> *@
+            @*     </div> *@
+            @* </div> *@
+
+            @* <div class="row mt-4"> *@
+            @*     <div class="col-12"> *@
+            @*         <h6 class="font-weight-bold">Proyectos</h6> *@
+            @*         <div class="table-responsive"> *@
+            @*             <table class="table table-hover table-sm text-nowrap"> *@
+            @*                 <thead> *@
+            @*                 <tr> *@
+            @*                     <th>@Html.DisplayNameFor(m => m.Proyectos.FirstOrDefault().Nombre)</th> *@
+            @*                     <th>Contrato</th> *@
+            @*                     <th>Cliente</th> *@
+            @*                 </tr> *@
+            @*                 </thead> *@
+            @*                 <tbody> *@
+            @* *@
+            @*                 @foreach (var proyecto in Model.Proyectos) *@
+            @*                 { *@
+            @*                     <tr> *@
+            @*                         <td>@proyecto.Nombre</td> *@
+            @*                         <td>@proyecto.Contrato.Identificacion</td> *@
+            @*                         <td>@proyecto.Contrato.Cliente.Nombre</td> *@
+            @*                     </tr> *@
+            @*                 } *@
+            @* *@
+            @*                 </tbody> *@
+            @*             </table> *@
+            @*         </div> *@
+            @*     </div> *@
+            @* </div> *@
+
+            @* <div class="row"> *@
+            @*     <div class="col-12"> *@
+            @*         @Html.ActionLink("Regresar", "", null, null, new { @class = "btn btn-sm btn-primary" }) *@
+            @*     </div> *@
+            @* </div> *@
         </div>
     </div>
+</div>
+</div>
 </div>
