@@ -34,47 +34,7 @@
                     <a asp-action="IniciarSesion" class="btn btn-sm btn-primary">Iniciar sesión</a>
                     <a asp-action="AgregarSesion" class="btn btn-sm btn-outline-primary">Registrar sesión</a>
 
-                    @using (Html.BeginForm("MisSesiones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
-                    {
-                        @Html.AntiForgeryToken()
-
-                        <div class="row mt-4">
-                            <div class="col-sm-12 col-md-6 col-lg-8">
-                                <div class="form-group">
-                                    @Html.LabelFor(model => model.IdProyecto)
-                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Todos", new { @class = "form-control form-control-sm" })
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12 col-md-3 col-lg-2">
-                                <div class="form-group">
-                                    @Html.LabelFor(model => model.FechaInicio, "Inicio")
-                                    @Html.TextBoxFor(model => model.FechaInicio, new { @class = "form-control form-control-sm", type = "date" })
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12 col-md-3 col-lg-2">
-                                <div class="form-group">
-                                    @Html.LabelFor(model => model.FechaFin, "Fin")
-                                    @Html.TextBoxFor(model => model.FechaFin, new { @class = "form-control form-control-sm", type = "date" })
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12 col-md-6">
-                                <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
-                                <a asp-action="MisSesiones" class="btn btn-sm btn-secondary">Limpiar</a>
-                            </div>
-                        </div>
-                    }
-
                     <hr/>
-
-                    @if (Model.ProyectosSesiones.Count == 0)
-                    {
-                        <div class="alert alert-warning" role="alert">
-                            No hay sesiones registradas.
-                        </div>
-                    }
 
                     <h6>Sesiones activas</h6>
                     @if (Model.SesionesActivas.Count == 0)
@@ -121,6 +81,46 @@
                     <hr/>
 
                     <h6>Mis ultimas sesiones</h6>
+
+                    @using (Html.BeginForm("MisSesiones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="row mb-4">
+                            <div class="col-sm-12 col-md-6 col-lg-8">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.IdProyecto)
+                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Todos", new { @class = "form-control form-control-sm" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-3 col-lg-2">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FechaInicio, "Inicio")
+                                    @Html.TextBoxFor(model => model.FechaInicio, new { @class = "form-control form-control-sm", type = "date" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-3 col-lg-2">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.FechaFin, "Fin")
+                                    @Html.TextBoxFor(model => model.FechaFin, new { @class = "form-control form-control-sm", type = "date" })
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-6">
+                                <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
+                                <a asp-action="MisSesiones" class="btn btn-sm btn-secondary">Limpiar</a>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.ProyectosSesiones.Count == 0)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            No hay sesiones registradas.
+                        </div>
+                    }
 
                     @foreach (var proyecto in Model.ProyectosSesiones)
                     {
