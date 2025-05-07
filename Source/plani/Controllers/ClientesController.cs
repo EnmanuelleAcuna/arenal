@@ -1000,7 +1000,7 @@ public class ClientesController : BaseController
                 .OrderBy(p => p.NombreProyecto)
                 .ToList()
         };
-        
+
         viewModel.SesionesActivas = viewModel.ProyectosSesiones
             .SelectMany(p => p.Sesiones.Where(s => s.FechaFin == null))
             .ToList();
@@ -1054,6 +1054,17 @@ public class ClientesController : BaseController
                 .OrderBy(p => p.NombreProyecto)
                 .ToList()
         };
+
+        var sesionesActivas = await _dbContext.Sesiones
+            .OrderByDescending(s => s.FechaInicio)
+            .Include(a => a.ApplicationUser)
+            .Include(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .Where(s => s.IdColaborador == usuario.Id)
+            .ToListAsync();
+        
+        viewModel.SesionesActivas = sesionesActivas.Where(p => p.FechaFin == null).ToList();
 
         return View(viewModel);
     }
