@@ -7,7 +7,17 @@
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">@ViewData["Title"]</h6>
+            <h6 class="page-title">
+                <span class="font-weight-bold">
+                    @ViewData["Title"]
+                </span>
+
+                @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                {
+                    <span class="text-muted">&#124;</span>
+                    <a asp-action="AgregarArea" class="font-weight-normal text-primary">Agregar</a>
+                }
+            </h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -31,44 +41,41 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="tablaAreas" class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>@Html.DisplayNameFor(m => m.Nombre)</th>
+                                    <th>@Html.DisplayNameFor(m => m.Descripcion)</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
-                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                    {
-                        <div class="d-flex justify-content-end">
-                            <a asp-action="AgregarArea" class="btn btn-sm btn-secondary">Agregar Área</a>
-                        </div>
-                    }
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.Nombre</td>
+                                        <td>@item.TruncatedDescripcion</td>
+                                        <td class="text-right">
+                                            <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                                <a class="btn btn-sm btn-outline-light text-dark font-weight-bold"
+                                                    asp-action="DetalleArea" asp-route-id="@item.Id">Detalle</a>
 
-                    <table id="tablaAreas" class="table table-sm table-responsive">
-                        <thead>
-                        <tr>
-                            <th>@Html.DisplayNameFor(m => m.Nombre)</th>
-                            <th>@Html.DisplayNameFor(m => m.Descripcion)</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>@item.Nombre</td>
-                                <td>@item.TruncatedDescripcion</td>
-                                <td class="text-right">
-                                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                        <a class="btn btn-sm btn-light text-primary" asp-action="DetalleArea" asp-route-id="@item.Id">Detalle</a>
-
-                                        @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                                        {
-                                            <a class="btn btn-sm btn-outline-light text-dark font-weight-bold" asp-action="EditarArea" asp-route-id="@item.Id">Modificar</a>
-                                            <a class="btn btn-sm btn-outline-light text-danger" asp-action="EliminarArea" asp-route-id="@item.Id">Eliminar</a>
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
+                                                @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                                                {
+                                                    <a class="btn btn-sm btn-outline-light text-dark font-weight-bold"
+                                                        asp-action="EditarArea" asp-route-id="@item.Id">Modificar</a>
+                                                    <a class="btn btn-sm btn-outline-light text-danger"
+                                                        asp-action="EliminarArea" asp-route-id="@item.Id">Eliminar</a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -77,6 +84,7 @@
 
 @section Scripts {
     <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $('#tablaAreas').DataTable({

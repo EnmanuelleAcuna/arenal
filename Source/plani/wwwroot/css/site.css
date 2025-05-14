@@ -165,3 +165,20 @@ table.dataTable.table-sm .sorting:after, table.dataTable.table-sm .sorting_asc:a
 table.dataTable.table-sm .sorting:after, table.dataTable.table-sm .sorting_asc:after, table.dataTable.table-sm .sorting_desc:after {
     right: 0 !important;
 }
+
+/* Fix for Safari/Firefox focus issues */
+    .select2-search__field {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        -webkit-appearance: textfield !important;
+    }
+    
+    /* Fix for pointer events in Safari */
+    .select2-selection--single {
+        pointer-events: auto !important;
+    }
+    
+    /* Ensure the search box is visible and properly sized */
+    .select2-container--open .select2-dropdown {
+        min-width: 200px;
+    }

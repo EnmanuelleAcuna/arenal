@@ -7,7 +7,17 @@
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">@ViewData["Title"]</h6>
+            <h6 class="page-title">
+                <span class="font-weight-bold">
+                    @ViewData["Title"]
+                </span>
+
+                @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                {
+                    <span class="text-muted">&#124;</span>
+                    <a asp-action="AgregarUsuario" class="font-weight-normal text-primary">Agregar</a>
+                }
+            </h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -31,34 +41,37 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <div class="d-flex justify-content-end">
-                        <a asp-action="AgregarUsuario" class="btn btn-sm btn-primary">Agregar</a>
-                    </div>
-                    <div class="table-responsive mt-3">
+                    <div class="table-responsive">
                         <table id="tablaUsuarios" class="table table-hover table-sm text-nowrap">
                             <thead>
-                            <tr>
-                                <th>@Html.DisplayNameFor(m => m.Nombre)</th>
-                                <th>@Html.DisplayNameFor(m => m.Correo)</th>
-                                <th>@Html.DisplayNameFor(m => m.Estado)</th>
-                                <th></th>
-                            </tr>
+                                <tr>
+                                    <th>@Html.DisplayNameFor(m => m.Nombre)</th>
+                                    <th>@Html.DisplayNameFor(m => m.Correo)</th>
+                                    <th>@Html.DisplayNameFor(m => m.Roles)</th>
+                                    <th>@Html.DisplayNameFor(m => m.Estado)</th>
+                                    <th></th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @foreach (var usuario in Model)
-                            {
-                                <tr>
-                                    <td>@usuario.Nombre</td>
-                                    <td>@usuario.Correo</td>
-                                    <td>@usuario.Estado</td>
-                                    <td class="text-right">
-                                        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                            <a class="btn btn-sm btn-outline-light text-dark font-weight-bold" asp-action="EditarUsuario" asp-route-id="@usuario.IdUsuario">Modificar</a>
-                                            <a class="btn btn-sm btn-outline-light text-danger" asp-action="EliminarUsuario" asp-route-id="@usuario.IdUsuario">Eliminar</a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
+                                @foreach (var usuario in Model)
+                                {
+                                    <tr>
+                                        <td>@usuario.Nombre</td>
+                                        <td>@usuario.Correo</td>
+                                        <td>@usuario.Roles</td>
+                                        <td>@usuario.Estado</td>
+                                        <td class="text-right">
+                                            <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                                <a class="btn btn-sm btn-outline-light text-dark font-weight-bold"
+                                                    asp-action="EditarUsuario"
+                                                    asp-route-id="@usuario.IdUsuario">Modificar</a>
+                                                <a class="btn btn-sm btn-outline-light text-danger"
+                                                    asp-action="EliminarUsuario"
+                                                    asp-route-id="@usuario.IdUsuario">Eliminar</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -71,10 +84,13 @@
 @section Scripts {
     <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
     <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    @* <script src="~/js/dataTables.responsive.min.js"></script>
+    <script src="~/js/responsive.bootstrap4.min.js"></script> *@
     <script type="text/javascript">
         $(document).ready(function () {
             $('#tablaUsuarios').DataTable({
                 "lengthChange": false,
+                @* "responsive": true, *@
                 "language": {
                     "url": "/dataTables_es-ES.json"
                 }

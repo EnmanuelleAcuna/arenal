@@ -129,27 +129,30 @@ public class EditarRolViewModel
 
 public class UsuariosIndexViewModel
 {
-    public UsuariosIndexViewModel()
-    {
-    }
+    public UsuariosIndexViewModel() { }
 
-    public UsuariosIndexViewModel(ApplicationUser usuario)
+    public UsuariosIndexViewModel(ApplicationUser usuario, string roles)
     {
         IdUsuario = usuario.Id;
-        Nombre = string.Format(new CultureInfo("es-CR"), "{0} {1} {2}", usuario.Name, usuario.FirstLastName,
-            usuario.SecondLastName);
+        Nombre = string.Format(new CultureInfo("es-CR"), "{0} {1} {2}", usuario.Name, usuario.FirstLastName, usuario.SecondLastName);
         Correo = usuario.Email;
         NumeroIdentificacion = usuario.IdentificationNumber;
+        Roles = roles;
         Estado = (bool)usuario.Active ? "Activo" : "Inactivo";
     }
 
     public string IdUsuario { get; set; }
 
-    [Display(Name = "Nombre completo")] public string Nombre { get; set; }
+    [Display(Name = "Nombre completo")]
+    public string Nombre { get; set; }
 
-    [Display(Name = "Correo electrónico")] public string Correo { get; set; }
+    [Display(Name = "Correo electrónico")]
+    public string Correo { get; set; }
 
-    [Display(Name = "Identificación")] public string NumeroIdentificacion { get; set; }
+    [Display(Name = "Identificación")]
+    public string NumeroIdentificacion { get; set; }
+
+    public string Roles { get; set; }
 
     public string Estado { get; set; }
 }

@@ -34,7 +34,7 @@ public class ServiciosController : BaseController
     [HttpGet]
     public async Task<IActionResult> Areas()
     {
-        List<Area> areas = await _dbContext.Areas.ToListAsync();
+        IEnumerable<Area> areas = await _dbContext.Areas.AsNoTracking().OrderBy(x => x.Nombre).ToListAsync();
         return View(areas);
     }
 
@@ -42,6 +42,7 @@ public class ServiciosController : BaseController
     public async Task<IActionResult> DetalleArea(Guid id)
     {
         Area model = await _dbContext.Areas
+            .AsNoTracking()
             .Include(a => a.Servicios)
             .Include(a => a.Contratos)
             .ThenInclude(c => c.Cliente)
@@ -64,8 +65,7 @@ public class ServiciosController : BaseController
     {
         if (!ModelState.IsValid)
         {
-            ModelState.AddModelError("",
-                string.Concat(Utils.MensajeErrorAgregar(nameof(Area)), GetModelStateErrors()));
+            ModelState.AddModelError("", string.Concat(Utils.MensajeErrorAgregar(nameof(Area)), GetModelStateErrors()));
             return View(model);
         }
 
@@ -74,6 +74,7 @@ public class ServiciosController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Areas));
+
         ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Area)));
 
         return View(model);
@@ -109,6 +110,7 @@ public class ServiciosController : BaseController
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Areas));
+
         ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Area)));
 
         return View(model);
@@ -139,6 +141,7 @@ public class ServiciosController : BaseController
         if (changes > 0) return RedirectToAction(nameof(Areas));
 
         ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Area)));
+        
         return View(model);
     }
 
@@ -276,7 +279,7 @@ public class ServiciosController : BaseController
 
         return View(model);
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> AgregarServicio()
     {
