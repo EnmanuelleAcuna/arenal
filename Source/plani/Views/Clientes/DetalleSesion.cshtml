@@ -51,11 +51,11 @@
 
                             @if (Model.FechaInicio is { Hour: 6, Minute: 0, Second: 0 })
                             {
-                                <p>Inicio:&nbsp;<b>@(Model.FechaInicio.AddHours(-6).ToString("dd-MM-yyyy"))</b></p>
+                                <p>Inicio:&nbsp;<b>@(Model.DateCreated.AddHours(-6).ToString("dd-MM-yyyy"))</b></p>
                             }
                             else
                             {
-                                <p>Inicio:&nbsp;<b>@(Model.FechaInicio.AddHours(-6).ToString("dd-MM-yyyy hh:mm:ss tt"))</b></p>
+                                <p>Inicio:&nbsp;<b>@(Model.DateCreated.AddHours(-6).ToString("dd-MM-yyyy hh:mm:ss tt"))</b></p>
                             }
 
                             @if (Model.FechaFin is { Hour: 6, Minute: 0, Second: 0 })

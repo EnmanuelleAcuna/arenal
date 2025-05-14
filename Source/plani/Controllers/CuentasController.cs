@@ -186,11 +186,18 @@ public class CuentasController : BaseController
     #region Usuarios
 
     [HttpGet]
-    public ActionResult Usuarios()
+    public async Task<ActionResult> Usuarios()
     {
-        List<ApplicationUser> listaUsuarios = _userManager.Users.OrderBy(u => u.Name).ToList();
-        List<UsuariosIndexViewModel> modelo = listaUsuarios.Select(u => new UsuariosIndexViewModel(u)).ToList();
-        return View(modelo);
+        List<ApplicationUser> users = _userManager.Users.OrderBy(u => u.Name).ToList();
+
+        List<UsuariosIndexViewModel> usuarios = new();
+        foreach (var user in users)
+        {
+            var userRoles = await _userManager.GetRolesAsync(user);
+            usuarios.Add(new UsuariosIndexViewModel(user, string.Join(", ", userRoles)));
+        }
+
+        return View(usuarios);
     }
 
     [HttpGet]
@@ -400,7 +407,7 @@ public class CuentasController : BaseController
         var usuariosCoordinadores = await _userManager.GetUsersInRoleAsync("Coordinador");
 
         var usuarios = usuariosColaboradores.Union(usuariosCoordinadores).ToList();
-        var modelo = usuarios.OrderBy(u => u.Name).Select(u => new UsuariosIndexViewModel(u)).ToList();
+        var modelo = usuarios.OrderBy(u => u.Name).Select(u => new UsuariosIndexViewModel(u, string.Empty)).ToList();
 
         return View(modelo);
     }

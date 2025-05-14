@@ -66,7 +66,8 @@
                             <div class="col-sm-12">
                                 <div class="form-group">
                                     <label>Cliente</label>
-                                    @Html.DropDownListFor(model => model.IdContrato, new List<SelectListItem>(ViewBag.Contratos), "Seleccione cliente", new { @class = "form-control form-control-sm" })
+                                    @* @Html.DropDownListFor(model => model.IdContrato, new List<SelectListItem>(ViewBag.Contratos), "Seleccione cliente", new { @class = "form-control form-control-sm select2" }) *@
+                                    @Html.DropDownListFor(model => model.IdContrato, new List<SelectListItem>(ViewBag.Contratos), "Seleccione cliente", new { @class = "form-control form-control-sm select2", id = "cliente-select" })
                                     @Html.ValidationMessageFor(model => model.IdContrato)
                                 </div>
                             </div>
@@ -112,5 +113,30 @@
 </div>
 
 @section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script>
+        $(document).ready(function() {
+            // Wait for DOM to be fully loaded
+            setTimeout(function() {
+                // Use a specific ID instead of a class
+                $("#cliente-select").select2({
+                    placeholder: "Seleccione cliente",
+                    allowClear: true,
+                    width: '100%',
+                    // Explicitly enable search
+                    minimumResultsForSearch: 0,
+                    // Force dropdown to open above or below as needed
+                    dropdownAutoWidth: true,
+                    // Debug mode to help identify issues
+                    debug: true
+                });
+                
+                // Check if Select2 was initialized properly
+                console.log("Select2 initialized:", $("#cliente-select").data("select2"));
+            }, 500);
+        });
+    </script>
 }

@@ -1150,7 +1150,7 @@ public class ClientesController : BaseController
         var currentUser = GetCurrentUser();
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(currentUser);
 
-        // Get user's active sesiones
+        // Obtener sesiones activas del usuario
         var activeSesiones = await _dbContext.Sesiones
             .Where(s => s.IdColaborador == colaborador.Id && s.FechaFin == null)
             .ToListAsync();
@@ -1192,12 +1192,13 @@ public class ClientesController : BaseController
 
             ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
 
-            IEnumerable<Asignacion> asignaciones =
-                await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
-                    .ThenInclude(c => c.Cliente).Where(a => a.IdColaborador == colaborador.Id).ToListAsync();
-            ViewBag.Proyectos = asignaciones.Select(c =>
-                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
-                    c.IdProyecto.ToString()));
+            IEnumerable<Asignacion> asignaciones = await _dbContext.Asignaciones
+                                                                .Where(a => a.IdColaborador == colaborador.Id)
+                                                                   .Include(a => a.Proyecto)
+                                                                        .ThenInclude(c => c.Contrato)
+                                                                            .ThenInclude(c => c.Cliente)
+                                                                            .ToListAsync();
+            ViewBag.Proyectos = asignaciones.Select(c => new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.IdProyecto.ToString()));
 
             return View(model);
         }
@@ -1276,76 +1277,7 @@ public class ClientesController : BaseController
 
         sesion.FechaPausa = DateTime.UtcNow;
 
-        double horas = (sesion.FechaPausa - sesion.FechaInicio).Value.Hours;
-
-        double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
-
-        sesion.Horas += roundedHours;
-        sesion.Descripcion = model.Descripcion;
-
-        _dbContext.Sesiones.Update(sesion);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(MisSesiones));
-
-        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Sesion)));
-        return View(model);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> FinalizarSesion(Guid id)
-    {
-        Sesion sesion = await _dbContext.Sesiones.FindAsync(id);
-
-        if (sesion == null) return NotFound();
-
-        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(sesion.IdProyecto);
-
-        Servicio servicio = await _dbContext.Servicios.FindAsync(sesion.IdServicio);
-
-        FinalizarSesionModel model = new FinalizarSesionModel
-        {
-            IdSesion = sesion.Id,
-            IdProyecto = sesion.IdProyecto,
-            NombreProyecto = proyecto.Nombre,
-            IdServicio = sesion.IdServicio,
-            NombreServicio = servicio.Nombre,
-            Descripcion = sesion.Descripcion
-        };
-
-        return View(model);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> FinalizarSesion(FinalizarSesionModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            ModelState.AddModelError("",
-                string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
-
-            IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
-
-            ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
-
-            IEnumerable<Asignacion> asignaciones =
-                await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
-                    .ThenInclude(c => c.Cliente).ToListAsync();
-            ViewBag.Proyectos = asignaciones.Select(c =>
-                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
-                    c.IdProyecto.ToString()));
-
-            return View(model);
-        }
-
-        Sesion sesion = await _dbContext.Sesiones.FindAsync(model.IdSesion);
-
-        if (sesion == null) return NotFound();
-
-        sesion.FechaFin = DateTime.UtcNow;
-
-        double horas = (sesion.FechaFin - sesion.FechaInicio).Value.Hours;
+        double horas = (sesion.FechaPausa - sesion.FechaInicio).Value.TotalHours;
 
         double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
 
@@ -1415,6 +1347,75 @@ public class ClientesController : BaseController
 
         sesion.FechaInicio = DateTime.UtcNow;
         sesion.FechaPausa = null;
+        sesion.Descripcion = model.Descripcion;
+
+        _dbContext.Sesiones.Update(sesion);
+        int changes = await _dbContext.SaveChangesAsync();
+
+        if (changes > 0) return RedirectToAction(nameof(MisSesiones));
+
+        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Sesion)));
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> FinalizarSesion(Guid id)
+    {
+        Sesion sesion = await _dbContext.Sesiones.FindAsync(id);
+
+        if (sesion == null) return NotFound();
+
+        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(sesion.IdProyecto);
+
+        Servicio servicio = await _dbContext.Servicios.FindAsync(sesion.IdServicio);
+
+        FinalizarSesionModel model = new FinalizarSesionModel
+        {
+            IdSesion = sesion.Id,
+            IdProyecto = sesion.IdProyecto,
+            NombreProyecto = proyecto.Nombre,
+            IdServicio = sesion.IdServicio,
+            NombreServicio = servicio.Nombre,
+            Descripcion = sesion.Descripcion
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> FinalizarSesion(FinalizarSesionModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError("",
+                string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
+
+            IEnumerable<Servicio> servicios = await _dbContext.Servicios.ToListAsync();
+
+            ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
+
+            IEnumerable<Asignacion> asignaciones =
+                await _dbContext.Asignaciones.Include(a => a.Proyecto).ThenInclude(c => c.Contrato)
+                    .ThenInclude(c => c.Cliente).ToListAsync();
+            ViewBag.Proyectos = asignaciones.Select(c =>
+                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
+                    c.IdProyecto.ToString()));
+
+            return View(model);
+        }
+
+        Sesion sesion = await _dbContext.Sesiones.FindAsync(model.IdSesion);
+
+        if (sesion == null) return NotFound();
+
+        sesion.FechaFin = DateTime.UtcNow;
+
+        double horas = (sesion.FechaFin - sesion.FechaInicio).Value.Hours;
+
+        double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
+
+        sesion.Horas += roundedHours;
         sesion.Descripcion = model.Descripcion;
 
         _dbContext.Sesiones.Update(sesion);
