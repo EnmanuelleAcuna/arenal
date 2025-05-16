@@ -1413,6 +1413,11 @@ public class ClientesController : BaseController
 
         double horas = (sesion.FechaFin - sesion.FechaInicio).Value.Hours;
 
+        double minutos = (sesion.FechaFin - sesion.FechaInicio).Value.Minutes;
+
+        if (minutos >= 15 && minutos <= 30) horas += 0.5;
+        if (minutos >= 45 && minutos <= 59) horas += 1;
+
         double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
 
         sesion.Horas += roundedHours;
