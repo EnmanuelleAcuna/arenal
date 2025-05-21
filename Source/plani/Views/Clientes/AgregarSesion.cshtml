@@ -49,7 +49,7 @@
                             <div class="col-sm-12 col-md-5">
                                 <div class="form-group">
                                     <label>Proyecto</label>
-                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Seleccione un proyecto", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Seleccione un proyecto", new { @class = "form-control form-control-sm select2", id = "proyecto-select" })
                                     @Html.ValidationMessageFor(model => model.IdProyecto)
                                 </div>
                             </div>
@@ -102,5 +102,28 @@
 </div>
 
 @section Scripts{
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        $(document).ready(function() {
+            // Wait for DOM to be fully loaded
+            setTimeout(function() {
+                // Use a specific ID instead of a class
+                $("#proyecto-select").select2({
+                    placeholder: "Seleccione proyecto",
+                    allowClear: true,
+                    width: '100%',
+                    // Explicitly enable search
+                    minimumResultsForSearch: 0,
+                    // Force dropdown to open above or below as needed
+                    dropdownAutoWidth: true,
+                    // Debug mode to help identify issues
+                    debug: true
+                });
+                
+                // Check if Select2 was initialized properly
+                console.log("Select2 initialized:", $("#cliente-select").data("select2"));
+            }, 500);
+        });
+    </script>
 }
