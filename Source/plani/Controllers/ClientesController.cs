@@ -905,6 +905,7 @@ public class ClientesController : BaseController
                         (model.FechaFin == null || s.FechaFin <= model.FechaFin) &&
                         (model.IdUsuario == null || s.IdColaborador == model.IdUsuario) &&
                         (model.IdProyecto == null || s.IdProyecto.ToString() == model.IdProyecto))
+            .OrderByDescending(s => s.FechaInicio)
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -974,7 +975,7 @@ public class ClientesController : BaseController
             .OrderBy(a => a.Proyecto.Contrato.Cliente.Nombre).ToList();
 
         ViewBag.Proyectos = proyectos.Select(c =>
-            new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.Id.ToString()));
+            new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.Proyecto.Id.ToString()));
 
         var sesiones = await _dbContext.Sesiones
             .OrderByDescending(s => s.FechaInicio)
@@ -1018,7 +1019,7 @@ public class ClientesController : BaseController
             .OrderBy(a => a.Proyecto.Contrato.Cliente.Nombre).ToList();
 
         ViewBag.Proyectos = proyectos.Select(c =>
-            new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.Id.ToString()));
+            new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.Proyecto.Id.ToString()));
 
         if (model.FechaInicio?.Year == 1)
             model.FechaInicio = null;
@@ -1029,16 +1030,28 @@ public class ClientesController : BaseController
         model.FechaFin = model.FechaFin?.AddHours(24);
 
         var sesiones = await _dbContext.Sesiones
+            .Where(s => (usuario.Id == null || s.IdColaborador == usuario.Id) &&
+                        (model.FechaInicio == null || s.FechaInicio >= model.FechaInicio) &&
+                        (model.FechaFin == null || s.FechaFin <= model.FechaFin) &&
+                        (model.IdProyecto == null || s.IdProyecto.ToString() == model.IdProyecto))
             .OrderByDescending(s => s.FechaInicio)
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
-            .Where(s => s.IdColaborador == usuario.Id &&
-                        (model.FechaInicio == null || s.FechaInicio >= model.FechaInicio) &&
-                        (model.FechaFin == null || s.FechaFin <= model.FechaFin) &&
-                        (model.IdProyecto == null || s.IdProyecto.ToString() == model.IdProyecto))
             .ToListAsync();
+        
+        /*var sesiones = await _dbContext.Sesiones
+            .Where(s => (model.FechaInicio == null || s.FechaInicio >= model.FechaInicio) &&
+                        (model.FechaFin == null || s.FechaFin <= model.FechaFin) &&
+                        (model.IdUsuario == null || s.IdColaborador == model.IdUsuario) &&
+                        (model.IdProyecto == null || s.IdProyecto.ToString() == model.IdProyecto))
+            .Include(a => a.ApplicationUser)
+            .Include(a => a.Proyecto)
+            .ThenInclude(p => p.Contrato)
+            .ThenInclude(c => c.Cliente)
+            .Where(s => model.IdUsuario == null || s.IdColaborador == model.IdUsuario)
+            .ToListAsync();*/
 
         var viewModel = new SesionesIndexViewModel
         {
@@ -1063,7 +1076,7 @@ public class ClientesController : BaseController
             .ThenInclude(c => c.Cliente)
             .Where(s => s.IdColaborador == usuario.Id)
             .ToListAsync();
-        
+
         viewModel.SesionesActivas = sesionesActivas.Where(p => p.FechaFin == null).ToList();
 
         return View(viewModel);
@@ -1193,12 +1206,14 @@ public class ClientesController : BaseController
             ViewBag.Servicios = servicios.Select(c => new SelectListItem(text: c.Nombre, c.Id.ToString()));
 
             IEnumerable<Asignacion> asignaciones = await _dbContext.Asignaciones
-                                                                .Where(a => a.IdColaborador == colaborador.Id)
-                                                                   .Include(a => a.Proyecto)
-                                                                        .ThenInclude(c => c.Contrato)
-                                                                            .ThenInclude(c => c.Cliente)
-                                                                            .ToListAsync();
-            ViewBag.Proyectos = asignaciones.Select(c => new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}", c.IdProyecto.ToString()));
+                .Where(a => a.IdColaborador == colaborador.Id)
+                .Include(a => a.Proyecto)
+                .ThenInclude(c => c.Contrato)
+                .ThenInclude(c => c.Cliente)
+                .ToListAsync();
+            ViewBag.Proyectos = asignaciones.Select(c =>
+                new SelectListItem(text: $"{c.Proyecto.Contrato.Cliente.Nombre} - {c.Proyecto.Nombre}",
+                    c.IdProyecto.ToString()));
 
             return View(model);
         }

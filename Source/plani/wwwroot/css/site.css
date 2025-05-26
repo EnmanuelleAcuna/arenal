@@ -5,17 +5,6 @@ body {
     background-color: #f2f4f5;
 }
 
-/* Set padding to keep content from hitting the edges */
-.body-content {
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
-/* Provide sufficient contrast against white background */
-a {
-    color: #0366d6;
-}
-
 /* Set width on the form input elements since they're 100% wide by default */
 input,
 select,
@@ -23,93 +12,13 @@ textarea {
     resize: none;
 }
 
-.navbar {
-    border-bottom: 0.01rem solid lightsteelblue;
-}
-
-.jumbotron,
-.card {
-    border: 0.01rem solid lightsteelblue;
-}
-
-.btn-primary {
+.btn-primary, .btn-sc {
     background-color: rgb(33, 50, 92) !important;
     border-color: rgb(33, 50, 92) !important;
 }
 
-/* Sticky footer styles */
-/* html {
-  font-size: 14px;
-  position: relative;
-  min-height: 100%;
-}
-
-/* Margin bottom by footer height */
-/* body { 
-	margin-bottom: 60px;
-} */
-
-/* @media (min-width: 768px) {
-html {
-  font-size: 16px;
-}
-} */
-
-/* .border-top {
-  border-top: 1px solid #e5e5e5;
-}
-
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
-} */
-
-/* .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
-} */
-
-/*.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; *//* Vertically center the text there */
-/* }  */
-
-/* Custom styles */
-/* styles for validation helpers */
-.field-validation-error {
-    color: #b94a48;
-}
-
-.field-validation-valid {
-    display: none;
-}
-
-input.input-validation-error {
-    border: 1px solid #b94a48;
-}
-
-input[type="checkbox"].input-validation-error {
-    border: 0 none;
-}
-
-.validation-summary-errors {
-    color: #b94a48;
-}
-
-.validation-summary-valid {
-    display: none;
-}
-
-@-moz-document url-prefix() {
-    fieldset {
-        display: table-cell;
-    }
+.text-sc {
+    color: rgb(33, 50, 92);
 }
 
 .img-thumbnail-sm {
@@ -122,8 +31,8 @@ input[type="checkbox"].input-validation-error {
 
 .img-thumbnail-sm img {
     min-width: 100%;
-    /*background-repeat: no-repeat;
-    background-size: auto;*/
+    !*background-repeat: no-repeat;
+    background-size: auto;*!
 }
 
 .max-height-128px {
@@ -146,39 +55,91 @@ input[type="checkbox"].input-validation-error {
     max-height: 24px !important;
 }
 
-.breadcrumb {
-    font-size: 0.875rem !important;
+/*
+!* Set padding to keep content from hitting the edges *!
+.body-content {
+padding-left: 15px;
+padding-right: 15px;
 }
 
-.text-sc {
-  color: rgb(33, 50, 92);
+!* Provide sufficient contrast against white background *!
+a {
+color: #0366d6;
+}
+
+.navbar {
+border-bottom: 0.01rem solid lightsteelblue;
+}
+
+.jumbotron,
+.card {
+border: 0.01rem solid lightsteelblue;
+}
+
+!* Custom styles *!
+!* styles for validation helpers *!
+.field-validation-error {
+color: #b94a48;
+}
+    
+.field-validation-valid {
+display: none;
+}
+
+input.input-validation-error {
+border: 1px solid #b94a48;
+}
+
+input[type="checkbox"].input-validation-error {
+border: 0 none;
+}
+
+.validation-summary-errors {
+color: #b94a48;
+}
+
+.validation-summary-valid {
+display: none;
+}
+
+@-moz-document url-prefix() {
+fieldset {
+display: table-cell;
+}
+}
+
+
+
+.breadcrumb {
+font-size: 0.875rem !important;
 }
 
 .p-0-5 {
-    padding: 0.5rem !important;
+padding: 0.5rem !important;
 }
 
 table.dataTable.table-sm .sorting:after, table.dataTable.table-sm .sorting_asc:after, table.dataTable.table-sm .sorting_desc:after {
-    right: 0.7em !important;
+right: 0.7em !important;
 }
 
 table.dataTable.table-sm .sorting:after, table.dataTable.table-sm .sorting_asc:after, table.dataTable.table-sm .sorting_desc:after {
-    right: 0 !important;
+right: 0 !important;
 }
 
-/* Fix for Safari/Firefox focus issues */
-    .select2-search__field {
-        width: 100% !important;
-        box-sizing: border-box !important;
-        -webkit-appearance: textfield !important;
-    }
-    
-    /* Fix for pointer events in Safari */
-    .select2-selection--single {
-        pointer-events: auto !important;
-    }
-    
-    /* Ensure the search box is visible and properly sized */
-    .select2-container--open .select2-dropdown {
-        min-width: 200px;
-    }
+!* Fix for Safari/Firefox focus issues *!
+.select2-search__field {
+width: 100% !important;
+box-sizing: border-box !important;
+-webkit-appearance: textfield !important;
+}
+
+!* Fix for pointer events in Safari *!
+.select2-selection--single {
+pointer-events: auto !important;
+}
+
+!* Ensure the search box is visible and properly sized *!
+.select2-container--open .select2-dropdown {
+min-width: 200px;
+}
+*/
