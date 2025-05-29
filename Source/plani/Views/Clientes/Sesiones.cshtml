@@ -87,13 +87,13 @@
                     {
                         <div class="card mb-4">
                             <div class="card-header p-0-5">
-                                <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto | @proyecto.TotalHoras hora(s)</h6>
+                                <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto</h6>
                             </div>
                             <div class="card-body pl-4 py-2">
                                 @foreach (var sesion in proyecto.Sesiones)
                                 {
                                     <p class="mb-0">
-                                        @sesion.FechaInicio.ToString("dd-MM-yyyy") | <span class="font-weight-bold">@sesion.ApplicationUser.FullName</span> | @sesion.Horas hora(s) | @sesion.TruncatedDescripcion <a asp-action="DetalleSesion" asp-controller="Clientes" asp-route-id="@sesion.Id">Ver detalle</a>
+                                        @sesion.FechaInicio.ToString("dd-MM-yyyy") | <span class="font-weight-bold">@sesion.ApplicationUser.FullName</span> | @sesion.Horas hora(s) @sesion.Minutes <minutos class=""></minutos> | @sesion.TruncatedDescripcion <a asp-action="DetalleSesion" asp-controller="Clientes" asp-route-id="@sesion.Id">Ver detalle</a>
                                     </p>
                                 }
                             </div>
