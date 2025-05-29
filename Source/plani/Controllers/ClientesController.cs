@@ -1134,7 +1134,8 @@ public class ClientesController : BaseController
             IdColaborador = colaborador.Id,
             IdProyecto = model.IdProyecto,
             IdServicio = model.IdServicio,
-            Horas = float.Parse(model.Horas, CultureInfo.InvariantCulture),
+            Horas = model.Horas,
+            Minutes = model.Minutos,
             Descripcion = model.Descripcion
         };
 
@@ -1292,11 +1293,13 @@ public class ClientesController : BaseController
 
         sesion.FechaPausa = DateTime.UtcNow;
 
-        double horas = (sesion.FechaPausa - sesion.FechaInicio).Value.TotalHours;
+        TimeSpan diferencia = sesion.FechaPausa.Value - sesion.FechaInicio;
 
-        double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
+        int horasTotales = (int)diferencia.TotalHours;
+        int minutos = diferencia.Minutes;
 
-        sesion.Horas += roundedHours;
+        sesion.Horas += horasTotales;
+        sesion.Minutes += minutos;
         sesion.Descripcion = model.Descripcion;
 
         _dbContext.Sesiones.Update(sesion);
@@ -1425,17 +1428,14 @@ public class ClientesController : BaseController
         if (sesion == null) return NotFound();
 
         sesion.FechaFin = DateTime.UtcNow;
+        
+        TimeSpan diferencia = sesion.FechaFin.Value - sesion.FechaInicio;
 
-        double horas = (sesion.FechaFin - sesion.FechaInicio).Value.Hours;
-
-        double minutos = (sesion.FechaFin - sesion.FechaInicio).Value.Minutes;
-
-        if (minutos >= 15 && minutos <= 30) horas += 0.5;
-        if (minutos >= 45 && minutos <= 59) horas += 1;
-
-        double roundedHours = Math.Round(horas * 2, MidpointRounding.AwayFromZero) / 2;
-
-        sesion.Horas += roundedHours;
+        int horasTotales = (int)diferencia.TotalHours;
+        int minutos = diferencia.Minutes;
+        
+        sesion.Horas += horasTotales;
+        sesion.Minutes += minutos;
         sesion.Descripcion = model.Descripcion;
 
         _dbContext.Sesiones.Update(sesion);

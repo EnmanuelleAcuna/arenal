@@ -37,7 +37,6 @@
                     @using (Html.BeginForm("AgregarSesion", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
                     {
                         @Html.AntiForgeryToken()
-                        @* @Html.HiddenFor(model => model.IdUsuario) *@
 
                         <div class="row">
                             <div class="col-md-12">
@@ -46,7 +45,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-12 col-md-5">
+                            <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label>Proyecto</label>
                                     @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Seleccione un proyecto", new { @class = "form-control form-control-sm select2", id = "proyecto-select" })
@@ -75,6 +74,14 @@
                                     <label for="Horas">Horas</label>
                                     @Html.TextBoxFor(model => model.Horas, "", new { @class = "form-control form-control-sm", placeholder = "" })
                                     @Html.ValidationMessageFor(model => model.Horas, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-1">
+                                <div class="form-group">
+                                    <label for="Minutos">Minutos</label>
+                                    @Html.TextBoxFor(model => model.Minutos, "", new { @class = "form-control form-control-sm", placeholder = "" })
+                                    @Html.ValidationMessageFor(model => model.Minutos, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                         </div>

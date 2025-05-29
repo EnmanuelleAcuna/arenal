@@ -126,7 +126,7 @@
             {
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto | <span class="text-muted">@proyecto.TotalHoras hora(s)</span></h6>
+                        <h6><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto</h6>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -135,6 +135,7 @@
                                 <tr>
                                     <th>Sesión</th>
                                     <th>Horas</th>
+                                    <th>Minutos</th>
                                     <th></th>
                                 </tr>
                                 </thead>
@@ -144,6 +145,7 @@
                                     <tr>
                                         <td title="@sesion.Descripcion">@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</td>
                                         <td>@sesion.Horas</td>
+                                        <td>@sesion.Minutes</td>
                                         <td>
                                             <a class="btn btn-sm btn-outline-primary text-primary" asp-controller="Clientes" asp-action="DetalleSesion" asp-route-id="@sesion.Id">
                                                 Detalle

@@ -13,6 +13,7 @@ public class ProyectoSesionesViewModel
     public List<Sesion> Sesiones { get; set; }
     
     public double TotalHoras => Sesiones?.Sum(a => a.Horas) ?? 0;
+    public double TotalMinutos => Sesiones?.Sum(a => a.Minutes) ?? 0;
     public int CantidadSesiones => Sesiones?.Count ?? 0;
 }
 
@@ -43,7 +44,11 @@ public class AgregarSesionModel
     public Guid IdUsuario { get; set; }
     public Guid IdServicio { get; set; }
     public DateTime Fecha { get; set; }
-    public string Horas { get; set; }
+    public int Horas { get; set; }
+    
+    [Range(0, 59, ErrorMessage = "Los minutos deben estar entre 0 y 59.")]
+    public int Minutos { get; set; }
+    
     public string Descripcion { get; set; }
 }
 
@@ -58,7 +63,8 @@ public class PausarSesionModel
     public string NombreServicio { get; set; }
     public DateTime Fecha { get; set; }
     public string Descripcion { get; set; }
-    public double Horas { get; set; }
+    public int Horas { get; set; }
+    public int Minutos { get; set; }
 }
 
 public class FinalizarSesionModel

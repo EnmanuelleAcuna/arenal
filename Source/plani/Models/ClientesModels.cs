@@ -51,9 +51,8 @@ public class TipoCliente : Base
 
 public class IndexClientesViewModel
 {
-    [DisplayName("Filtrar por")]
-    public string PalabraClave { get; set; }
-    
+    [DisplayName("Filtrar por")] public string PalabraClave { get; set; }
+
     public IEnumerable<Cliente> Clientes { get; set; }
 }
 
@@ -218,9 +217,8 @@ public class Contrato : Base
 
 public class IndexProyectosViewModel
 {
-    [DisplayName("Filtrar por")]
-    public string PalabraClave { get; set; }
-    
+    [DisplayName("Filtrar por")] public string PalabraClave { get; set; }
+
     public IEnumerable<Proyecto> Proyectos { get; set; }
 }
 
@@ -243,7 +241,7 @@ public class Proyecto : Base
 
         IdArea = idArea;
         IdContrato = idContrato;
-        
+
         Asignaciones = new List<Asignacion>();
     }
 
@@ -261,7 +259,7 @@ public class Proyecto : Base
 
         IdContrato = contrato.Id;
         Contrato = contrato;
-        
+
         Asignaciones = new List<Asignacion>();
     }
 
@@ -271,11 +269,11 @@ public class Proyecto : Base
     public string Nombre { get; set; }
 
     [DataType(DataType.Date)] public DateTime FechaInicio { get; set; }
-    
+
     [NotMapped] public string LongDateFechaInicio => FechaInicio.ToString("D", new CultureInfo("es-ES"));
 
     [DataType(DataType.Date)] public DateTime? FechaFin { get; set; }
-    
+
     [NotMapped] public string LongDateFechaFin => FechaFin?.ToString("D", new CultureInfo("es-ES"));
 
     [ForeignKey(nameof(Area))] public Guid IdArea { get; set; }
@@ -283,7 +281,7 @@ public class Proyecto : Base
 
     [ForeignKey(nameof(Contrato))] public Guid IdContrato { get; set; }
     public Contrato Contrato { get; set; }
-    
+
     [DisplayName("Descripción")]
     [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
@@ -291,7 +289,7 @@ public class Proyecto : Base
     [NotMapped]
     public string TruncatedDescripcion =>
         Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
-    
+
     public ICollection<Asignacion> Asignaciones { get; set; }
 
     public void Actualizar(Proyecto proyecto, string actualizadoPor)
@@ -324,8 +322,9 @@ public class Asignacion : Base
         IdProyecto = idProyecto;
         IdColaborador = idColaborador;
     }
-    
-    public Asignacion(Guid id, int horasEstimadas, string descripcion, Proyecto proyecto, ApplicationUser usuario) : base()
+
+    public Asignacion(Guid id, int horasEstimadas, string descripcion, Proyecto proyecto,
+        ApplicationUser usuario) : base()
     {
         Id = id;
         HorasEstimadas = horasEstimadas;
@@ -337,18 +336,17 @@ public class Asignacion : Base
         IdProyecto = proyecto.Id;
         Proyecto = proyecto;
     }
-    
+
     public Guid Id { get; set; }
-    
+
     [ForeignKey(nameof(Proyecto))] public Guid IdProyecto { get; set; }
     public Proyecto Proyecto { get; set; }
-    
+
     [ForeignKey(nameof(ApplicationUser))] public string IdColaborador { get; set; }
     public ApplicationUser ApplicationUser { get; set; }
 
-    [DisplayName("Horas estimadas")]
-    public int HorasEstimadas { get; set; }
-    
+    [DisplayName("Horas estimadas")] public int HorasEstimadas { get; set; }
+
     [DisplayName("Descripción")]
     [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
@@ -356,7 +354,7 @@ public class Asignacion : Base
     [NotMapped]
     public string TruncatedDescripcion =>
         Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
-    
+
     public void Actualizar(Asignacion asignacion, string actualizadoPor)
     {
         HorasEstimadas = asignacion.HorasEstimadas;
@@ -376,22 +374,26 @@ public class Sesion : Base
     {
     }
 
-    public Sesion(Guid id, DateTime fechaInicio, int horas, string descripcion, Guid idProyecto, string idColaborador) : base()
+    public Sesion(Guid id, DateTime fechaInicio, int horas, int minutes, string descripcion, Guid idProyecto,
+        string idColaborador) : base()
     {
         Id = id;
         FechaInicio = fechaInicio;
         Horas = horas;
+        Minutes = minutes;
         Descripcion = descripcion;
 
         IdProyecto = idProyecto;
         IdColaborador = idColaborador;
     }
-    
-    public Sesion(Guid id, DateTime fechaInicio, int horas, string descripcion, Proyecto proyecto, ApplicationUser usuario) : base()
+
+    public Sesion(Guid id, DateTime fechaInicio, int horas, int minutes, string descripcion, Proyecto proyecto,
+        ApplicationUser usuario) : base()
     {
         Id = id;
         FechaInicio = fechaInicio;
         Horas = horas;
+        Minutes = minutes;
         Descripcion = descripcion;
 
         IdColaborador = usuario.Id;
@@ -400,32 +402,28 @@ public class Sesion : Base
         IdProyecto = proyecto.Id;
         Proyecto = proyecto;
     }
-    
+
     public Guid Id { get; set; }
-    
+
     [ForeignKey(nameof(Proyecto))] public Guid IdProyecto { get; set; }
     public Proyecto Proyecto { get; set; }
-    
+
     [ForeignKey(nameof(ApplicationUser))] public string IdColaborador { get; set; }
     public ApplicationUser ApplicationUser { get; set; }
-    
-    // [DataType(DataType.Date)]
-    [Column("Fecha")]
-    public DateTime FechaInicio { get; set; }
-    
-    [Column("FechaPausa")]
-    public DateTime? FechaPausa { get; set; }
-    
-    // [DataType(DataType.Date)] 
+
+    [Column("Fecha")] public DateTime FechaInicio { get; set; }
+
+    [Column("FechaPausa")] public DateTime? FechaPausa { get; set; }
+
     public DateTime? FechaFin { get; set; }
 
-    [DisplayName("Horas")]
-    [Column(TypeName = "NUMERIC(18,2)")]
-    public double Horas { get; set; }
-    
+    [DisplayName("Horas")] public int Horas { get; set; }
+
+    [DisplayName("Minutos")] public int Minutes { get; set; }
+
     [ForeignKey(nameof(Servicio))] public Guid IdServicio { get; set; }
     public Servicio Servicio { get; set; }
-    
+
     [DisplayName("Descripción")]
     [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
@@ -433,11 +431,12 @@ public class Sesion : Base
     [NotMapped]
     public string TruncatedDescripcion =>
         Descripcion?.Length > 50 ? Descripcion.Substring(0, 50) + "..." : Descripcion;
-    
+
     public void Actualizar(Sesion sesion, string actualizadoPor)
     {
         FechaInicio = sesion.FechaInicio;
         Horas = sesion.Horas;
+        Minutes = sesion.Minutes;
         Descripcion = sesion.Descripcion;
         IdProyecto = sesion.IdProyecto;
         IdColaborador = sesion.IdColaborador;
