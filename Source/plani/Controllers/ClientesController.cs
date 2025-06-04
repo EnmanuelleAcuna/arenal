@@ -1301,6 +1301,12 @@ public class ClientesController : BaseController
         sesion.Horas += horasTotales;
         sesion.Minutes += minutos;
         sesion.Descripcion = model.Descripcion;
+        
+        if (sesion.Minutes >= 60)
+        {
+            sesion.Horas++;
+            sesion.Minutes -= 60;
+        }
 
         _dbContext.Sesiones.Update(sesion);
         int changes = await _dbContext.SaveChangesAsync();
@@ -1437,6 +1443,12 @@ public class ClientesController : BaseController
         sesion.Horas += horasTotales;
         sesion.Minutes += minutos;
         sesion.Descripcion = model.Descripcion;
+        
+        if (sesion.Minutes >= 60)
+        {
+            sesion.Horas++;
+            sesion.Minutes -= 60;
+        }
 
         _dbContext.Sesiones.Update(sesion);
         int changes = await _dbContext.SaveChangesAsync();
