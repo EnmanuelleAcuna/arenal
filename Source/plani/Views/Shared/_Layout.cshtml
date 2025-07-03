@@ -9,7 +9,7 @@
 	<meta name="description" content="arenal">
 	<meta name="author" content="Enmanuelle Acuña">
 
-	<title>@ViewData["Title"] - plani</title>
+	<title>@ViewData["Title"] - Seguimientos Sandí Consultores</title>
 
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
 	<link rel="stylesheet" href="~/css/site.css"/>
@@ -23,15 +23,18 @@
 </head>
 
 <body>
-<div>
-	<partial name="_HeaderPartial"/>
+<partial name="_HeaderPartial"/>
 
-	<div class="container">
-		@RenderBody()
-	</div>
-
-	<partial name="_FooterPartial"/>
+<div class="container">
+	@RenderBody()
 </div>
+
+<footer>
+	<div class="container text-center">
+		<small><span class="font-weight-bold">Seguimientos Sandí Consultores </span> &copy; @DateTime.Now.Year <a>Arenal
+				Dev Studio</a></small>
+	</div>
+</footer>
 
 <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -39,5 +42,4 @@
 
 @await RenderSectionAsync("Scripts", required: false)
 </body>
-
 </html>

@@ -229,7 +229,7 @@ public class CuentasController : BaseController
             AddErrors(rolesAsignados);
         }
 
-        ModelState.AddModelError("", Utils.MensajeErrorCrear(nameof(ApplicationUser)));
+        ModelState.AddModelError("", Utils.MensajeErrorCrear("usuario"));
         ViewBag.ListaRoles = User.IsInRole("Administrador")
             ? CargarListaSeleccionRoles(cargarRolAdministrador: true)
             : CargarListaSeleccionRoles(cargarRolAdministrador: false);
@@ -341,7 +341,7 @@ public class CuentasController : BaseController
             AddErrors(rolCreado);
         }
 
-        ModelState.AddModelError("", Utils.MensajeErrorCrear(nameof(ApplicationRole)));
+        ModelState.AddModelError("", Utils.MensajeErrorCrear("rol"));
         return View(modelo);
     }
 

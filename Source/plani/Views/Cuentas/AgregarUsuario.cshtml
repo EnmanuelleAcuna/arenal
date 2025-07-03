@@ -41,11 +41,6 @@
                     @using (Html.BeginForm("AgregarUsuario", "Cuentas", null, FormMethod.Post, true, new { autocomplete = "off" }))
                     {
                         @Html.AntiForgeryToken()
-                        <div class="row">
-                            <div class="col-md-12">
-                                @Html.ValidationSummary(true, "")
-                            </div>
-                        </div>
 
                         <div class="row">
                             <div class="col-sm-12 col-md-4">
@@ -145,6 +140,12 @@
                                     <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
                                     @Html.ActionLink("Cancelar", "Usuarios", null, null, new { @class = "btn btn-sm btn-outline-dark" })
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                @Html.ValidationSummary(true, "", new { @class = "text-danger mx-n4" })
                             </div>
                         </div>
                     }

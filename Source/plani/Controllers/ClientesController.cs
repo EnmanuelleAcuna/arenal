@@ -856,6 +856,7 @@ public class ClientesController : BaseController
 
         var sesiones = await _dbContext.Sesiones
             .Where(s => s.FechaInicio >= DateTime.UtcNow.AddDays(-10))
+            .OrderByDescending(s => s.DateCreated)
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -873,7 +874,7 @@ public class ClientesController : BaseController
                     NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
                     Sesiones = group.ToList()
                 })
-                .OrderBy(p => p.NombreProyecto)
+                //.OrderBy(p => p.NombreProyecto)
                 .ToList()
         };
 
@@ -905,7 +906,7 @@ public class ClientesController : BaseController
                         (model.FechaFin == null || s.FechaFin <= model.FechaFin) &&
                         (model.IdUsuario == null || s.IdColaborador == model.IdUsuario) &&
                         (model.IdProyecto == null || s.IdProyecto.ToString() == model.IdProyecto))
-            .OrderByDescending(s => s.FechaInicio)
+            .OrderByDescending(s => s.DateCreated)
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -925,7 +926,7 @@ public class ClientesController : BaseController
                     NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
                     Sesiones = group.ToList()
                 })
-                .OrderBy(p => p.NombreProyecto)
+                //.OrderBy(p => p.NombreProyecto)
                 .ToList()
         };
 

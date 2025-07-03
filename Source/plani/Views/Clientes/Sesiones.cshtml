@@ -83,7 +83,7 @@
                         </div>
                     }
 
-                    @foreach (var proyecto in Model.ProyectosSesiones)
+                    @*@foreach (var proyecto in Model.ProyectosSesiones)
                     {
                         <div class="card mb-4">
                             <div class="card-header p-0-5">
@@ -98,9 +98,72 @@
                                 }
                             </div>
                         </div>
-                    }
+                    }*@
+                    <div class="table-responsive">
+                        <table id="tablaSesiones" class="table table-hover table-sm text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Colaborador</th>
+                                <th>Cliente</th>
+                                <th>Proyecto</th>
+                                <th>Horas</th>
+                                <th>Minutos</th>
+                                <th>Detalle</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var proyecto in Model.ProyectosSesiones)
+                            {
+                                @foreach (var sesion in proyecto.Sesiones)
+                                {
+                                    <tr>
+                                        <td>@sesion.FechaInicio.ToString("dd-MM-yyyy")</td>
+                                        <td>@sesion.ApplicationUser.FullName</td>
+                                        <td>@proyecto.NombreCliente</td>
+                                        <td>@proyecto.NombreProyecto</td>
+                                        <td>@sesion.Horas</td>
+                                        <td>@sesion.Minutes</td>
+                                        <td>@sesion.Descripcion</td>
+                                    </tr>
+                                }
+                            }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+
+@section Scripts {
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#tablaSesiones').DataTable({
+                "order": false,
+                "language": {
+                    "url": "/dataTables_es-ES.json"
+                },
+                dom: 'Bfrtip',
+                buttons: [
+                    'excelHtml5'
+                ]
+                /*layout: {
+                    topStart: {
+                        buttons: ['excel']
+                    }
+                }*/
+            });
+        });
+    </script>
+}

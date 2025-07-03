@@ -7,7 +7,7 @@
 <div class="container">
     <div class="row">
         <div class="col-5 align-self-center">
-            <h6 class="page-title">Sesión</h6>
+            <h6 class="page-title">Detalle de Sesión</h6>
         </div>
         <div class="col-7 align-self-center">
             <div class="d-flex align-items-center justify-content-end">
@@ -67,12 +67,6 @@
                             {
                                 <p>Fin:&nbsp;<b>@(Model.FechaFin?.AddHours(-6).ToString("dd-MM-yyyy hh:mm:ss tt"))</b></p>
                             }
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12">
-                            @Html.ActionLink("Regresar", "MisSesiones", null, null, new { @class = "btn btn-sm btn-primary" })
                         </div>
                     </div>
                 </div>

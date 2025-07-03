@@ -1,5 +1,7 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models.Data;
@@ -18,6 +20,20 @@ class Program
 		// ASP.Net Identity
 		builder.Services.AddDbContext<IdentityDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 		
+		builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+		
+		builder.Services.Configure<RequestLocalizationOptions>(options =>
+		{
+			var spanishCulture = new CultureInfo("es-ES");
+			var supportedCultures = new[] { "es-ES" };
+			options.SetDefaultCulture(supportedCultures[0]);
+			options.DefaultRequestCulture = new RequestCulture("es-ES");
+			options.SupportedCultures = new List<CultureInfo> { spanishCulture };
+			options.SupportedUICultures = new List<CultureInfo> { spanishCulture };
+			options.RequestCultureProviders.Clear();
+			options.RequestCultureProviders.Add(new FixedCultureProvider("es-ES"));
+		});
+		
 		builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 		{
 			options.User.RequireUniqueEmail = true;
@@ -27,7 +43,8 @@ class Program
 		.AddEntityFrameworkStores<IdentityDBContext>()
 		.AddTokenProvider<DataProtectorTokenProvider<ApplicationUser>>(TokenOptions.DefaultProvider)
 		.AddUserManager<ApplicationUserManager>()
-		.AddRoleManager<ApplicationRoleManager>();
+		.AddRoleManager<ApplicationRoleManager>()
+		.AddErrorDescriber<LocalizedIdentityErrorDescriber>();
 
 		builder.Services.Configure<CookiePolicyOptions>(options =>
 		{
@@ -44,8 +61,8 @@ class Program
 
 		builder.Services.ConfigureApplicationCookie(options =>
 		{
-			options.Cookie.Name = ".AspNetCore.Identity.Application";
 			// options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+			options.Cookie.Name = ".AspNetCore.Identity.Application";
 			options.SlidingExpiration = true;
 			options.LoginPath = "/Cuentas/IniciarSesion";
 			options.Cookie.SameSite = SameSiteMode.Strict;
@@ -53,16 +70,13 @@ class Program
 		
 		builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 		
-		// builder.Services.AddTransient<IBaseCore<TipoEjercicio>, TiposEjercicio>();
-		// builder.Services.AddTransient<IBaseCore<Cliente>, Ejercicios>();
-		// builder.Services.AddTransient<IBaseCore<TipoMedida>, TiposMedida>();
-		// builder.Services.AddTransient<IBaseCore<Servicios>, GruposMusculares>();
 		builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 		builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 		WebApplication app = builder.Build();
 
+		app.UseRequestLocalization();
 		app.UseExceptionHandler(app.Environment.IsDevelopment() ? "/Error/ErrorDevelopment" : "/Error/Error");
 		app.UseHsts(); // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 		app.UseHttpsRedirection();
@@ -73,5 +87,20 @@ class Program
 		app.UseAuthorization();
 		app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Administracion}/{id?}");
 		app.Run();
+	}
+}
+
+public class FixedCultureProvider : RequestCultureProvider
+{
+	private readonly string _culture;
+
+	public FixedCultureProvider(string culture)
+	{
+		_culture = culture;
+	}
+
+	public override Task<ProviderCultureResult> DetermineProviderCultureResult(HttpContext httpContext)
+	{
+		return Task.FromResult(new ProviderCultureResult(_culture));
 	}
 }
