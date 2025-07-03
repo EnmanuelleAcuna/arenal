@@ -50,4 +50,27 @@
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Identity\LocalizedIdentityErrorDescriber.es-es.resx">
+	    <LastGenOutput>LocalizedIdentityErrorDescriber.es-es.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="Resources\Identity\LocalizedIdentityErrorDescriber.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>LocalizedIdentityErrorDescriber.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	  <EmbeddedResource Update="Resources\Identity\LocalizedIdentityErrorDescriber.es-ES.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>LocalizedIdentityErrorDescriber.es-es.Designer.cs</LastGenOutput>
+	    <DependentUpon>LocalizedIdentityErrorDescriber.resx</DependentUpon>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Resources\Identity\LocalizedIdentityErrorDescriber.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>LocalizedIdentityErrorDescriber.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
 </Project>

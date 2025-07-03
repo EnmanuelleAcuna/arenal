@@ -31,6 +31,13 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
+                    @if (Model.ProyectosAsignaciones.Count == 0)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            No hay asignaciones registradas.
+                        </div>
+                    }
+                    
                     @foreach (var proyecto in Model.ProyectosAsignaciones)
                     {
                         <div class="card mb-4">
