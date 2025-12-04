@@ -1,0 +1,67 @@
+@model plani.Models.ViewModels.NavigationViewModel
+
+@functions {
+    // Helper para determinar si un link está activo
+    bool IsActive(string controller, string action)
+    {
+        return Model.CurrentController.Equals(controller, StringComparison.OrdinalIgnoreCase) &&
+               Model.CurrentAction.Equals(action, StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <!-- Logo/Brand -->
+    <a href='@Url.Action("Administracion", "Home")' class="sidebar-brand">
+        <img src="~/images/SC-2.svg" alt="Logo">
+        <div class="sidebar-brand-text">
+            <strong>SANDÍ CONSULTORES</strong>
+        </div>
+    </a>
+
+    <nav class="sidebar-nav">
+        @foreach (var navSection in Model.Sections)
+        {
+            <div class="nav-section">
+                @* Título de la sección si tiene *@
+                @if (!string.IsNullOrEmpty(navSection.Title))
+                {
+                    <div class="nav-section-title">@navSection.Title</div>
+                }
+
+                <div class="nav-item">
+                    @if (!navSection.HasSubmenu && navSection.DirectLink != null)
+                    {
+                        @* Link directo sin submenú *@
+                        <a href='@Url.Action(navSection.DirectLink.Action, navSection.DirectLink.Controller)'
+                           class="nav-link @(IsActive(navSection.DirectLink.Controller, navSection.DirectLink.Action) ? "active" : "")">
+                            <i class="fas @navSection.Icon"></i>
+                            <span class="nav-link-text">@navSection.DirectLink.Text</span>
+                        </a>
+                    }
+                    else if (navSection.HasSubmenu)
+                    {
+                        @* Link con submenú *@
+                        <a href="#" class="nav-link" onclick="toggleSubmenu(event, '@navSection.SubmenuId')">
+                            <i class="fas @navSection.Icon"></i>
+                            <span class="nav-link-text">@navSection.Title</span>
+                            <i class="fas fa-chevron-right nav-link-arrow"></i>
+                        </a>
+
+                        @* Submenú items *@
+                        <div class="nav-submenu" id="@navSection.SubmenuId">
+                            @foreach (var item in navSection.SubmenuItems)
+                            {
+                                <a href='@Url.Action(item.Action, item.Controller)'
+                                   class="nav-link @(IsActive(item.Controller, item.Action) ? "active" : "")">
+                                    <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                                    <span class="nav-link-text">@item.Text</span>
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </nav>
+</div>

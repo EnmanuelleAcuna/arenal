@@ -1,33 +1,10 @@
 ﻿@model DetalleRolViewModel
 
 @{
-    ViewBag.Title = "Detalle de rol";
+    ViewData["Title"] = "Detalle de rol";
+    ViewBag.BreadcrumbIcon = "fa-users-cog";
+    ViewBag.Breadcrumbs = new[] { "Roles", "Detalle" };
 }
-
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">Rol</h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href='@Url.Action("Administracion", "Home")'>Administración</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="@Url.Action("Roles")">Roles</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Detalle
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -36,20 +13,20 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h6 class="font-weight-bold">@Html.DisplayFor(model => model.Nombre)</h6>
-                            <p>@Html.DisplayFor(model => model.Descripcion)</p>
+                            <h6>Rol: <span class="font-weight-bold">@Model.Nombre</span></h6>
+                            <p>@Model.Descripcion</p>
                         </div>
                     </div>
 
-                    <div class="row mt-2">
+                    <div class="row mt-4">
                         <div class="col-12">
-                            @* <h6 class="font-weight-bold">Usuarios</h6> *@
+                            <h6 class="text-dark">Usuarios con este Rol</h6>
                             <div class="table-responsive">
                                 <table class="table table-hover table-sm text-nowrap">
                                     <thead>
                                     <tr>
-                                        <th>Usuario</th>
-                                        <th>Correo electrónico</th>
+                                        <th class="text-secondary">Usuario</th>
+                                        <th class="text-secondary">Correo electrónico</th>
                                     </tr>
                                     </thead>
 

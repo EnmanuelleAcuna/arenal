@@ -166,4 +166,32 @@ SELECT * FROM Sesiones;
 
 ALTER TABLE Sesiones ADD FechaFin DATETIME NULL;
 
+ALTER TABLE Sesiones ADD FechaPausa DATETIME NULL;
+
 ALTER TABLE Sesiones ALTER COLUMN Horas NUMERIC(18, 2) NOT NULL;
+
+DELETE Asignaciones;
+DELETE Sesiones;
+
+SELECT * FROM Clientes;
+SELECT * FROM Contratos;
+SELECT * FROM Proyectos;
+
+DELETE Contratos WHERE Id = '02be6aea-9ccc-42c7-66f5-08dd4080c3b7';
+
+DELETE  Clientes where Id = '14c9ea4e-a5d0-4344-75a3-08dd2fd871ba';
+
+UPDATE Contratos SET Identificacion = 'CONTRATO-Veterinaria' WHERE Id = '18946f2e-3cfc-4d44-7474-08dd6e005b9b';
+
+SELECT * FROM Usuarios;
+
+UPDATE Usuarios 
+SET 
+UserName = 'normansandi@sandiconsultores.com', 
+NormalizedUserName = 'NORMANSANDI@SANDICONSULTORES.COM', 
+Email = 'normansandi@sandiconsultores.com', 
+NormalizedEmail = 'NORMANSANDI@SANDICONSULTORES.COM',
+PasswordHash = 'AQAAAAEAACcQAAAAEHLglrUi82wO1gnzaDxwxT8mawZcrYoRAlh/384ugB12sqJeN3CEA+B/HBO1fVoe5Q==',
+SecurityStamp = 'WCO4THAT72ECXGH77DMGC2LYFJ3KS267',
+ConcurrencyStamp = '0141a8f5-2de8-4600-a133-bd72049d15a4'
+WHERE Id = '7aed6b3f-1919-4a04-92a5-33ed4fd2ba85';

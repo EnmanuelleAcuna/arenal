@@ -1,33 +1,10 @@
 ﻿@model Servicio
 
 @{
-    ViewBag.Title = "Servicios";
+    ViewData["Title"] = "Detalle de servicio";
+    ViewBag.BreadcrumbIcon = "fa-briefcase";
+    ViewBag.Breadcrumbs = new[] { "Servicios", "Detalle de servicio" };
 }
-
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">Servicio</h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href='@Url.Action("Administracion", "Home")'>Administración</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="@Url.Action("Areas")">Servicios</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Detalle de servicio
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -36,13 +13,13 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h6 class="font-weight-bold">@Html.DisplayFor(model => model.Nombre)</h6>
-                            <p>@Html.DisplayFor(model => model.Descripcion)</p>
+                            <h6>Servicio: <span class="font-weight-bold">@Model.Nombre</span></h6>
+                            <p>@Model.Descripcion</p>
                         </div>
 
                         <div class="col-sm-12">
-                            <p>Área: <b>@Html.DisplayFor(model => model.Area.Nombre)</b></p>
-                            <p>Modalidad: <b>@Html.DisplayFor(model => model.Modalidad.Nombre)</b></p>
+                            <p>Área: <b>@Model.Area.Nombre</b></p>
+                            <p>Modalidad: <b>@Model.Modalidad.Nombre</b></p>
                         </div>
                     </div>
 

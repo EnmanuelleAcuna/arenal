@@ -13,32 +13,65 @@
 
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
 	<link rel="stylesheet" href="~/css/site.css"/>
-
 	<link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css"/>
 
-	<link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap4.min.css"/>
-	@* <link rel="stylesheet" href="~/css/responsive.bootstrap4.css" /> *@
+	@await RenderSectionAsync("Styles", required: false)
 
+	<link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap4.min.css"/>
 	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 </head>
 
 <body>
-<partial name="_HeaderPartial"/>
+@* View Components: Toda la lógica está en backend, vistas limpias *@
+@await Component.InvokeAsync("NavigationSidebar")
+@await Component.InvokeAsync("Topbar")
 
-<div class="container">
+<div aria-live="polite" aria-atomic="true" style="position: fixed; top: 70px; right: 20px; z-index: 9999;">
+	<div id="toastContainer"></div>
+</div>
+
+<div class="body-content">
 	@RenderBody()
 </div>
 
-<footer>
-	<div class="container text-center">
-		<small><span class="font-weight-bold">Seguimientos Sandí Consultores </span> &copy; @DateTime.Now.Year <a>Arenal
-				Dev Studio</a></small>
-	</div>
-</footer>
+<partial name="_FooterPartial"/>
 
 <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="~/js/site.js" asp-append-version="true"></script>
+
+<script>
+	function toggleSidebar() {
+		const sidebar = document.getElementById('sidebar');
+		sidebar.classList.toggle('collapsed');
+
+		// En móvil, toggle show
+		if (window.innerWidth <= 768) {
+			sidebar.classList.toggle('show');
+		}
+	}
+
+	function toggleSubmenu(event, submenuId) {
+		event.preventDefault();
+		const submenu = document.getElementById(submenuId);
+		const link = event.currentTarget;
+
+		link.classList.toggle('expanded');
+		submenu.classList.toggle('show');
+	}
+
+	// Cerrar sidebar en móvil al hacer clic fuera
+	document.addEventListener('click', function (event) {
+		if (window.innerWidth <= 768) {
+			const sidebar = document.getElementById('sidebar');
+			const sidebarToggle = document.querySelector('.sidebar-toggle');
+
+			if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+				sidebar.classList.remove('show');
+			}
+		}
+	});
+</script>
 
 @await RenderSectionAsync("Scripts", required: false)
 </body>

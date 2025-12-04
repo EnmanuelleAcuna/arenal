@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Localization;
 
@@ -21,7 +20,7 @@ public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
             Description = _localizer["DefaultError"],
         };
     }
-    
+
     public override IdentityError PasswordMismatch()
     {
         return new IdentityError
@@ -30,7 +29,7 @@ public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
             Description = _localizer["PasswordMismatch"]
         };
     }
-    
+
     public override IdentityError InvalidToken()
     {
         return new IdentityError
@@ -39,7 +38,7 @@ public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
             Description = _localizer["InvalidToken"]
         };
     }
-    
+
     public override IdentityError RecoveryCodeRedemptionFailed()
     {
         return new IdentityError
@@ -48,7 +47,7 @@ public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
             Description = _localizer["RecoveryCodeRedemptionFailed"]
         };
     }
-    
+
     public override IdentityError DuplicateEmail(string email)
     {
         return new IdentityError
@@ -57,7 +56,7 @@ public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
             Description = _localizer["FormatDuplicateEmail", email]
         };
     }
-    
+
     public override IdentityError InvalidEmail(string email)
     {
         return new IdentityError
@@ -75,7 +74,7 @@ public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
             Description = _localizer["FormatDuplicateUserName", userName]
         };
     }
-    
+
     public override IdentityError InvalidUserName(string userName)
     {
         return new IdentityError
@@ -111,7 +110,7 @@ public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
             Description = _localizer["PasswordRequiresUpper"]
         };
     }
-    
+
     public override IdentityError PasswordRequiresLower()
     {
         return new IdentityError
@@ -129,7 +128,7 @@ public class LocalizedIdentityErrorDescriber : IdentityErrorDescriber
             Description = _localizer["PasswordRequiresNonAlphanumeric"]
         };
     }
-    
+
     public override IdentityError PasswordRequiresDigit()
     {
         return new IdentityError

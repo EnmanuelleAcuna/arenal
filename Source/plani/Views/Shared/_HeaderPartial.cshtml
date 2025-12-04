@@ -1,41 +1,14 @@
-﻿@inject SignInManager<ApplicationUser> SignInManager
+<!-- Topbar -->
+<div class="topbar">
+    <div class="topbar-left">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
 
-<header>
-	<nav class="navbar navbar-expand navbar-light" style="background-color: rgb(33, 50, 92)">
-		<div class="container">
-			@* <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" *@
-			@* 	aria-label="Toggle navigation"> *@
-			@* 	<span class="navbar-toggler-icon"></span> *@
-			@* </button> *@
-			<div class="collapse navbar-collapse" id="navbarNav">
-				<ul class="navbar-nav mr-auto">
-					<li class="nav-item active">
-						<a class="navbar-brand nav-link" href='@Url.Action("Administracion", "Home")' style="color: rgb(208, 162, 68)">
-							<img src="~/images/SC-2.svg" width="32" height="30" class="d-inline-block align-top" alt="Sandí Consultores logo">
-							SANDÍ CONSULTORES<span class="sr-only">(current)</span>
-						</a>
-					</li>
-				</ul>
+        @* View Component: Breadcrumbs inteligentes (lee ViewBag o genera automáticamente) *@
+        @await Component.InvokeAsync("Breadcrumbs")
+    </div>
 
-				<ul class="navbar-nav">
-					@if (SignInManager.IsSignedIn(User))
-					{
-					<li class="nav-item">
-						<div>
-							<form class="" asp-controller="Cuentas" asp-action="CerrarSesion" asp-route-returnUrl="@Url.Action("Administracion", "Home")">
-								<button type="submit" class="nav-link btn btn-link text-light">Cerrar sesión</button>
-							</form>
-						</div>
-					</li>
-					}
-					else
-					{
-					<li class="nav-item">
-						<a class="nav-link text-dark" asp-controller="Cuentas" asp-action="IniciarSesion" title="Iniciar sesión en fitcare">Iniciar sesión</a>
-					</li>
-					}
-				</ul>
-			</div>
-		</div>
-	</nav>
-</header>
+    @* View Component: Maneja toda la lógica del usuario (autenticación, roles, caché) *@
+    @await Component.InvokeAsync("UserHeader")
+</div>

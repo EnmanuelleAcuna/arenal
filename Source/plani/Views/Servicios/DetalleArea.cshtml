@@ -2,32 +2,9 @@
 
 @{
     ViewBag.Title = "Áreas";
+    ViewBag.BreadcrumbIcon = "fa-briefcase";
+    ViewBag.Breadcrumbs = new[] { "Áreas", "Detalle" };
 }
-
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">Área</h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href='@Url.Action("Administracion", "Home")'>Administración</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="@Url.Action("Areas")">Áreas de servicio</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Detalle de área
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -36,20 +13,20 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h6 class="font-weight-bold">@Html.DisplayFor(model => model.Nombre)</h6>
-                            <p>@Html.DisplayFor(model => model.Descripcion)</p>
+                            <h6>Área: <span class="font-weight-bold">@Model.Nombre</span></h6>
+                            <p>@Model.Descripcion</p>
                         </div>
                     </div>
 
                     <div class="row mt-4">
                         <div class="col-12">
-                            <h6 class="font-weight-bold">Servicios</h6>
+                            <h6 class="text-dark">Servicios asignados al Área</h6>
                             <div class="table-responsive">
                                 <table class="table table-hover table-sm text-nowrap">
                                     <thead>
                                     <tr>
-                                        <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Nombre)</th>
-                                        <th>@Html.DisplayNameFor(m => m.Servicios.FirstOrDefault().Descripcion)</th>
+                                        <th class="text-secondary">Nombre</th>
+                                        <th class="text-secondary">Descripción</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -68,43 +45,42 @@
                         </div>
                     </div>
 
+                    @* <div class="row mt-4"> *@
+                    @*     <div class="col-12"> *@
+                    @*         <h6 class="font-weight-bold">Contratos</h6> *@
+                    @*         <div class="table-responsive"> *@
+                    @*             <table class="table table-hover table-sm text-nowrap"> *@
+                    @*                 <thead> *@
+                    @*                 <tr> *@
+                    @*                     <th>@Html.DisplayNameFor(m => m.Contratos.FirstOrDefault().Identificacion)</th> *@
+                    @*                     <th>Cliente</th> *@
+                    @*                 </tr> *@
+                    @*                 </thead> *@
+                    @*                 <tbody> *@
+                    @* *@
+                    @*                 @foreach (var contrato in Model.Contratos) *@
+                    @*                 { *@
+                    @*                     <tr> *@
+                    @*                         <td>@contrato.Identificacion</td> *@
+                    @*                         <td>@contrato.Cliente.Nombre</td> *@
+                    @*                     </tr> *@
+                    @*                 } *@
+                    @* *@
+                    @*                 </tbody> *@
+                    @*             </table> *@
+                    @*         </div> *@
+                    @*     </div> *@
+                    @* </div> *@
+
                     <div class="row mt-4">
                         <div class="col-12">
-                            <h6 class="font-weight-bold">Contratos</h6>
+                            <h6 class="text-dark">Proyectos asignados al Área</h6>
                             <div class="table-responsive">
                                 <table class="table table-hover table-sm text-nowrap">
                                     <thead>
                                     <tr>
-                                        <th>@Html.DisplayNameFor(m => m.Contratos.FirstOrDefault().Identificacion)</th>
-                                        <th>Cliente</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    @foreach (var contrato in Model.Contratos)
-                                    {
-                                        <tr>
-                                            <td>@contrato.Identificacion</td>
-                                            <td>@contrato.Cliente.Nombre</td>
-                                        </tr>
-                                    }
-
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mt-4">
-                        <div class="col-12">
-                            <h6 class="font-weight-bold">Proyectos</h6>
-                            <div class="table-responsive">
-                                <table class="table table-hover table-sm text-nowrap">
-                                    <thead>
-                                    <tr>
-                                        <th>@Html.DisplayNameFor(m => m.Proyectos.FirstOrDefault().Nombre)</th>
-                                        <th>Contrato</th>
-                                        <th>Cliente</th>
+                                        <th class="text-secondary">Nombre</th>
+                                        <th class="text-secondary">Cliente</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -113,7 +89,6 @@
                                     {
                                         <tr>
                                             <td>@proyecto.Nombre</td>
-                                            <td>@proyecto.Contrato.Identificacion</td>
                                             <td>@proyecto.Contrato.Cliente.Nombre</td>
                                         </tr>
                                     }

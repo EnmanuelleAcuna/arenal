@@ -1,33 +1,10 @@
 @model TipoCliente
 
 @{
-    ViewBag.Title = "Eliminar tipo de cliente";
+    ViewData["Title"] = "Eliminar tipo de cliente";
+    ViewBag.BreadcrumbIcon = "fa-building";
+    ViewBag.Breadcrumbs = new[] { "Tipos de cliente", "Eliminar" };
 }
-
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">Eliminar tipo de cliente</h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="@Url.Action("Administracion", "Home")">Administración</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="@Url.Action("TiposCliente")">Tipos de Cliente</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Eliminar
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">

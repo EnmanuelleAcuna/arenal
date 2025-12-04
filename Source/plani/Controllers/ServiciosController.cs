@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models;
 using plani.Models.Data;
+using plani.Models.ViewModels;
 
 namespace plani.Controllers;
 
@@ -13,10 +13,12 @@ namespace plani.Controllers;
 public class ServiciosController : BaseController
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly AreasManager _areasManager;
     private readonly ILogger<ServiciosController> _logger;
 
     public ServiciosController(
         ApplicationDbContext dbContext,
+        AreasManager areasManager,
         ApplicationUserManager userManager,
         ApplicationRoleManager roleManager,
         IConfiguration configuration,
@@ -26,16 +28,16 @@ public class ServiciosController : BaseController
         : base(userManager, roleManager, configuration, contextAccesor, environment)
     {
         _dbContext = dbContext;
+        _areasManager = areasManager;
         _logger = logger;
     }
 
     #region Areas
 
     [HttpGet]
-    public async Task<IActionResult> Areas()
+    public IActionResult Areas()
     {
-        IEnumerable<Area> areas = await _dbContext.Areas.AsNoTracking().OrderBy(x => x.Nombre).ToListAsync();
-        return View(areas);
+        return View();
     }
 
     [HttpGet]
@@ -56,93 +58,72 @@ public class ServiciosController : BaseController
         return View(model);
     }
 
+    // JSON endpoints for inline editing
+
     [HttpGet]
-    public IActionResult AgregarArea() => View();
+    public async Task<JsonResult> ObtenerAreas()
+    {
+        var viewModels = await _areasManager.ObtenerTodasAsync();
+        return Json(new { success = true, data = viewModels });
+    }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarArea(Area model)
+    public async Task<JsonResult> AgregarAreaJson([FromBody] AgregarAreaViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            ModelState.AddModelError("", string.Concat(Utils.MensajeErrorAgregar(nameof(Area)), GetModelStateErrors()));
-            return View(model);
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return Json(new { success = false, errors });
         }
 
-        model.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.Areas.AddAsync(model);
-        int changes = await _dbContext.SaveChangesAsync();
+        var (success, data, error) = await _areasManager.CrearAsync(model, GetCurrentUser());
 
-        if (changes > 0) return RedirectToAction(nameof(Areas));
+        if (success)
+        {
+            return Json(new { success = true, message = "Área agregada exitosamente", data });
+        }
 
-        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Area)));
-
-        return View(model);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> EditarArea(Guid id)
-    {
-        var model = await _dbContext.Areas.FindAsync(id);
-
-        if (model == null) return NotFound();
-
-        return View(model);
+        return Json(new { success = false, errors = new[] { error } });
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarArea(Area model)
+    public async Task<JsonResult> EditarAreaJson([FromBody] EditarAreaViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            ModelState.AddModelError("",
-                string.Concat(Utils.MensajeErrorActualizar(nameof(Area)), GetModelStateErrors()));
-            return View(model);
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return Json(new { success = false, errors });
         }
 
-        Area area = await _dbContext.Areas.FindAsync(model.Id);
+        var (success, data, error) = await _areasManager.ActualizarAsync(model, GetCurrentUser());
 
-        if (area == null) return NotFound();
+        if (success)
+        {
+            return Json(new { success = true, message = "Área actualizada exitosamente", data });
+        }
 
-        area.Actualizar(model, GetCurrentUser());
-        _dbContext.Areas.Update(area);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(Areas));
-
-        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Area)));
-
-        return View(model);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> EliminarArea(Guid id)
-    {
-        Area model = await _dbContext.Areas.FindAsync(id);
-
-        if (model == null) return NotFound();
-
-        return View(model);
+        return Json(new { success = false, errors = new[] { error } });
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarArea(Area model)
+    public async Task<JsonResult> EliminarAreaJson([FromBody] EliminarAreaRequest request)
     {
-        Area area = await _dbContext.Areas.FindAsync(model.Id);
+        var (success, error) = await _areasManager.EliminarAsync(Guid.Parse(request.Id), GetCurrentUser());
 
-        if (area == null) return NotFound();
+        if (success)
+        {
+            return Json(new { success = true, message = "Área eliminada exitosamente" });
+        }
 
-        area.Eliminar(GetCurrentUser());
-        _dbContext.Areas.Update(area);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(Areas));
-
-        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Area)));
-        
-        return View(model);
+        return Json(new { success = false, errors = new[] { error } });
     }
 
     #endregion

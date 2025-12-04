@@ -1,123 +1,331 @@
 @{
     ViewData["Title"] = "Administración";
+    ViewBag.BreadcrumbIcon = "fa-tachometer-alt";
+    ViewBag.Breadcrumbs = new[] { "Panel de administración" };
 }
 
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h6 class="mb-0"><i class="fa fa-house-user text-info">&nbsp;</i>Bienvenido <b>@ViewBag.NombreUsuario</b></h6>
-                </div>
-            </div>
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-building"></i>
+        </div>
+        <div class="stat-content">
+            <h6>Clientes</h6>
+            <p class="stat-value">18</p>
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card-deck">
-
-                @* Menú de Servicios *@
-                <div class="card">
-                    <img src="~/images/service.svg" alt="Servicios" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light">
-
-                    <div class="card-body">
-                        <h5 class="card-title text-center font-weight-bold">Servicios</h5>
-                        <p class="card-text text-center">Gestión de servicios</p>
-                        <a href='@Url.Action("Areas", "Servicios")' class="btn btn-sm btn-block btn-primary">Areas de servicio</a>
-                        <a href='@Url.Action("Modalidades", "Servicios")' class="btn btn-sm btn-block btn-primary">Modalidades de servicio</a>
-                        <a href='@Url.Action("Servicios", "Servicios")' class="btn btn-sm btn-block btn-primary">Servicios</a>
-                    </div>
-                </div>
-
-                @* Menú de Cliente *@
-                <div class="card">
-                    <img src="~/images/building.svg" alt="Clientes" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light">
-
-                    <div class="card-body">
-                        <h5 class="card-title text-center font-weight-bold">Clientes</h5>
-                        <p class="card-text text-center">Gestión de clientes</p>
-                        <a href='@Url.Action("TiposCliente", "Clientes")' class="btn btn-sm btn-block btn-primary">Tipos de cliente</a>
-                        <a href='@Url.Action("Clientes", "Clientes")' class="btn btn-sm btn-block btn-primary">Clientes</a>
-                        @* <a href='@Url.Action("Contratos", "Clientes")' class="btn btn-sm btn-block btn-primary">Contratos</a> *@
-                        <a href='@Url.Action("Proyectos", "Clientes")' class="btn btn-sm btn-block btn-primary">Proyectos</a>
-                    </div>
-                </div>
-
-                @* Menú de Sesiones *@
-                <div class="card">
-                    <img src="~/images/work.svg" alt="Sesiones" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light">
-
-                    <div class="card-body">
-                        <h5 class="card-title text-center font-weight-bold">Sesiones</h5>
-                        <p class="card-text text-center">Gestión de sesiones de trabajo</p>
-
-                        @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                        {
-                            <a href='@Url.Action("Colaboradores", "Cuentas")' class="btn btn-sm btn-block btn-primary">Colaboradores</a>
-                        }
-
-                        @if (User.IsInRole("Colaborador") || User.IsInRole("Coordinador"))
-                        {
-                            <a href='@Url.Action("MisAsignaciones", "Clientes")' class="btn btn-sm btn-block btn-primary">Mis Asignaciones</a>
-                        }
-
-                        @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                        {
-                            <a href='@Url.Action("Asignaciones", "Clientes")' class="btn btn-sm btn-block btn-primary">Asignaciones</a>
-                        }
-
-                        @if (User.IsInRole("Colaborador") || User.IsInRole("Coordinador"))
-                        {
-                            <a href='@Url.Action("MisSesiones", "Clientes")' class="btn btn-sm btn-block btn-primary">Mis Sesiones</a>
-                        }
-
-                        @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                        {
-                            <a href='@Url.Action("Sesiones", "Clientes")' class="btn btn-sm btn-block btn-primary">Sesiones</a>
-                        }
-                    </div>
-                </div>
-            </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="fas fa-project-diagram"></i>
+        </div>
+        <div class="stat-content">
+            <h6>Proyectos</h6>
+            <p class="stat-value">12</p>
         </div>
     </div>
 
-    <div class="row mb-4">
-        <div class="col s12">
-            <div class="card-deck">
-                @if (User.IsInRole("Administrador"))
-                {
-                    @* Menú de reportes*@
-                    @* <div class="card"> *@
-                    @* 	<img src="~/images/report.svg" alt="Reportes" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light"> *@
-                    @* *@
-                    @* 	<div class="card-body"> *@
-                    @* 		<h5 class="card-title text-center font-weight-bold">Reportes</h5> *@
-                    @* 		<p class="card-text text-center">Reportes del sistema</p> *@
-                    @* 		<a href='@Url.Action("Construccion", "Clientes")' class="btn btn-sm btn-block btn-primary">Reporte por proyecto</a> *@
-                    @* 		<a href='@Url.Action("Construccion", "Clientes")' class="btn btn-sm btn-block btn-primary">Reporte por colaborador</a> *@
-                    @* 	</div> *@
-                    @* </div> *@
-                }
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+            <h6>Colaboradores</h6>
+            <p class="stat-value">8</p>
+        </div>
+    </div>
 
-                @if (User.IsInRole("Administrador"))
-                {
-                    @* Menú de roles y usuarios*@
-                    <div class="card" style="max-width: 340px">
-                        <img src="~/images/users.svg" alt="Cuentas" class="card-img-top img-fluid img-thumbnail img-thumbnail-sm bg-light">
-
-                        <div class="card-body">
-                            <h5 class="card-title text-center font-weight-bold">Cuentas</h5>
-                            <p class="card-text text-center">Gestión de usuarios y roles</p>
-                            <a href='@Url.Action("Usuarios", "Cuentas")' class="btn btn-sm btn-block btn-primary">Usuarios</a>
-                            <a href='@Url.Action("Roles", "Cuentas")' class="btn btn-sm btn-block btn-primary">Roles</a>
-                        </div>
-                    </div>
-                }
-
-                @* Contenedor de relleno*@
-                <div class="card" style="background-color: transparent; border: none;"></div>
-            </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-content">
+            <h6>Sesiones Hoy</h6>
+            <p class="stat-value">15</p>
         </div>
     </div>
 </div>
+
+<!-- Charts Section -->
+<div class="charts-grid">
+    <!-- Sesiones por Mes -->
+    <div class="content-card">
+        <h5><i class="fas fa-chart-bar text-primary"></i> Sesiones de trabajo</h5>
+        <div class="chart-container">
+            <canvas id="chartSesionesMes"></canvas>
+        </div>
+    </div>
+
+    <!-- Horas Trabajadas -->
+    <div class="content-card">
+        <h5><i class="fas fa-chart-line text-success"></i> Horas trabajadas</h5>
+        <div class="chart-container">
+            <canvas id="chartHorasTrabajadas"></canvas>
+        </div>
+    </div>
+
+    <!-- Distribución por Servicio -->
+    <div class="content-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h5 style="margin: 0;"><i class="fas fa-chart-pie text-warning"></i> Horas por Servicio</h5>
+            <select id="selectMesServicio" class="form-control form-control-sm" style="width: auto;">
+                <option value="10">Octubre</option>
+                <option value="11" selected>Noviembre</option>
+                <option value="12">Diciembre</option>
+            </select>
+        </div>
+        <div class="chart-container">
+            <canvas id="chartDistribucionServicios"></canvas>
+        </div>
+    </div>
+
+    <!-- Proyectos Activos vs Finalizados -->
+    <div class="content-card">
+        <h5><i class="fas fa-tasks text-info"></i> Proyectos por Estado</h5>
+        <div class="chart-container">
+            <canvas id="chartProyectosEstado"></canvas>
+        </div>
+    </div>
+
+    <!-- Top 5 Clientes -->
+    <div class="content-card">
+        <h5><i class="fas fa-trophy text-warning"></i> Top 5 Clientes por Horas</h5>
+        <div class="chart-container">
+            <canvas id="chartTopClientes"></canvas>
+        </div>
+    </div>
+
+    <!-- Tasa de Utilización por Colaborador -->
+    <div class="content-card">
+        <h5><i class="fas fa-chart-bar text-success"></i> Tasa de Utilización - Top 5 Colaboradores</h5>
+        <div class="chart-container">
+            <canvas id="chartUtilizacionColaboradores"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Configuración de colores - Paleta profesional pastel
+        const primaryColor = 'rgb(33, 50, 92)';
+        const accentColor = 'rgb(208, 162, 68)';
+
+        const chartColors = {
+            blue: { bg: 'rgba(100, 149, 237, 0.6)', border: 'rgba(65, 105, 225, 0.8)' },
+            green: { bg: 'rgba(102, 187, 106, 0.6)', border: 'rgba(56, 142, 60, 0.8)' },
+            orange: { bg: 'rgba(255, 167, 38, 0.6)', border: 'rgba(239, 108, 0, 0.8)' },
+            purple: { bg: 'rgba(149, 117, 205, 0.6)', border: 'rgba(103, 58, 183, 0.8)' },
+            teal: { bg: 'rgba(77, 182, 172, 0.6)', border: 'rgba(0, 137, 123, 0.8)' },
+            pink: { bg: 'rgba(240, 98, 146, 0.6)', border: 'rgba(194, 24, 91, 0.8)' },
+            amber: { bg: 'rgba(255, 202, 40, 0.6)', border: 'rgba(255, 160, 0, 0.8)' }
+        };
+
+        // Configuraciones base para gráficos
+        const baseOptions = {
+            responsive: true,
+            maintainAspectRatio: false
+        };
+
+        const doughnutLegend = {
+            position: 'bottom',
+            labels: { padding: 15, usePointStyle: true, pointStyle: 'circle' }
+        };
+
+        const percentageTooltip = (label, suffix = '') => ({
+            label: function(context) {
+                let text = context.label ? context.label + ': ' : '';
+                text += context.parsed + suffix;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                return text + ' (' + percentage + '%)';
+            }
+        });
+
+        // Datos de servicios por mes
+        const datosServiciosPorMes = {
+            10: { // Octubre
+                labels: ['Asesoría contable', 'Gestión tributaria', 'Sistemas contables', 'Admin. condominios', 'Gestión de Contabilidad', 'Gestión de Planillas', 'Gestión de RRHH'],
+                data: [68, 54, 35, 28, 22, 18, 12]
+            },
+            11: { // Noviembre
+                labels: ['Asesoría contable', 'Gestión tributaria', 'Sistemas contables', 'Admin. condominios', 'Gestión de Contabilidad', 'Gestión de Planillas', 'Gestión de RRHH'],
+                data: [75, 62, 50, 37, 30, 24, 18]
+            },
+            12: { // Diciembre
+                labels: ['Asesoría contable', 'Gestión tributaria', 'Sistemas contables', 'Admin. condominios', 'Gestión de Contabilidad', 'Gestión de Planillas', 'Gestión de RRHH'],
+                data: [58, 48, 42, 28, 20, 16, 10]
+            }
+        };
+
+        let chartServiciosInstance = null;
+
+        // Gráfico 1: Sesiones por Mes (Barras)
+        new Chart(document.getElementById('chartSesionesMes'), {
+            type: 'bar',
+            data: {
+                labels: ['Octubre', 'Noviembre', 'Diciembre'],
+                datasets: [{
+                    label: 'Sesiones Completadas',
+                    data: [45, 62, 48],
+                    backgroundColor: [chartColors.blue.bg, chartColors.green.bg, chartColors.purple.bg],
+                    borderColor: [chartColors.blue.border, chartColors.green.border, chartColors.purple.border],
+                    borderWidth: 1.5,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                ...baseOptions,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 10 } } }
+            }
+        });
+
+        // Gráfico 2: Horas Trabajadas (Línea)
+        new Chart(document.getElementById('chartHorasTrabajadas'), {
+            type: 'line',
+            data: {
+                labels: ['Octubre', 'Noviembre', 'Diciembre'],
+                datasets: [{
+                    label: 'Horas',
+                    data: [180, 248, 192],
+                    borderColor: chartColors.green.border,
+                    backgroundColor: chartColors.green.bg,
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: chartColors.green.border,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5
+                }]
+            },
+            options: {
+                ...baseOptions,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 50 } } }
+            }
+        });
+
+        // Gráfico 3: Horas por Servicio (Dona con selector de mes)
+        function crearGraficoServicios(mes) {
+            const datos = datosServiciosPorMes[mes];
+            if (chartServiciosInstance) chartServiciosInstance.destroy();
+
+            chartServiciosInstance = new Chart(document.getElementById('chartDistribucionServicios'), {
+                type: 'doughnut',
+                data: {
+                    labels: datos.labels,
+                    datasets: [{
+                        label: 'Horas',
+                        data: datos.data,
+                        backgroundColor: [
+                            chartColors.blue.bg,
+                            chartColors.green.bg,
+                            chartColors.purple.bg,
+                            chartColors.orange.bg,
+                            chartColors.teal.bg,
+                            chartColors.pink.bg,
+                            chartColors.amber.bg
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    ...baseOptions,
+                    plugins: {
+                        legend: doughnutLegend,
+                        tooltip: { callbacks: percentageTooltip(' horas') }
+                    }
+                }
+            });
+        }
+
+        crearGraficoServicios(11);
+        document.getElementById('selectMesServicio').addEventListener('change', e => crearGraficoServicios(parseInt(e.target.value)));
+
+        // Gráfico 4: Proyectos Activos vs Finalizados (Dona)
+        new Chart(document.getElementById('chartProyectosEstado'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Activos', 'Finalizados'],
+                datasets: [{
+                    label: 'Proyectos',
+                    data: [8, 15],
+                    backgroundColor: [chartColors.green.bg, chartColors.blue.bg],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                ...baseOptions,
+                plugins: {
+                    legend: doughnutLegend,
+                    tooltip: { callbacks: percentageTooltip(' proyectos') }
+                }
+            }
+        });
+
+        // Gráfico 5: Top 5 Clientes por Horas (Barras Horizontales)
+        new Chart(document.getElementById('chartTopClientes'), {
+            type: 'bar',
+            data: {
+                labels: ['Banco Nacional', 'Ministerio Hacienda', 'CCSS', 'ICE', 'RECOPE'],
+                datasets: [{
+                    label: 'Horas Totales',
+                    data: [245, 198, 176, 142, 118],
+                    backgroundColor: [chartColors.blue.bg, chartColors.green.bg, chartColors.purple.bg, chartColors.orange.bg, chartColors.teal.bg],
+                    borderColor: [chartColors.blue.border, chartColors.green.border, chartColors.purple.border, chartColors.orange.border, chartColors.teal.border],
+                    borderWidth: 1.5,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                ...baseOptions,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' horas trabajadas' } }
+                },
+                scales: { x: { beginAtZero: true, ticks: { stepSize: 50 } } }
+            }
+        });
+
+        // Gráfico 6: Tasa de Utilización por Colaborador (Barras Horizontales con %)
+        new Chart(document.getElementById('chartUtilizacionColaboradores'), {
+            type: 'bar',
+            data: {
+                labels: ['Carlos Ramírez', 'María González', 'Juan Pérez', 'Ana Mora', 'Luis Castro'],
+                datasets: [{
+                    label: 'Tasa de Utilización (%)',
+                    data: [98, 95, 92, 88, 85],
+                    backgroundColor: ctx => {
+                        const val = ctx.parsed.x;
+                        return val >= 95 ? chartColors.green.bg : val >= 85 ? chartColors.orange.bg : chartColors.amber.bg;
+                    },
+                    borderColor: ctx => {
+                        const val = ctx.parsed.x;
+                        return val >= 95 ? chartColors.green.border : val >= 85 ? chartColors.orange.border : chartColors.amber.border;
+                    },
+                    borderWidth: 1.5,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                ...baseOptions,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ctx.parsed.x + '% de utilización' } }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { stepSize: 20, callback: val => val + '%' }
+                    }
+                }
+            }
+        });
+    </script>
+}

@@ -1,30 +1,11 @@
 ﻿@model plani.Models.AsignacionesIndexViewModel
 
 @{
-    ViewBag.Title = "Asignaciones por proyecto";
+    ViewData["Title"] = "Asignaciones";
+    ViewBag.BreadcrumbIcon = "fa-tasks";
+    ViewBag.Breadcrumbs = new[] { "Asignaciones" };
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">@ViewBag.Title</h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href='@Url.Action("Administracion", "Home")'>Administración</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Asignaciones
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">

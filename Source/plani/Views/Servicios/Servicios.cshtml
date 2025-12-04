@@ -1,30 +1,11 @@
 ﻿@model IEnumerable<Servicio>
 
 @{
-    ViewBag.Title = "Servicios";
+    ViewData["Title"] = "Servicios";
+    ViewBag.BreadcrumbIcon = "fa-briefcase";
+    ViewBag.Breadcrumbs = new[] { "Servicios" };
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">Servicios</h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href='@Url.Action("Administracion", "Home")'>Administración</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Servicios
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -42,11 +23,11 @@
                         <table class="table table-hover table-sm text-nowrap">
                             <thead>
                             <tr>
-                                <th>@Html.DisplayNameFor(m => m.Nombre)</th>
-                                <th>@Html.DisplayNameFor(m => m.Descripcion)</th>
-                                <th>@Html.DisplayNameFor(m => m.Area)</th>
-                                <th>@Html.DisplayNameFor(m => m.Modalidad)</th>
-                                <th></th>
+                                <th class="text-secondary">Nombre</th>
+                                <th class="text-secondary">Descripcion</th>
+                                <th class="text-secondary">Area</th>
+                                <th class="text-secondary">Modalidad</th>
+                                <th class="text-secondary"></th>
                             </tr>
                             </thead>
                             <tbody>

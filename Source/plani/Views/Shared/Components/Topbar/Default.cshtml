@@ -1,0 +1,14 @@
+<!-- Topbar -->
+<div class="topbar">
+    <div class="topbar-left">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        @* View Component: Breadcrumbs inteligentes (lee ViewBag o genera automáticamente) *@
+        @await Component.InvokeAsync("Breadcrumbs")
+    </div>
+
+    @* View Component: Maneja toda la lógica del usuario (autenticación, roles, caché) *@
+    @await Component.InvokeAsync("UserHeader")
+</div>

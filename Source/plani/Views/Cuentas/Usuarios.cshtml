@@ -2,39 +2,10 @@
 
 @{
     ViewData["Title"] = "Usuarios";
+    ViewBag.BreadcrumbIcon = "fa-users-cog";
+    ViewBag.Breadcrumbs = new[] { "Usuarios" };
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">
-                <span class="font-weight-bold">
-                    @ViewData["Title"]
-                </span>
-
-                @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                {
-                    <span class="text-muted">&#124;</span>
-                    <a asp-action="AgregarUsuario" class="font-weight-normal text-primary">Agregar</a>
-                }
-            </h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a asp-controller="Home" asp-action="Administracion">Administración</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Usuarios
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -45,11 +16,11 @@
                         <table id="tablaUsuarios" class="table table-hover table-sm text-nowrap">
                             <thead>
                                 <tr>
-                                    <th>@Html.DisplayNameFor(m => m.Nombre)</th>
-                                    <th>@Html.DisplayNameFor(m => m.Correo)</th>
-                                    <th>@Html.DisplayNameFor(m => m.Roles)</th>
-                                    <th>@Html.DisplayNameFor(m => m.Estado)</th>
-                                    <th></th>
+                                    <th class="text-secondary">Nombre</th>
+                                    <th class="text-secondary">Correo</th>
+                                    <th class="text-secondary">Roles</th>
+                                    <th class="text-secondary">Estado</th>
+                                    <th class="text-secondary"></th>
                                 </tr>
                             </thead>
                             <tbody>
