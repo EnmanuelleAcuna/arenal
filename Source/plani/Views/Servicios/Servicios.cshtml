@@ -1,85 +1,79 @@
-﻿@model IEnumerable<Servicio>
-
 @{
-    ViewBag.Title = "Servicios";
+    ViewData["Title"] = "Servicios";
+    ViewBag.BreadcrumbIcon = "fa-briefcase";
+    ViewBag.Breadcrumbs = new[] { "Servicios" };
+    var canEdit = User.IsInRole("Administrador") || User.IsInRole("Coordinador");
 }
-
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">Servicios</h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href='@Url.Action("Administracion", "Home")'>Administración</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Servicios
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-
-                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                    {
-                        <a asp-action="AgregarServicio" class="btn btn-sm btn-secondary">Agregar servicio</a>
-                        <hr/>
-                    }
-                    
                     <div class="table-responsive">
-                        <table class="table table-hover table-sm text-nowrap">
-                            <thead>
-                            <tr>
-                                <th>@Html.DisplayNameFor(m => m.Nombre)</th>
-                                <th>@Html.DisplayNameFor(m => m.Descripcion)</th>
-                                <th>@Html.DisplayNameFor(m => m.Area)</th>
-                                <th>@Html.DisplayNameFor(m => m.Modalidad)</th>
-                                <th></th>
-                            </tr>
+                        <table id="tablaServicios" class="table table-sm table-hover">
+                            <thead class="text-dark">
+                                <tr>
+                                    <th style="width: 20%">Nombre</th>
+                                    <th style="width: 25%">Descripción</th>
+                                    <th style="width: 15%">Área</th>
+                                    <th style="width: 15%">Modalidad</th>
+                                    <th style="width: 25%" class="text-right">Acciones</th>
+                                </tr>
                             </thead>
                             <tbody>
+                                @if (canEdit)
+                                {
+                                    <!-- Fila para agregar nuevo servicio -->
+                                    <tr id="row-add" class="table-active">
+                                        <td>
+                                            <input type="text"
+                                                   id="add-nombre"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Nombre del servicio..."
+                                                   maxlength="250" />
+                                            <small class="text-danger d-none" id="add-nombre-error"></small>
+                                        </td>
+                                        <td>
+                                            <input type="text"
+                                                   id="add-descripcion"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Descripción..."
+                                                   maxlength="2000" />
+                                            <small class="text-danger d-none" id="add-descripcion-error"></small>
+                                        </td>
+                                        <td>
+                                            <select id="add-idArea" class="form-control form-control-sm">
+                                                <option value="">Seleccione área...</option>
+                                            </select>
+                                            <small class="text-danger d-none" id="add-idArea-error"></small>
+                                        </td>
+                                        <td>
+                                            <select id="add-idModalidad" class="form-control form-control-sm">
+                                                <option value="">Seleccione modalidad...</option>
+                                            </select>
+                                            <small class="text-danger d-none" id="add-idModalidad-error"></small>
+                                        </td>
+                                        <td class="text-right">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-success"
+                                                    id="btn-add-save">
+                                                <i class="fa fa-plus"></i> Agregar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
 
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td>@item.Nombre</td>
-                                    <td>@item.TruncatedDescripcion</td>
-                                    <td>@item.Area.Nombre</td>
-                                    <td>@item.Modalidad.Nombre</td>
-                                    <td class="text-right">
-                                        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                            <a class="btn btn-sm btn-light text-primary" asp-controller="Servicios" asp-action="DetalleServicio" asp-route-id="@item.Id">
-                                                Detalle
-                                            </a>
-
-                                            @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                                            {
-                                                <a class="btn btn-sm btn-light" asp-controller="Servicios" asp-action="EditarServicio" asp-route-id="@item.Id">
-                                                    Modificar
-                                                </a>
-                                                <a class="btn btn-sm btn-light text-danger" asp-controller="Servicios" asp-action="EliminarServicio" asp-route-id="@item.Id">
-                                                    Eliminar
-                                                </a>
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-
+                                <!-- Las filas de datos se cargarán aquí via AJAX -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Loading indicator -->
+                    <div id="loading" class="text-center py-3 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,5 +81,472 @@
     </div>
 </div>
 
+<!-- Modal Eliminar -->
+<div class="modal fade" id="ModalEliminar" tabindex="-1" role="dialog" aria-labelledby="ModalEliminarTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h6 class="modal-title" id="ModalEliminarTitle">
+                    <i class="fa fa-fw fa-trash"></i>
+                    Eliminar servicio
+                </h6>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="fa fa-fw fa-window-close"></i></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6>¿Está seguro que desea eliminar el servicio <strong><span id="nombreEliminar"></span></strong>?</h6>
+                <p class="text-muted mt-3">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    <script type="text/javascript">
+        // Variables globales
+        const canEdit = @canEdit.ToString().ToLower();
+        let servicios = [];
+        let areas = [];
+        let modalidades = [];
+
+        // Al cargar la página
+        $(document).ready(function () {
+            cargarCatalogos();
+        });
+
+        // Cargar catálogos necesarios (Areas y Modalidades)
+        function cargarCatalogos() {
+            mostrarLoading(true);
+
+            Promise.all([
+                $.ajax({ url: '@Url.Action("ObtenerAreas")', type: 'GET', dataType: 'json' }),
+                $.ajax({ url: '@Url.Action("ObtenerModalidades")', type: 'GET', dataType: 'json' })
+            ]).then(function([areasResponse, modalidadesResponse]) {
+                if (areasResponse.success && modalidadesResponse.success) {
+                    areas = areasResponse.data;
+                    modalidades = modalidadesResponse.data;
+
+                    // Llenar dropdowns de agregar
+                    llenarDropdown('#add-idArea', areas);
+                    llenarDropdown('#add-idModalidad', modalidades);
+
+                    // Cargar servicios
+                    cargarServicios();
+                } else {
+                    mostrarNotificacion('Error al cargar catálogos', 'danger');
+                    mostrarLoading(false);
+                }
+            }).catch(function() {
+                mostrarNotificacion('Error de conexión al cargar catálogos', 'danger');
+                mostrarLoading(false);
+            });
+        }
+
+        // Llenar dropdown con opciones
+        function llenarDropdown(selector, items) {
+            const select = $(selector);
+            items.forEach(function(item) {
+                select.append($('<option>', {
+                    value: item.id,
+                    text: item.nombre
+                }));
+            });
+        }
+
+        // Cargar servicios desde el servidor
+        function cargarServicios() {
+            $.ajax({
+                url: '@Url.Action("ObtenerServicios")',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        servicios = response.data;
+                        renderizarServicios();
+                    } else {
+                        mostrarNotificacion('Error al cargar servicios', 'danger');
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al cargar servicios', 'danger');
+                },
+                complete: function () {
+                    mostrarLoading(false);
+                }
+            });
+        }
+
+        // Renderizar servicios en la tabla
+        function renderizarServicios() {
+            const tbody = $('#tablaServicios tbody');
+            const filaAdd = $('#row-add');
+
+            // Limpiar filas existentes (excepto la de agregar)
+            tbody.find('tr:not(#row-add)').remove();
+
+            // Agregar filas de datos
+            servicios.forEach(function (servicio) {
+                const row = crearFilaLectura(servicio);
+                tbody.append(row);
+            });
+        }
+
+        // Crear fila en modo lectura
+        function crearFilaLectura(servicio) {
+            const detalleBtn = `
+                <a href="@Url.Action("DetalleServicio")?id=${servicio.id}"
+                   class="btn btn-sm btn-outline-secondary font-weight-bold">
+                    Detalle
+                </a>
+            `;
+
+            const accionesEdit = canEdit ? `
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary btn-edit"
+                        data-id="${servicio.id}">
+                    <i class="fa fa-edit"></i>
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger btn-delete"
+                        data-id="${servicio.id}"
+                        data-nombre="${servicio.nombre}">
+                    <i class="fa fa-trash"></i>
+                </button>
+            ` : '';
+
+            return $(`
+                <tr data-id="${servicio.id}">
+                    <td class="nombre">${servicio.nombre}</td>
+                    <td class="descripcion">${servicio.truncatedDescripcion || servicio.descripcion || ''}</td>
+                    <td class="area">${servicio.areaNombre}</td>
+                    <td class="modalidad">${servicio.modalidadNombre}</td>
+                    <td class="text-right">
+                        <div class="btn-group btn-group-sm" role="group">
+                            ${detalleBtn}
+                            ${accionesEdit}
+                        </div>
+                    </td>
+                </tr>
+            `);
+        }
+
+        // Crear fila en modo edición
+        function crearFilaEdicion(servicio) {
+            const areasOptions = areas.map(a =>
+                `<option value="${a.id}" ${a.id === servicio.idArea ? 'selected' : ''}>${a.nombre}</option>`
+            ).join('');
+
+            const modalidadesOptions = modalidades.map(m =>
+                `<option value="${m.id}" ${m.id === servicio.idModalidad ? 'selected' : ''}>${m.nombre}</option>`
+            ).join('');
+
+            return $(`
+                <tr data-id="${servicio.id}" class="table-warning">
+                    <td>
+                        <input type="text"
+                               class="form-control form-control-sm edit-nombre"
+                               value="${servicio.nombre}"
+                               maxlength="250" />
+                        <small class="text-danger d-none edit-nombre-error"></small>
+                    </td>
+                    <td>
+                        <input type="text"
+                               class="form-control form-control-sm edit-descripcion"
+                               value="${servicio.descripcion || ''}"
+                               maxlength="2000" />
+                        <small class="text-danger d-none edit-descripcion-error"></small>
+                    </td>
+                    <td>
+                        <select class="form-control form-control-sm edit-idArea">
+                            <option value="">Seleccione...</option>
+                            ${areasOptions}
+                        </select>
+                        <small class="text-danger d-none edit-idArea-error"></small>
+                    </td>
+                    <td>
+                        <select class="form-control form-control-sm edit-idModalidad">
+                            <option value="">Seleccione...</option>
+                            ${modalidadesOptions}
+                        </select>
+                        <small class="text-danger d-none edit-idModalidad-error"></small>
+                    </td>
+                    <td class="text-right">
+                        <button type="button" class="btn btn-sm btn-success btn-save" data-id="${servicio.id}">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary btn-cancel" data-id="${servicio.id}">
+                            <i class="fa fa-times"></i> Cancelar
+                        </button>
+                    </td>
+                </tr>
+            `);
+        }
+
+        // Event: Agregar nuevo servicio
+        $(document).on('click', '#btn-add-save', function () {
+            const nombre = $('#add-nombre').val().trim();
+            const descripcion = $('#add-descripcion').val().trim();
+            const idArea = $('#add-idArea').val();
+            const idModalidad = $('#add-idModalidad').val();
+
+            // Limpiar errores previos
+            limpiarErroresAgregar();
+
+            // Validaciones client-side
+            if (!nombre) {
+                mostrarErrorAgregar('nombre', 'El nombre es requerido');
+                return;
+            }
+            if (nombre.length > 250) {
+                mostrarErrorAgregar('nombre', 'El nombre debe tener máximo 250 caracteres.');
+                return;
+            }
+            if (!idArea) {
+                mostrarErrorAgregar('idArea', 'El área es requerida');
+                return;
+            }
+            if (!idModalidad) {
+                mostrarErrorAgregar('idModalidad', 'La modalidad es requerida');
+                return;
+            }
+            if (descripcion.length > 2000) {
+                mostrarErrorAgregar('descripcion', 'La descripción debe tener máximo 2000 caracteres.');
+                return;
+            }
+
+            // Enviar al servidor
+            const data = { nombre, descripcion, idArea, idModalidad };
+
+            $.ajax({
+                url: '@Url.Action("AgregarServicioJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        // Agregar al array local
+                        servicios.push(response.data);
+
+                        // Agregar fila a la tabla
+                        const nuevaFila = crearFilaLectura(response.data);
+                        $('#tablaServicios tbody').append(nuevaFila);
+
+                        // Limpiar inputs
+                        $('#add-nombre').val('');
+                        $('#add-descripcion').val('');
+                        $('#add-idArea').val('');
+                        $('#add-idModalidad').val('');
+
+                        // Mostrar notificación
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        // Mostrar errores del servidor
+                        if (response.errors && response.errors.length > 0) {
+                            response.errors.forEach(error => {
+                                if (error.includes('nombre')) {
+                                    mostrarErrorAgregar('nombre', error);
+                                } else if (error.includes('área') || error.includes('area')) {
+                                    mostrarErrorAgregar('idArea', error);
+                                } else if (error.includes('modalidad')) {
+                                    mostrarErrorAgregar('idModalidad', error);
+                                } else if (error.includes('descripción') || error.includes('descripcion')) {
+                                    mostrarErrorAgregar('descripcion', error);
+                                } else {
+                                    mostrarNotificacion(error, 'danger');
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al agregar servicio', 'danger');
+                }
+            });
+        });
+
+        // Event: Click en Editar
+        $(document).on('click', '.btn-edit', function () {
+            const id = $(this).data('id');
+            const servicio = servicios.find(s => s.id === id);
+
+            if (!servicio) return;
+
+            // Reemplazar fila con modo edición
+            const row = $(`tr[data-id="${id}"]`);
+            const editRow = crearFilaEdicion(servicio);
+            row.replaceWith(editRow);
+        });
+
+        // Event: Click en Cancelar edición
+        $(document).on('click', '.btn-cancel', function () {
+            const id = $(this).data('id');
+            const servicio = servicios.find(s => s.id === id);
+
+            if (!servicio) return;
+
+            // Reemplazar fila con modo lectura
+            const row = $(`tr[data-id="${id}"]`);
+            const readRow = crearFilaLectura(servicio);
+            row.replaceWith(readRow);
+        });
+
+        // Event: Click en Guardar edición
+        $(document).on('click', '.btn-save', function () {
+            const id = $(this).data('id');
+            const row = $(`tr[data-id="${id}"]`);
+
+            const nombre = row.find('.edit-nombre').val().trim();
+            const descripcion = row.find('.edit-descripcion').val().trim();
+            const idArea = row.find('.edit-idArea').val();
+            const idModalidad = row.find('.edit-idModalidad').val();
+
+            // Limpiar errores previos
+            row.find('.edit-nombre-error').addClass('d-none').text('');
+            row.find('.edit-descripcion-error').addClass('d-none').text('');
+            row.find('.edit-idArea-error').addClass('d-none').text('');
+            row.find('.edit-idModalidad-error').addClass('d-none').text('');
+
+            // Validaciones client-side
+            if (!nombre) {
+                row.find('.edit-nombre-error').removeClass('d-none').text('El nombre es requerido');
+                return;
+            }
+            if (nombre.length > 250) {
+                row.find('.edit-nombre-error').removeClass('d-none').text('El nombre debe tener máximo 250 caracteres.');
+                return;
+            }
+            if (!idArea) {
+                row.find('.edit-idArea-error').removeClass('d-none').text('El área es requerida');
+                return;
+            }
+            if (!idModalidad) {
+                row.find('.edit-idModalidad-error').removeClass('d-none').text('La modalidad es requerida');
+                return;
+            }
+            if (descripcion.length > 2000) {
+                row.find('.edit-descripcion-error').removeClass('d-none').text('La descripción debe tener máximo 2000 caracteres.');
+                return;
+            }
+
+            // Enviar al servidor
+            const data = { id, nombre, descripcion, idArea, idModalidad };
+
+            $.ajax({
+                url: '@Url.Action("EditarServicioJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        // Actualizar en el array local
+                        const index = servicios.findIndex(s => s.id === id);
+                        if (index !== -1) {
+                            servicios[index] = response.data;
+                        }
+
+                        // Reemplazar con fila de lectura
+                        const readRow = crearFilaLectura(response.data);
+                        row.replaceWith(readRow);
+
+                        // Mostrar notificación
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        // Mostrar errores del servidor
+                        if (response.errors && response.errors.length > 0) {
+                            response.errors.forEach(error => {
+                                if (error.includes('nombre')) {
+                                    row.find('.edit-nombre-error').removeClass('d-none').text(error);
+                                } else if (error.includes('área') || error.includes('area')) {
+                                    row.find('.edit-idArea-error').removeClass('d-none').text(error);
+                                } else if (error.includes('modalidad')) {
+                                    row.find('.edit-idModalidad-error').removeClass('d-none').text(error);
+                                } else if (error.includes('descripción') || error.includes('descripcion')) {
+                                    row.find('.edit-descripcion-error').removeClass('d-none').text(error);
+                                } else {
+                                    mostrarNotificacion(error, 'danger');
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al actualizar servicio', 'danger');
+                }
+            });
+        });
+
+        // Event: Click en Eliminar - Abrir modal
+        $(document).on('click', '.btn-delete', function () {
+            const id = $(this).data('id');
+            const nombre = $(this).data('nombre');
+
+            $('#nombreEliminar').text(nombre);
+            $('#btnConfirmarEliminar').data('id', id);
+            $('#ModalEliminar').modal('show');
+        });
+
+        // Event: Confirmar eliminación desde modal
+        $('#btnConfirmarEliminar').on('click', function () {
+            const id = $(this).data('id');
+            const data = { id };
+
+            $.ajax({
+                url: '@Url.Action("EliminarServicioJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        $('#ModalEliminar').modal('hide');
+
+                        servicios = servicios.filter(s => s.id !== id);
+
+                        const row = $(`tr[data-id="${id}"]`);
+                        row.fadeOut(300, function () {
+                            $(this).remove();
+                        });
+
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        if (response.errors && response.errors.length > 0) {
+                            mostrarNotificacion(response.errors.join(', '), 'danger');
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al eliminar servicio', 'danger');
+                }
+            });
+        });
+
+        // Funciones auxiliares
+        function mostrarLoading(show) {
+            if (show) {
+                $('#loading').removeClass('d-none');
+                $('#tablaServicios').addClass('d-none');
+            } else {
+                $('#loading').addClass('d-none');
+                $('#tablaServicios').removeClass('d-none');
+            }
+        }
+
+        function limpiarErroresAgregar() {
+            $('#add-nombre-error').addClass('d-none').text('');
+            $('#add-descripcion-error').addClass('d-none').text('');
+            $('#add-idArea-error').addClass('d-none').text('');
+            $('#add-idModalidad-error').addClass('d-none').text('');
+        }
+
+        function mostrarErrorAgregar(campo, mensaje) {
+            $(`#add-${campo}-error`).removeClass('d-none').text(mensaje);
+        }
+    </script>
 }

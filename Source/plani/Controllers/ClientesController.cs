@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Globalization;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -9,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models;
 using plani.Models.Data;
+using plani.Models.ViewModels;
 
 namespace plani.Controllers;
 
@@ -46,10 +45,9 @@ public class ClientesController : BaseController
     #region Tipos de cliente
 
     [HttpGet]
-    public async Task<IActionResult> TiposCliente()
+    public IActionResult TiposCliente()
     {
-        List<TipoCliente> model = await _dbContext.TiposCliente.OrderBy(tc => tc.Nombre).ToListAsync();
-        return View(model);
+        return View();
     }
 
     [HttpGet]
@@ -64,92 +62,115 @@ public class ClientesController : BaseController
         return View(model);
     }
 
+    // JSON endpoints for inline editing
+
     [HttpGet]
-    public IActionResult AgregarTipoCliente() => View();
+    public async Task<JsonResult> ObtenerTiposCliente()
+    {
+        var tiposCliente = await _dbContext.TiposCliente
+            .OrderBy(tc => tc.Nombre)
+            .ToListAsync();
+
+        var viewModels = tiposCliente.Select(tc => new TipoClienteListViewModel(tc));
+
+        return Json(new { success = true, data = viewModels });
+    }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarTipoCliente(TipoCliente model)
+    public async Task<JsonResult> AgregarTipoClienteJson([FromBody] AgregarTipoClienteViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            ModelState.AddModelError("",
-                string.Concat(Utils.MensajeErrorAgregar(nameof(TipoCliente)), GetModelStateErrors()));
-            return View(model);
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return Json(new { success = false, errors });
         }
 
-        model.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.TiposCliente.AddAsync(model);
+        var tipoCliente = model.ToEntity();
+        tipoCliente.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
+
+        await _dbContext.TiposCliente.AddAsync(tipoCliente);
         int changes = await _dbContext.SaveChangesAsync();
 
-        if (changes > 0) return RedirectToAction(nameof(TiposCliente));
-        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(TipoCliente)));
+        if (changes > 0)
+        {
+            var data = new TipoClienteListViewModel(tipoCliente);
+            return Json(new { success = true, message = "Tipo de cliente agregado exitosamente", data });
+        }
 
-        return View(model);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> EditarTipoCliente(Guid id)
-    {
-        var model = await _dbContext.TiposCliente.FindAsync(id);
-
-        if (model == null) return NotFound();
-
-        return View(model);
+        return Json(new { success = false, errors = new[] { "Error al agregar el tipo de cliente" } });
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarTipoCliente(TipoCliente model)
+    public async Task<JsonResult> EditarTipoClienteJson([FromBody] EditarTipoClienteViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            ModelState.AddModelError("",
-                string.Concat(Utils.MensajeErrorActualizar(nameof(TipoCliente)), GetModelStateErrors()));
-            return View(model);
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return Json(new { success = false, errors });
         }
 
-        TipoCliente tipoCliente = await _dbContext.TiposCliente.FindAsync(model.Id);
+        var tipoCliente = await _dbContext.TiposCliente.FindAsync(Guid.Parse(model.Id));
 
-        if (tipoCliente == null) return NotFound();
+        if (tipoCliente == null)
+        {
+            return Json(new { success = false, errors = new[] { "Tipo de cliente no encontrado" } });
+        }
 
-        tipoCliente.Actualizar(model, GetCurrentUser());
+        var updatedEntity = model.ToEntity();
+        tipoCliente.Actualizar(updatedEntity, GetCurrentUser());
+
         _dbContext.TiposCliente.Update(tipoCliente);
         int changes = await _dbContext.SaveChangesAsync();
 
-        if (changes > 0) return RedirectToAction(nameof(TiposCliente));
-        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(TipoCliente)));
+        if (changes > 0)
+        {
+            var data = new TipoClienteListViewModel(tipoCliente);
+            return Json(new { success = true, message = "Tipo de cliente actualizado exitosamente", data });
+        }
 
-        return View(model);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> EliminarTipoCliente(Guid id)
-    {
-        TipoCliente model = await _dbContext.TiposCliente.FindAsync(id);
-
-        if (model == null) return NotFound();
-
-        return View(model);
+        return Json(new { success = false, errors = new[] { "Error al actualizar el tipo de cliente" } });
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarTipoCliente(TipoCliente model)
+    public async Task<JsonResult> EliminarTipoClienteJson([FromBody] EliminarTipoClienteRequest request)
     {
-        TipoCliente tipoCliente = await _dbContext.TiposCliente.FindAsync(model.Id);
+        var tipoCliente = await _dbContext.TiposCliente.FindAsync(Guid.Parse(request.Id));
 
-        if (tipoCliente == null) return NotFound();
+        if (tipoCliente == null)
+        {
+            return Json(new { success = false, errors = new[] { "Tipo de cliente no encontrado" } });
+        }
+
+        // Verificar si el tipo de cliente tiene clientes asignados
+        var clientes = await _dbContext.Clientes
+            .Where(c => c.IdTipoCliente == tipoCliente.Id)
+            .ToListAsync();
+
+        if (clientes.Any())
+        {
+            return Json(new { success = false, errors = new[] { "No se puede eliminar el tipo de cliente porque tiene clientes asignados" } });
+        }
 
         tipoCliente.Eliminar(GetCurrentUser());
         _dbContext.TiposCliente.Update(tipoCliente);
         int changes = await _dbContext.SaveChangesAsync();
 
-        if (changes > 0) return RedirectToAction(nameof(TiposCliente));
+        if (changes > 0)
+        {
+            return Json(new { success = true, message = "Tipo de cliente eliminado exitosamente" });
+        }
 
-        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(TipoCliente)));
-        return View(model);
+        return Json(new { success = false, errors = new[] { "Error al eliminar el tipo de cliente" } });
     }
+
 
     #endregion
 
@@ -1294,7 +1315,9 @@ public class ClientesController : BaseController
 
         sesion.FechaPausa = DateTime.UtcNow;
 
-        TimeSpan diferencia = sesion.FechaPausa.Value - sesion.FechaInicio;
+        // Calcular desde FechaReinicio si existe (sesión reanudada), sino desde FechaInicio (primera pausa)
+        DateTime fechaReferencia = sesion.FechaReinicio ?? sesion.FechaInicio;
+        TimeSpan diferencia = sesion.FechaPausa.Value - fechaReferencia;
 
         int horasTotales = (int)diferencia.TotalHours;
         int minutos = diferencia.Minutes;
@@ -1302,7 +1325,7 @@ public class ClientesController : BaseController
         sesion.Horas += horasTotales;
         sesion.Minutes += minutos;
         sesion.Descripcion = model.Descripcion;
-        
+
         if (sesion.Minutes >= 60)
         {
             sesion.Horas++;
@@ -1370,7 +1393,7 @@ public class ClientesController : BaseController
 
         if (sesion == null) return NotFound();
 
-        sesion.FechaInicio = DateTime.UtcNow;
+        sesion.FechaReinicio = DateTime.UtcNow;
         sesion.FechaPausa = null;
         sesion.Descripcion = model.Descripcion;
 
@@ -1435,21 +1458,29 @@ public class ClientesController : BaseController
         if (sesion == null) return NotFound();
 
         sesion.FechaFin = DateTime.UtcNow;
-        
-        TimeSpan diferencia = sesion.FechaFin.Value - sesion.FechaInicio;
 
-        int horasTotales = (int)diferencia.TotalHours;
-        int minutos = diferencia.Minutes;
-        
-        sesion.Horas += horasTotales;
-        sesion.Minutes += minutos;
-        sesion.Descripcion = model.Descripcion;
-        
-        if (sesion.Minutes >= 60)
+        // Solo calcular tiempo adicional si la sesión NO está pausada
+        // Si está pausada, el tiempo ya fue contabilizado en PausarSesion
+        if (sesion.FechaPausa == null)
         {
-            sesion.Horas++;
-            sesion.Minutes -= 60;
+            // Calcular desde FechaReinicio si existe (sesión reanudada), sino desde FechaInicio
+            DateTime fechaReferencia = sesion.FechaReinicio ?? sesion.FechaInicio;
+            TimeSpan diferencia = sesion.FechaFin.Value - fechaReferencia;
+
+            int horasTotales = (int)diferencia.TotalHours;
+            int minutos = diferencia.Minutes;
+
+            sesion.Horas += horasTotales;
+            sesion.Minutes += minutos;
+
+            if (sesion.Minutes >= 60)
+            {
+                sesion.Horas++;
+                sesion.Minutes -= 60;
+            }
         }
+
+        sesion.Descripcion = model.Descripcion;
 
         _dbContext.Sesiones.Update(sesion);
         int changes = await _dbContext.SaveChangesAsync();

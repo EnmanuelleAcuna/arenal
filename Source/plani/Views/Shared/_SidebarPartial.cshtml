@@ -1,0 +1,173 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    bool IsActive(string controller, string action)
+    {
+        return currentController?.Equals(controller, StringComparison.OrdinalIgnoreCase) == true &&
+               currentAction?.Equals(action, StringComparison.OrdinalIgnoreCase) == true;
+    }
+}
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <!-- Logo/Brand -->
+    <a href='@Url.Action("Administracion", "Home")' class="sidebar-brand">
+        <img src="~/images/SC-2.svg" alt="Logo">
+        <div class="sidebar-brand-text">
+            <strong>SANDÍ CONSULTORES</strong>
+        </div>
+    </a>
+
+    <nav class="sidebar-nav">
+        <!-- Inicio -->
+        <div class="nav-section">
+            <div class="nav-item">
+                <a href='@Url.Action("Administracion", "Home")'
+                   class="nav-link @(IsActive("Home", "Administracion") ? "active" : "")">
+                    <i class="fas fa-home"></i>
+                    <span class="nav-link-text">Inicio</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sesiones -->
+        <div class="nav-section">
+            <div class="nav-section-title">Sesiones de Trabajo</div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="toggleSubmenu(event, 'submenu-sesiones')">
+                    <i class="fas fa-clock"></i>
+                    <span class="nav-link-text">Sesiones</span>
+                    <i class="fas fa-chevron-right nav-link-arrow"></i>
+                </a>
+                <div class="nav-submenu" id="submenu-sesiones">
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                    {
+                        <a href='@Url.Action("Colaboradores", "Cuentas")'
+                           class="nav-link @(IsActive("Cuentas", "Colaboradores") ? "active" : "")">
+                            <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                            <span class="nav-link-text">Colaboradores</span>
+                        </a>
+                    }
+                    @if (User.IsInRole("Colaborador") || User.IsInRole("Coordinador"))
+                    {
+                        <a href='@Url.Action("MisAsignaciones", "Clientes")'
+                           class="nav-link @(IsActive("Clientes", "MisAsignaciones") ? "active" : "")">
+                            <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                            <span class="nav-link-text">Mis Asignaciones</span>
+                        </a>
+                    }
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                    {
+                        <a href='@Url.Action("Asignaciones", "Clientes")'
+                           class="nav-link @(IsActive("Clientes", "Asignaciones") ? "active" : "")">
+                            <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                            <span class="nav-link-text">Asignaciones</span>
+                        </a>
+                    }
+                    @if (User.IsInRole("Colaborador") || User.IsInRole("Coordinador"))
+                    {
+                        <a href='@Url.Action("MisSesiones", "Clientes")'
+                           class="nav-link @(IsActive("Clientes", "MisSesiones") ? "active" : "")">
+                            <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                            <span class="nav-link-text">Mis Sesiones</span>
+                        </a>
+                    }
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
+                    {
+                        <a href='@Url.Action("Sesiones", "Clientes")'
+                           class="nav-link @(IsActive("Clientes", "Sesiones") ? "active" : "")">
+                            <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                            <span class="nav-link-text">Todas las Sesiones</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Clientes -->
+        <div class="nav-section">
+            <div class="nav-section-title">Gestión de Clientes</div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="toggleSubmenu(event, 'submenu-clientes')">
+                    <i class="fas fa-building"></i>
+                    <span class="nav-link-text">Clientes</span>
+                    <i class="fas fa-chevron-right nav-link-arrow"></i>
+                </a>
+                <div class="nav-submenu" id="submenu-clientes">
+                    <a href='@Url.Action("TiposCliente", "Clientes")'
+                       class="nav-link @(IsActive("Clientes", "TiposCliente") ? "active" : "")">
+                        <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                        <span class="nav-link-text">Tipos de cliente</span>
+                    </a>
+                    <a href='@Url.Action("Clientes", "Clientes")'
+                       class="nav-link @(IsActive("Clientes", "Clientes") ? "active" : "")">
+                        <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                        <span class="nav-link-text">Clientes</span>
+                    </a>
+                    <a href='@Url.Action("Proyectos", "Clientes")'
+                       class="nav-link @(IsActive("Clientes", "Proyectos") ? "active" : "")">
+                        <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                        <span class="nav-link-text">Proyectos</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Servicios -->
+        <div class="nav-section">
+            <div class="nav-section-title">Gestión de Servicios</div>
+            <div class="nav-item">
+                <a href="#" class="nav-link" onclick="toggleSubmenu(event, 'submenu-servicios')">
+                    <i class="fas fa-briefcase"></i>
+                    <span class="nav-link-text">Servicios</span>
+                    <i class="fas fa-chevron-right nav-link-arrow"></i>
+                </a>
+                <div class="nav-submenu" id="submenu-servicios">
+                    <a href='@Url.Action("Areas", "Servicios")'
+                       class="nav-link @(IsActive("Servicios", "Areas") ? "active" : "")">
+                        <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                        <span class="nav-link-text">Áreas de servicio</span>
+                    </a>
+                    <a href='@Url.Action("Modalidades", "Servicios")'
+                       class="nav-link @(IsActive("Servicios", "Modalidades") ? "active" : "")">
+                        <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                        <span class="nav-link-text">Modalidades</span>
+                    </a>
+                    <a href='@Url.Action("Servicios", "Servicios")'
+                       class="nav-link @(IsActive("Servicios", "Servicios") ? "active" : "")">
+                        <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                        <span class="nav-link-text">Servicios</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Administración -->
+        @if (User.IsInRole("Administrador"))
+        {
+            <div class="nav-section">
+                <div class="nav-section-title">Administración</div>
+                <div class="nav-item">
+                    <a href="#" class="nav-link" onclick="toggleSubmenu(event, 'submenu-cuentas')">
+                        <i class="fas fa-users-cog"></i>
+                        <span class="nav-link-text">Cuentas</span>
+                        <i class="fas fa-chevron-right nav-link-arrow"></i>
+                    </a>
+                    <div class="nav-submenu" id="submenu-cuentas">
+                        <a href='@Url.Action("Usuarios", "Cuentas")'
+                           class="nav-link @(IsActive("Cuentas", "Usuarios") ? "active" : "")">
+                            <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                            <span class="nav-link-text">Usuarios</span>
+                        </a>
+                        <a href='@Url.Action("Roles", "Cuentas")'
+                           class="nav-link @(IsActive("Cuentas", "Roles") ? "active" : "")">
+                            <i class="fas fa-circle" style="font-size: 0.4rem;"></i>
+                            <span class="nav-link-text">Roles</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </nav>
+</div>

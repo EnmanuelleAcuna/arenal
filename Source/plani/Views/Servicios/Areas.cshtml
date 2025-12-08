@@ -1,40 +1,9 @@
-﻿@model IEnumerable<Area>
-
 @{
     ViewData["Title"] = "Áreas";
+    ViewBag.BreadcrumbIcon = "fa-briefcase";
+    ViewBag.Breadcrumbs = new[] { "Áreas" };
+    var canEdit = User.IsInRole("Administrador") || User.IsInRole("Coordinador");
 }
-
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">
-                <span class="font-weight-bold">
-                    @ViewData["Title"]
-                </span>
-
-                @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                {
-                    <span class="text-muted">&#124;</span>
-                    <a asp-action="AgregarArea" class="font-weight-normal text-primary">Agregar</a>
-                }
-            </h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href='@Url.Action("Administracion", "Home")'>Administración</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Áreas
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -42,39 +11,55 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="tablaAreas" class="table table-sm">
-                            <thead>
+                        <table id="tablaAreas" class="table table-sm table-hover">
+                            <thead class="text-dark">
                                 <tr>
-                                    <th>@Html.DisplayNameFor(m => m.Nombre)</th>
-                                    <th>@Html.DisplayNameFor(m => m.Descripcion)</th>
-                                    <th></th>
+                                    <th style="width: 30%">Nombre</th>
+                                    <th style="width: 50%">Descripción</th>
+                                    <th style="width: 20%" class="text-right">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-
-                                @foreach (var item in Model)
+                                @if (canEdit)
                                 {
-                                    <tr>
-                                        <td>@item.Nombre</td>
-                                        <td>@item.TruncatedDescripcion</td>
+                                    <!-- Fila para agregar nueva área -->
+                                    <tr id="row-add" class="table-active">
+                                        <td>
+                                            <input type="text"
+                                                   id="add-nombre"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Nombre del área..."
+                                                   maxlength="255" />
+                                            <small class="text-danger d-none" id="add-nombre-error"></small>
+                                        </td>
+                                        <td>
+                                            <input type="text"
+                                                   id="add-descripcion"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Descripción..."
+                                                   maxlength="2000" />
+                                            <small class="text-danger d-none" id="add-descripcion-error"></small>
+                                        </td>
                                         <td class="text-right">
-                                            <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                                <a class="btn btn-sm btn-outline-light text-dark font-weight-bold"
-                                                    asp-action="DetalleArea" asp-route-id="@item.Id">Detalle</a>
-
-                                                @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                                                {
-                                                    <a class="btn btn-sm btn-outline-light text-dark font-weight-bold"
-                                                        asp-action="EditarArea" asp-route-id="@item.Id">Modificar</a>
-                                                    <a class="btn btn-sm btn-outline-light text-danger"
-                                                        asp-action="EliminarArea" asp-route-id="@item.Id">Eliminar</a>
-                                                }
-                                            </div>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-success"
+                                                    id="btn-add-save">
+                                                <i class="fa fa-plus"></i> Agregar
+                                            </button>
                                         </td>
                                     </tr>
                                 }
+
+                                <!-- Las filas de datos se cargarán aquí via AJAX -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Loading indicator -->
+                    <div id="loading" class="text-center py-3 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -82,17 +67,375 @@
     </div>
 </div>
 
+<!-- Modal Eliminar -->
+<div class="modal fade" id="ModalEliminar" tabindex="-1" role="dialog" aria-labelledby="ModalEliminarTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h6 class="modal-title" id="ModalEliminarTitle">
+                    <i class="fa fa-fw fa-trash"></i>
+                    Eliminar área
+                </h6>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="fa fa-fw fa-window-close"></i></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6>¿Está seguro que desea eliminar el área <strong><span id="nombreEliminar"></span></strong>?</h6>
+                <p class="text-muted mt-3">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
-    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
     <script type="text/javascript">
+        // Variables globales
+        const canEdit = @canEdit.ToString().ToLower();
+        let areas = [];
+
+        // Al cargar la página
         $(document).ready(function () {
-            $('#tablaAreas').DataTable({
-                "lengthChange": false,
-                "language": {
-                    "url": "/dataTables_es-ES.json"
+            cargarAreas();
+        });
+
+        // Cargar áreas desde el servidor
+        function cargarAreas() {
+            mostrarLoading(true);
+
+            $.ajax({
+                url: '@Url.Action("ObtenerAreas")',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        areas = response.data;
+                        renderizarAreas();
+                    } else {
+                        mostrarNotificacion('Error al cargar áreas', 'danger');
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al cargar áreas', 'danger');
+                },
+                complete: function () {
+                    mostrarLoading(false);
                 }
             });
-        });	
+        }
+
+        // Renderizar áreas en la tabla
+        function renderizarAreas() {
+            const tbody = $('#tablaAreas tbody');
+            const filaAdd = $('#row-add');
+
+            // Limpiar filas existentes (excepto la de agregar)
+            tbody.find('tr:not(#row-add)').remove();
+
+            // Agregar filas de datos
+            areas.forEach(function (area) {
+                const row = crearFilaLectura(area);
+                tbody.append(row);
+            });
+        }
+
+        // Crear fila en modo lectura
+        function crearFilaLectura(area) {
+            const detalleBtn = `
+                <a href="@Url.Action("DetalleArea")?id=${area.id}"
+                   class="btn btn-sm btn-outline-secondary font-weight-bold">
+                    Detalle
+                </a>
+            `;
+
+            const accionesEdit = canEdit ? `
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary btn-edit"
+                        data-id="${area.id}">
+                    <i class="fa fa-edit"></i>
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger btn-delete"
+                        data-id="${area.id}"
+                        data-nombre="${area.nombre}">
+                    <i class="fa fa-trash"></i>
+                </button>
+            ` : '';
+
+            return $(`
+                <tr data-id="${area.id}">
+                    <td class="nombre">${area.nombre}</td>
+                    <td class="descripcion">${area.truncatedDescripcion || area.descripcion || ''}</td>
+                    <td class="text-right">
+                        <div class="btn-group btn-group-sm" role="group">
+                            ${detalleBtn}
+                            ${accionesEdit}
+                        </div>
+                    </td>
+                </tr>
+            `);
+        }
+
+        // Crear fila en modo edición
+        function crearFilaEdicion(area) {
+            return $(`
+                <tr data-id="${area.id}" class="table-warning">
+                    <td>
+                        <input type="text"
+                               class="form-control form-control-sm edit-nombre"
+                               value="${area.nombre}"
+                               maxlength="255" />
+                        <small class="text-danger d-none edit-nombre-error"></small>
+                    </td>
+                    <td>
+                        <input type="text"
+                               class="form-control form-control-sm edit-descripcion"
+                               value="${area.descripcion || ''}"
+                               maxlength="2000" />
+                        <small class="text-danger d-none edit-descripcion-error"></small>
+                    </td>
+                    <td class="text-right">
+                        <button type="button" class="btn btn-sm btn-success btn-save" data-id="${area.id}">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary btn-cancel" data-id="${area.id}">
+                            <i class="fa fa-times"></i> Cancelar
+                        </button>
+                    </td>
+                </tr>
+            `);
+        }
+
+        // Event: Agregar nueva área
+        $(document).on('click', '#btn-add-save', function () {
+            const nombre = $('#add-nombre').val().trim();
+            const descripcion = $('#add-descripcion').val().trim();
+
+            // Limpiar errores previos
+            limpiarErroresAgregar();
+
+            // Validaciones client-side
+            if (!nombre) {
+                mostrarErrorAgregar('nombre', 'El nombre es requerido');
+                return;
+            }
+            if (nombre.length > 255) {
+                mostrarErrorAgregar('nombre', 'El nombre debe tener máximo 255 caracteres.');
+                return;
+            }
+            if (descripcion.length > 2000) {
+                mostrarErrorAgregar('descripcion', 'La descripción debe tener máximo 2000 caracteres.');
+                return;
+            }
+
+            // Enviar al servidor
+            const data = { nombre, descripcion };
+
+            $.ajax({
+                url: '@Url.Action("AgregarAreaJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        // Agregar al array local
+                        areas.push(response.data);
+
+                        // Agregar fila a la tabla
+                        const nuevaFila = crearFilaLectura(response.data);
+                        $('#tablaAreas tbody').append(nuevaFila);
+
+                        // Limpiar inputs
+                        $('#add-nombre').val('');
+                        $('#add-descripcion').val('');
+
+                        // Mostrar notificación
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        // Mostrar errores del servidor
+                        if (response.errors && response.errors.length > 0) {
+                            response.errors.forEach(error => {
+                                if (error.includes('nombre')) {
+                                    mostrarErrorAgregar('nombre', error);
+                                } else if (error.includes('descripción') || error.includes('descripcion')) {
+                                    mostrarErrorAgregar('descripcion', error);
+                                } else {
+                                    mostrarNotificacion(error, 'danger');
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al agregar área', 'danger');
+                }
+            });
+        });
+
+        // Event: Click en Editar
+        $(document).on('click', '.btn-edit', function () {
+            const id = $(this).data('id');
+            const area = areas.find(a => a.id === id);
+
+            if (!area) return;
+
+            // Reemplazar fila con modo edición
+            const row = $(`tr[data-id="${id}"]`);
+            const editRow = crearFilaEdicion(area);
+            row.replaceWith(editRow);
+        });
+
+        // Event: Click en Cancelar edición
+        $(document).on('click', '.btn-cancel', function () {
+            const id = $(this).data('id');
+            const area = areas.find(a => a.id === id);
+
+            if (!area) return;
+
+            // Reemplazar fila con modo lectura
+            const row = $(`tr[data-id="${id}"]`);
+            const readRow = crearFilaLectura(area);
+            row.replaceWith(readRow);
+        });
+
+        // Event: Click en Guardar edición
+        $(document).on('click', '.btn-save', function () {
+            const id = $(this).data('id');
+            const row = $(`tr[data-id="${id}"]`);
+
+            const nombre = row.find('.edit-nombre').val().trim();
+            const descripcion = row.find('.edit-descripcion').val().trim();
+
+            // Limpiar errores previos
+            row.find('.edit-nombre-error').addClass('d-none').text('');
+            row.find('.edit-descripcion-error').addClass('d-none').text('');
+
+            // Validaciones client-side
+            if (!nombre) {
+                row.find('.edit-nombre-error').removeClass('d-none').text('El nombre es requerido');
+                return;
+            }
+            if (nombre.length > 255) {
+                row.find('.edit-nombre-error').removeClass('d-none').text('El nombre debe tener máximo 255 caracteres.');
+                return;
+            }
+            if (descripcion.length > 2000) {
+                row.find('.edit-descripcion-error').removeClass('d-none').text('La descripción debe tener máximo 2000 caracteres.');
+                return;
+            }
+
+            // Enviar al servidor
+            const data = { id, nombre, descripcion };
+
+            $.ajax({
+                url: '@Url.Action("EditarAreaJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        // Actualizar en el array local
+                        const index = areas.findIndex(a => a.id === id);
+                        if (index !== -1) {
+                            areas[index] = response.data;
+                        }
+
+                        // Reemplazar con fila de lectura
+                        const readRow = crearFilaLectura(response.data);
+                        row.replaceWith(readRow);
+
+                        // Mostrar notificación
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        // Mostrar errores del servidor
+                        if (response.errors && response.errors.length > 0) {
+                            response.errors.forEach(error => {
+                                if (error.includes('nombre')) {
+                                    row.find('.edit-nombre-error').removeClass('d-none').text(error);
+                                } else if (error.includes('descripción') || error.includes('descripcion')) {
+                                    row.find('.edit-descripcion-error').removeClass('d-none').text(error);
+                                } else {
+                                    mostrarNotificacion(error, 'danger');
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al actualizar área', 'danger');
+                }
+            });
+        });
+
+        // Event: Click en Eliminar - Abrir modal
+        $(document).on('click', '.btn-delete', function () {
+            const id = $(this).data('id');
+            const nombre = $(this).data('nombre');
+
+            $('#nombreEliminar').text(nombre);
+            $('#btnConfirmarEliminar').data('id', id);
+            $('#ModalEliminar').modal('show');
+        });
+
+        // Event: Confirmar eliminación desde modal
+        $('#btnConfirmarEliminar').on('click', function () {
+            const id = $(this).data('id');
+            const data = { id };
+
+            $.ajax({
+                url: '@Url.Action("EliminarAreaJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        $('#ModalEliminar').modal('hide');
+
+                        areas = areas.filter(a => a.id !== id);
+
+                        const row = $(`tr[data-id="${id}"]`);
+                        row.fadeOut(300, function () {
+                            $(this).remove();
+                        });
+
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        if (response.errors && response.errors.length > 0) {
+                            mostrarNotificacion(response.errors.join(', '), 'danger');
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al eliminar área', 'danger');
+                }
+            });
+        });
+
+        // Funciones auxiliares
+        function mostrarLoading(show) {
+            if (show) {
+                $('#loading').removeClass('d-none');
+                $('#tablaAreas').addClass('d-none');
+            } else {
+                $('#loading').addClass('d-none');
+                $('#tablaAreas').removeClass('d-none');
+            }
+        }
+
+        function limpiarErroresAgregar() {
+            $('#add-nombre-error').addClass('d-none').text('');
+            $('#add-descripcion-error').addClass('d-none').text('');
+        }
+
+        function mostrarErrorAgregar(campo, mensaje) {
+            $(`#add-${campo}-error`).removeClass('d-none').text(mensaje);
+        }
     </script>
 }

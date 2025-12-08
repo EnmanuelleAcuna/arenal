@@ -1,33 +1,10 @@
 ﻿@model Contrato
 
 @{
-    ViewBag.Title = "Contratos";
+    ViewData["Title"] = "Contratos";
+    ViewBag.BreadcrumbIcon = "fa-file-contract";
+    ViewBag.Breadcrumbs = new[] { "Contratos", "Detalle" };
 }
-
-<div class="container">
-    <div class="row">
-        <div class="col-5 align-self-center">
-            <h6 class="page-title">Contrato</h6>
-        </div>
-        <div class="col-7 align-self-center">
-            <div class="d-flex align-items-center justify-content-end">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href='@Url.Action("Administracion", "Home")'>Administración</a>
-                        </li>
-                        <li class="breadcrumb-item">
-                            <a href="@Url.Action("Contratos")">Contratos</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Detalle de contrato
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -36,26 +13,26 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h6 class="font-weight-bold">@Html.DisplayFor(model => model.Identificacion)</h6>
-                            <p>@Html.DisplayFor(model => model.Descripcion)</p>
+                            <h6>Contrato: <span class="font-weight-bold">@Model.Identificacion</span></h6>
+                            <p>@Model.Descripcion</p>
                         </div>
 
                         <div class="col-sm-12">
-                            <p>Fecha de inicio:&nbsp;<b>@Html.DisplayFor(model => model.LongDateFechaInicio)</b></p>
-                            <p>Área:&nbsp;<b>@Html.DisplayFor(model => model.Area.Nombre)</b></p>
-                            <p>Cliente:&nbsp;<b>@Html.DisplayFor(model => model.Cliente.Nombre)</b></p>
+                            <p>Fecha de inicio: <b>@Model.LongDateFechaInicio</b></p>
+                            <p>Área: <b>@Model.Area.Nombre</b></p>
+                            <p>Cliente: <b>@Model.Cliente.Nombre</b></p>
                         </div>
                     </div>
 
                     <div class="row mt-4">
                         <div class="col-12">
-                            <h6 class="font-weight-bold">Proyectos</h6>
+                            <h6 class="text-dark">Proyectos del Contrato</h6>
                             <div class="table-responsive">
                                 <table class="table table-hover table-sm text-nowrap">
                                     <thead>
                                     <tr>
-                                        <th>@Html.DisplayNameFor(m => m.Proyectos.FirstOrDefault().Nombre)</th>
-                                        <th>Área</th>
+                                        <th class="text-secondary">Nombre</th>
+                                        <th class="text-secondary">Área</th>
                                     </tr>
                                     </thead>
 

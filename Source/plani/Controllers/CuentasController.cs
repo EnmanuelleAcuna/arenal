@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using plani.Identity;
 using plani.Models;
 using plani.Models.Data;
+using plani.Models.ViewModels;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace plani.Controllers;
@@ -310,9 +311,7 @@ public class CuentasController : BaseController
     [HttpGet]
     public IActionResult Roles()
     {
-        IList<ApplicationRole> listaRoles = _roleManager.Roles.ToList();
-        IList<RolesIndexViewModel> modelo = listaRoles.Select(x => new RolesIndexViewModel(x)).ToList();
-        return View(modelo);
+        return View();
     }
 
     [HttpGet]
@@ -325,76 +324,128 @@ public class CuentasController : BaseController
         return View(viewModel);
     }
 
+    // JSON endpoints for inline editing
+
     [HttpGet]
-    public IActionResult AgregarRol() => View();
+    public async Task<JsonResult> ObtenerRoles()
+    {
+        var roles = await _roleManager.Roles
+            .OrderBy(r => r.Name)
+            .ToListAsync();
+
+        var viewModels = roles.Select(r => new RolListViewModel
+        {
+            Id = r.Id,
+            Nombre = r.Name,
+            Descripcion = r.Description
+        });
+
+        return Json(new { success = true, data = viewModels });
+    }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarRol(AgregarRolViewModel modelo)
+    public async Task<JsonResult> AgregarRolJson([FromBody] AgregarRolViewModel model)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            ApplicationRole rol = modelo.ToApplicationRole();
-            rol.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-            IdentityResult rolCreado = await _roleManager.CreateAsync(rol);
-            if (rolCreado.Succeeded) return RedirectToAction(nameof(Roles));
-            AddErrors(rolCreado);
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return Json(new { success = false, errors });
         }
 
-        ModelState.AddModelError("", Utils.MensajeErrorCrear("rol"));
-        return View(modelo);
-    }
+        var rol = model.ToApplicationRole();
+        rol.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
 
-    [HttpGet]
-    public async Task<IActionResult> EditarRol(string id)
-    {
-        ApplicationRole rol = await _roleManager.FindByIdAsync(id);
-        if (rol == null) return NotFound();
-        EditarRolViewModel modelo = new(rol);
-        return View(modelo);
-    }
+        var result = await _roleManager.CreateAsync(rol);
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarRol(EditarRolViewModel model)
-    {
-        if (ModelState.IsValid)
+        if (result.Succeeded)
         {
-            ApplicationRole rol = model.ToApplicationRole();
-            rol.RegistrarActualizacion(GetCurrentUser(), DateTime.UtcNow);
-            IdentityResult rolActualizado = await _roleManager.UpdateAsync(rol);
-            if (rolActualizado.Succeeded) return RedirectToAction(nameof(Roles));
-            AddErrors(rolActualizado);
+            var data = new RolListViewModel
+            {
+                Id = rol.Id,
+                Nombre = rol.Name,
+                Descripcion = rol.Description
+            };
+            return Json(new { success = true, message = "Rol agregado exitosamente", data });
         }
 
-        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(ApplicationRole)));
-        return View(model);
-    }
-
-    [HttpGet]
-    public async Task<ActionResult> EliminarRol(string id)
-    {
-        ApplicationRole rol = await _roleManager.FindByIdAsync(id);
-        if (rol == null) return NotFound();
-        EditarRolViewModel modelo = new(rol);
-        return View(modelo);
+        var resultErrors = result.Errors.Select(e => e.Description).ToList();
+        return Json(new { success = false, errors = resultErrors });
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EliminarRol(EditarRolViewModel modelo)
+    public async Task<JsonResult> EditarRolJson([FromBody] EditarRolViewModel model)
     {
-        ApplicationRole rol = await _roleManager.FindByIdAsync(modelo.IdRol);
-        if (rol == null) return NotFound();
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            return Json(new { success = false, errors });
+        }
+
+        var rol = await _roleManager.FindByIdAsync(model.IdRol);
+
+        if (rol == null)
+        {
+            return Json(new { success = false, errors = new[] { "Rol no encontrado" } });
+        }
+
+        rol.Name = model.Nombre;
+        rol.Description = model.Descripcion;
+        rol.RegistrarActualizacion(GetCurrentUser(), DateTime.UtcNow);
+
+        var result = await _roleManager.UpdateAsync(rol);
+
+        if (result.Succeeded)
+        {
+            var data = new RolListViewModel
+            {
+                Id = rol.Id,
+                Nombre = rol.Name,
+                Descripcion = rol.Description
+            };
+            return Json(new { success = true, message = "Rol actualizado exitosamente", data });
+        }
+
+        var resultErrors = result.Errors.Select(e => e.Description).ToList();
+        return Json(new { success = false, errors = resultErrors });
+    }
+
+    [HttpPost]
+    public async Task<JsonResult> EliminarRolJson([FromBody] EliminarRolRequest request)
+    {
+        var rol = await _roleManager.FindByIdAsync(request.Id);
+
+        if (rol == null)
+        {
+            return Json(new { success = false, errors = new[] { "Rol no encontrado" } });
+        }
+
+        // Verificar si el rol tiene usuarios asignados
+        var usuarios = await _userManager.GetUsersInRoleAsync(rol.Name);
+        if (usuarios.Any())
+        {
+            return Json(new { success = false, errors = new[] { "No se puede eliminar el rol porque tiene usuarios asignados" } });
+        }
+
         rol.Eliminar(GetCurrentUser());
-        IdentityResult rolEliminado = await _roleManager.UpdateAsync(rol);
-        if (rolEliminado.Succeeded) return RedirectToAction(nameof(Roles));
+        var result = await _roleManager.UpdateAsync(rol);
 
-        AddErrors(rolEliminado);
-        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(ApplicationRole)));
+        if (result.Succeeded)
+        {
+            return Json(new { success = true, message = "Rol eliminado exitosamente" });
+        }
 
-        return View(modelo);
+        var resultErrors = result.Errors.Select(e => e.Description).ToList();
+        return Json(new { success = false, errors = resultErrors });
     }
+
 
     #endregion
 

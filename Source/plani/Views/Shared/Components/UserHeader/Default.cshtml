@@ -1,0 +1,33 @@
+@model plani.Models.ViewModels.UserHeaderViewModel
+
+<div class="topbar-right">
+    @if (Model.IsAuthenticated)
+    {
+        <div class="user-menu">
+            <div class="user-avatar">@Model.UserInitials</div>
+            <div>
+                <div style="font-size: 0.875rem; font-weight: 500;">@Model.UserName</div>
+                <div style="font-size: 0.75rem; opacity: 0.8;">
+                    @Model.DisplayRole
+                </div>
+            </div>
+        </div>
+        <form asp-controller="Cuentas"
+              asp-action="CerrarSesion"
+              asp-route-returnUrl="@Url.Action("Administracion", "Home")"
+              style="margin: 0;">
+            <button type="submit" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </form>
+    }
+    else
+    {
+        <a class="btn-logout"
+           asp-controller="Cuentas"
+           asp-action="IniciarSesion"
+           style="text-decoration: none;">
+            <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+        </a>
+    }
+</div>
