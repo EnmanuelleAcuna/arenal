@@ -20,14 +20,12 @@
 
                     <div class="table-responsive">
                         <table id="tablaClientes" class="table table-hover table-sm text-nowrap">
-                            <thead>
+                            <thead class="text-dark">
                             <tr>
-                                <th class="text-secondary">Identificacion</th>
-                                <th class="text-secondary">Nombre</th>
-                                <th class="text-secondary">Tipo de Cliente</th>
-                                <th class="text-secondary">Direccion</th>
-                                <th class="text-secondary">Descripcion</th>
-                                <th class="text-secondary"></th>
+                                <th style="width: 30%">Nombre / Identificación</th>
+                                <th style="width: 30%">Tipo / Dirección</th>
+                                <th style="width: 25%">Descripción</th>
+                                <th style="width: 15%"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -35,24 +33,28 @@
                             @foreach (var item in Model.Clientes)
                             {
                                 <tr>
-                                    <td>@item.Identificacion</td>
-                                    <td>@item.Nombre</td>
-                                    <td>@item.TipoCliente.Nombre</td>
-                                    <td title="@item.Direccion">@item.TruncatedDireccion</td>
+                                    <td>
+                                        <div>@item.Nombre</div>
+                                        <small class="text-muted">@item.Identificacion</small>
+                                    </td>
+                                    <td>
+                                        <div>@item.TipoCliente.Nombre</div>
+                                        <small class="text-muted" title="@item.Direccion">@item.TruncatedDireccion</small>
+                                    </td>
                                     <td>@item.TruncatedDescripcion</td>
                                     <td class="text-right">
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                            <a class="btn btn-sm btn-light text-primary" asp-controller="Clientes" asp-action="DetalleCliente" asp-route-id="@item.Id">
+                                            <a class="btn btn-sm btn-outline-secondary font-weight-bold" asp-controller="Clientes" asp-action="DetalleCliente" asp-route-id="@item.Id">
                                                 Detalle
                                             </a>
 
                                             @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
                                             {
-                                                <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarCliente" asp-route-id="@item.Id">
-                                                    Modificar
+                                                <a class="btn btn-sm btn-outline-primary" asp-controller="Clientes" asp-action="EditarCliente" asp-route-id="@item.Id">
+                                                    <i class="fa fa-edit"></i>
                                                 </a>
-                                                <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarCliente" asp-route-id="@item.Id">
-                                                    Eliminar
+                                                <a class="btn btn-sm btn-outline-danger" asp-controller="Clientes" asp-action="EliminarCliente" asp-route-id="@item.Id">
+                                                    <i class="fa fa-trash"></i>
                                                 </a>
                                             }
                                         </div>
@@ -75,7 +77,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('#tablaClientes').DataTable({
-                "order": [[1, "asc"]],
+                "order": [[0, "asc"]],
                 "language": {
                     "url": "/dataTables_es-ES.json"
                 }

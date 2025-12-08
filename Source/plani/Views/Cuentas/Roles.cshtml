@@ -1,59 +1,449 @@
-@model IEnumerable<RolesIndexViewModel>
-
 @{
     ViewData["Title"] = "Roles";
     ViewBag.BreadcrumbIcon = "fa-users-cog";
     ViewBag.Breadcrumbs = new[] { "Roles" };
+    var canEdit = User.IsInRole("Administrador");
 }
-
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <div class="d-flex justify-content-end">
-                        @Html.ActionLink("Agregar", "AgregarRol", null, null, new { @class = "btn btn-sm btn-primary" })
-                    </div>
-
-                    <div class="table-responsive mt-3">
-                        <table class="table table-hover table-sm text-nowrap">
-                            <thead>
-                            <tr>
-                                <th class="text-secondary">Nombre</th>
-                                <th class="text-secondary">Descripcion</th>
-                                <th class="text-secondary text-right"></th>
-                            </tr>
+                    <div class="table-responsive">
+                        <table id="tablaRoles" class="table table-sm table-hover">
+                            <thead class="text-dark">
+                                <tr>
+                                    <th style="width: 30%">Nombre</th>
+                                    <th style="width: 50%">Descripción</th>
+                                    <th style="width: 20%" class="text-right">Acciones</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @foreach (RolesIndexViewModel rol in Model)
-                            {
-                                <tr>
-                                    <td>@rol.Nombre</td>
-                                    <td>@rol.Descripcion</td>
-                                    <td class="text-right">
-                                        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                            <a class="btn btn-sm btn-outline-light text-dark font-weight-bold" asp-controller="Cuentas" asp-action="DetalleRol"
-                                               asp-route-id="@rol.IdRol">
-                                                Detalle
-                                            </a>
-                                            <a class="btn btn-sm btn-outline-light text-dark font-weight-bold" asp-controller="Cuentas" asp-action="EditarRol"
-                                               asp-route-id="@rol.IdRol">
-                                                Modificar
-                                            </a>
-                                            <a class="btn btn-sm btn-outline-light text-danger" asp-controller="Cuentas" asp-action="EliminarRol"
-                                               asp-route-id="@rol.IdRol">
-                                                Eliminar
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
+                                @if (canEdit)
+                                {
+                                    <!-- Fila para agregar nuevo rol -->
+                                    <tr id="row-add" class="table-active">
+                                        <td>
+                                            <input type="text"
+                                                   id="add-nombre"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Nombre del rol..."
+                                                   maxlength="50" />
+                                            <small class="text-danger d-none" id="add-nombre-error"></small>
+                                        </td>
+                                        <td>
+                                            <input type="text"
+                                                   id="add-descripcion"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Descripción..."
+                                                   maxlength="250" />
+                                            <small class="text-danger d-none" id="add-descripcion-error"></small>
+                                        </td>
+                                        <td class="text-right">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-success"
+                                                    id="btn-add-save">
+                                                <i class="fa fa-plus"></i> Agregar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+
+                                <!-- Las filas de datos se cargarán aquí via AJAX -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Loading indicator -->
+                    <div id="loading" class="text-center py-3 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="ModalEliminar" tabindex="-1" role="dialog" aria-labelledby="ModalEliminarTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h6 class="modal-title" id="ModalEliminarTitle">
+                    <i class="fa fa-fw fa-trash"></i>
+                    Eliminar rol
+                </h6>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="fa fa-fw fa-window-close"></i></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6>¿Está seguro que desea eliminar el rol <strong><span id="nombreEliminar"></span></strong>?</h6>
+                <p class="text-muted mt-3">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        // Variables globales
+        const canEdit = @canEdit.ToString().ToLower();
+        let roles = [];
+
+        // Al cargar la página
+        $(document).ready(function () {
+            cargarRoles();
+        });
+
+        // Cargar roles desde el servidor
+        function cargarRoles() {
+            mostrarLoading(true);
+
+            $.ajax({
+                url: '@Url.Action("ObtenerRoles")',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        roles = response.data;
+                        renderizarRoles();
+                    } else {
+                        mostrarNotificacion('Error al cargar roles', 'danger');
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al cargar roles', 'danger');
+                },
+                complete: function () {
+                    mostrarLoading(false);
+                }
+            });
+        }
+
+        // Renderizar roles en la tabla
+        function renderizarRoles() {
+            const tbody = $('#tablaRoles tbody');
+            const filaAdd = $('#row-add');
+
+            // Limpiar filas existentes (excepto la de agregar)
+            tbody.find('tr:not(#row-add)').remove();
+
+            // Agregar filas de datos
+            roles.forEach(function (rol) {
+                const row = crearFilaLectura(rol);
+                tbody.append(row);
+            });
+        }
+
+        // Crear fila en modo lectura
+        function crearFilaLectura(rol) {
+            const detalleBtn = `
+                <a href="@Url.Action("DetalleRol")?id=${rol.id}"
+                   class="btn btn-sm btn-outline-secondary font-weight-bold">
+                    Detalle
+                </a>
+            `;
+
+            const accionesEdit = canEdit ? `
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary btn-edit"
+                        data-id="${rol.id}">
+                    <i class="fa fa-edit"></i>
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger btn-delete"
+                        data-id="${rol.id}"
+                        data-nombre="${rol.nombre}">
+                    <i class="fa fa-trash"></i>
+                </button>
+            ` : '';
+
+            return $(`
+                <tr data-id="${rol.id}">
+                    <td class="nombre">${rol.nombre}</td>
+                    <td class="descripcion">${rol.descripcion || ''}</td>
+                    <td class="text-right">
+                        <div class="btn-group btn-group-sm" role="group">
+                            ${detalleBtn}
+                            ${accionesEdit}
+                        </div>
+                    </td>
+                </tr>
+            `);
+        }
+
+        // Crear fila en modo edición
+        function crearFilaEdicion(rol) {
+            return $(`
+                <tr data-id="${rol.id}" class="table-warning">
+                    <td>
+                        <input type="text"
+                               class="form-control form-control-sm edit-nombre"
+                               value="${rol.nombre}"
+                               maxlength="50" />
+                        <small class="text-danger d-none edit-nombre-error"></small>
+                    </td>
+                    <td>
+                        <input type="text"
+                               class="form-control form-control-sm edit-descripcion"
+                               value="${rol.descripcion || ''}"
+                               maxlength="250" />
+                        <small class="text-danger d-none edit-descripcion-error"></small>
+                    </td>
+                    <td class="text-right">
+                        <button type="button" class="btn btn-sm btn-success btn-save" data-id="${rol.id}">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary btn-cancel" data-id="${rol.id}">
+                            <i class="fa fa-times"></i> Cancelar
+                        </button>
+                    </td>
+                </tr>
+            `);
+        }
+
+        // Event: Agregar nuevo rol
+        $(document).on('click', '#btn-add-save', function () {
+            const nombre = $('#add-nombre').val().trim();
+            const descripcion = $('#add-descripcion').val().trim();
+
+            // Limpiar errores previos
+            limpiarErroresAgregar();
+
+            // Validaciones client-side
+            if (!nombre) {
+                mostrarErrorAgregar('nombre', 'El nombre es requerido');
+                return;
+            }
+            if (nombre.length > 50) {
+                mostrarErrorAgregar('nombre', 'El nombre debe tener máximo 50 caracteres.');
+                return;
+            }
+            if (!descripcion) {
+                mostrarErrorAgregar('descripcion', 'La descripción es requerida');
+                return;
+            }
+            if (descripcion.length > 250) {
+                mostrarErrorAgregar('descripcion', 'La descripción debe tener máximo 250 caracteres.');
+                return;
+            }
+
+            // Enviar al servidor
+            const data = { nombre, descripcion };
+
+            $.ajax({
+                url: '@Url.Action("AgregarRolJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        // Agregar al array local
+                        roles.push(response.data);
+
+                        // Agregar fila a la tabla
+                        const nuevaFila = crearFilaLectura(response.data);
+                        $('#tablaRoles tbody').append(nuevaFila);
+
+                        // Limpiar inputs
+                        $('#add-nombre').val('');
+                        $('#add-descripcion').val('');
+
+                        // Mostrar notificación
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        // Mostrar errores del servidor
+                        if (response.errors && response.errors.length > 0) {
+                            response.errors.forEach(error => {
+                                if (error.includes('nombre')) {
+                                    mostrarErrorAgregar('nombre', error);
+                                } else if (error.includes('descripción') || error.includes('descripcion')) {
+                                    mostrarErrorAgregar('descripcion', error);
+                                } else {
+                                    mostrarNotificacion(error, 'danger');
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al agregar rol', 'danger');
+                }
+            });
+        });
+
+        // Event: Click en Editar
+        $(document).on('click', '.btn-edit', function () {
+            const id = $(this).data('id');
+            const rol = roles.find(r => r.id === id);
+
+            if (!rol) return;
+
+            // Reemplazar fila con modo edición
+            const row = $(`tr[data-id="${id}"]`);
+            const editRow = crearFilaEdicion(rol);
+            row.replaceWith(editRow);
+        });
+
+        // Event: Click en Cancelar edición
+        $(document).on('click', '.btn-cancel', function () {
+            const id = $(this).data('id');
+            const rol = roles.find(r => r.id === id);
+
+            if (!rol) return;
+
+            // Reemplazar fila con modo lectura
+            const row = $(`tr[data-id="${id}"]`);
+            const readRow = crearFilaLectura(rol);
+            row.replaceWith(readRow);
+        });
+
+        // Event: Click en Guardar edición
+        $(document).on('click', '.btn-save', function () {
+            const id = $(this).data('id');
+            const row = $(`tr[data-id="${id}"]`);
+
+            const nombre = row.find('.edit-nombre').val().trim();
+            const descripcion = row.find('.edit-descripcion').val().trim();
+
+            // Limpiar errores previos
+            row.find('.edit-nombre-error').addClass('d-none').text('');
+            row.find('.edit-descripcion-error').addClass('d-none').text('');
+
+            // Validaciones client-side
+            if (!nombre) {
+                row.find('.edit-nombre-error').removeClass('d-none').text('El nombre es requerido');
+                return;
+            }
+            if (nombre.length > 50) {
+                row.find('.edit-nombre-error').removeClass('d-none').text('El nombre debe tener máximo 50 caracteres.');
+                return;
+            }
+            if (!descripcion) {
+                row.find('.edit-descripcion-error').removeClass('d-none').text('La descripción es requerida');
+                return;
+            }
+            if (descripcion.length > 250) {
+                row.find('.edit-descripcion-error').removeClass('d-none').text('La descripción debe tener máximo 250 caracteres.');
+                return;
+            }
+
+            // Enviar al servidor
+            const data = { idRol: id, nombre, descripcion };
+
+            $.ajax({
+                url: '@Url.Action("EditarRolJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        // Actualizar en el array local
+                        const index = roles.findIndex(r => r.id === id);
+                        if (index !== -1) {
+                            roles[index] = response.data;
+                        }
+
+                        // Reemplazar con fila de lectura
+                        const readRow = crearFilaLectura(response.data);
+                        row.replaceWith(readRow);
+
+                        // Mostrar notificación
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        // Mostrar errores del servidor
+                        if (response.errors && response.errors.length > 0) {
+                            response.errors.forEach(error => {
+                                if (error.includes('nombre')) {
+                                    row.find('.edit-nombre-error').removeClass('d-none').text(error);
+                                } else if (error.includes('descripción') || error.includes('descripcion')) {
+                                    row.find('.edit-descripcion-error').removeClass('d-none').text(error);
+                                } else {
+                                    mostrarNotificacion(error, 'danger');
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al actualizar rol', 'danger');
+                }
+            });
+        });
+
+        // Event: Click en Eliminar - Abrir modal
+        $(document).on('click', '.btn-delete', function () {
+            const id = $(this).data('id');
+            const nombre = $(this).data('nombre');
+
+            $('#nombreEliminar').text(nombre);
+            $('#btnConfirmarEliminar').data('id', id);
+            $('#ModalEliminar').modal('show');
+        });
+
+        // Event: Confirmar eliminación desde modal
+        $('#btnConfirmarEliminar').on('click', function () {
+            const id = $(this).data('id');
+            const data = { id };
+
+            $.ajax({
+                url: '@Url.Action("EliminarRolJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        $('#ModalEliminar').modal('hide');
+
+                        roles = roles.filter(r => r.id !== id);
+
+                        const row = $(`tr[data-id="${id}"]`);
+                        row.fadeOut(300, function () {
+                            $(this).remove();
+                        });
+
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        if (response.errors && response.errors.length > 0) {
+                            mostrarNotificacion(response.errors.join(', '), 'danger');
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al eliminar rol', 'danger');
+                }
+            });
+        });
+
+        // Funciones auxiliares
+        function mostrarLoading(show) {
+            if (show) {
+                $('#loading').removeClass('d-none');
+                $('#tablaRoles').addClass('d-none');
+            } else {
+                $('#loading').addClass('d-none');
+                $('#tablaRoles').removeClass('d-none');
+            }
+        }
+
+        function limpiarErroresAgregar() {
+            $('#add-nombre-error').addClass('d-none').text('');
+            $('#add-descripcion-error').addClass('d-none').text('');
+        }
+
+        function mostrarErrorAgregar(campo, mensaje) {
+            $(`#add-${campo}-error`).removeClass('d-none').text(mensaje);
+        }
+    </script>
+}

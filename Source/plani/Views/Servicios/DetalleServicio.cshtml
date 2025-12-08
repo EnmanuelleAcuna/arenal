@@ -1,4 +1,4 @@
-﻿@model Servicio
+﻿@model ServicioDetalleViewModel
 
 @{
     ViewData["Title"] = "Detalle de servicio";
@@ -18,10 +18,40 @@
                         </div>
 
                         <div class="col-sm-12">
-                            <p>Área: <b>@Model.Area.Nombre</b></p>
-                            <p>Modalidad: <b>@Model.Modalidad.Nombre</b></p>
+                            <p>Área: <b>@Model.AreaNombre</b></p>
+                            <p>Modalidad: <b>@Model.ModalidadNombre</b></p>
                         </div>
                     </div>
+
+                    @if (Model.ProyectosUsandoServicio != null && Model.ProyectosUsandoServicio.Any())
+                    {
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6 class="text-dark">Proyectos donde se ha usado este servicio</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-sm text-nowrap">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-secondary">Proyecto</th>
+                                                <th class="text-secondary">Cliente</th>
+                                                <th class="text-secondary">Área</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var proyecto in Model.ProyectosUsandoServicio)
+                                            {
+                                                <tr>
+                                                    <td>@proyecto.NombreProyecto</td>
+                                                    <td>@proyecto.NombreCliente</td>
+                                                    <td>@proyecto.NombreArea</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
 
                     @* <div class="row mt-4"> *@
                     @*     <div class="col-12"> *@

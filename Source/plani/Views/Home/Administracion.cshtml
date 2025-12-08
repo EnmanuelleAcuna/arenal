@@ -12,7 +12,7 @@
         </div>
         <div class="stat-content">
             <h6>Clientes</h6>
-            <p class="stat-value">18</p>
+            <p class="stat-value" id="statClientes">0</p>
         </div>
     </div>
 
@@ -22,7 +22,7 @@
         </div>
         <div class="stat-content">
             <h6>Proyectos</h6>
-            <p class="stat-value">12</p>
+            <p class="stat-value" id="statProyectos">0</p>
         </div>
     </div>
 
@@ -32,7 +32,7 @@
         </div>
         <div class="stat-content">
             <h6>Colaboradores</h6>
-            <p class="stat-value">8</p>
+            <p class="stat-value" id="statColaboradores">0</p>
         </div>
     </div>
 
@@ -42,13 +42,18 @@
         </div>
         <div class="stat-content">
             <h6>Sesiones Hoy</h6>
-            <p class="stat-value">15</p>
+            <p class="stat-value" id="statSesionesHoy">0</p>
         </div>
     </div>
 </div>
 
 <!-- Charts Section -->
-<div class="charts-grid">
+<div class="charts-grid" style="position: relative;">
+    <!-- Loading Overlay -->
+    <div id="dashboardLoader" class="dashboard-loader">
+        <div class="loader-spinner"></div>
+    </div>
+
     <!-- Sesiones por Mes -->
     <div class="content-card">
         <h5><i class="fas fa-chart-bar text-primary"></i> Sesiones de trabajo</h5>
@@ -90,15 +95,15 @@
 
     <!-- Top 5 Clientes -->
     <div class="content-card">
-        <h5><i class="fas fa-trophy text-warning"></i> Top 5 Clientes por Horas</h5>
+        <h5><i class="fas fa-trophy text-warning"></i> Top 5 Clientes por Horas del Mes</h5>
         <div class="chart-container">
             <canvas id="chartTopClientes"></canvas>
         </div>
     </div>
 
-    <!-- Tasa de Utilización por Colaborador -->
+    <!-- Top 5 Colaboradores por Horas -->
     <div class="content-card">
-        <h5><i class="fas fa-chart-bar text-success"></i> Tasa de Utilización - Top 5 Colaboradores</h5>
+        <h5><i class="fas fa-chart-bar text-success"></i> Top 5 Colaboradores por Horas del Mes</h5>
         <div class="chart-container">
             <canvas id="chartUtilizacionColaboradores"></canvas>
         </div>
@@ -109,9 +114,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         // Configuración de colores - Paleta profesional pastel
-        const primaryColor = 'rgb(33, 50, 92)';
-        const accentColor = 'rgb(208, 162, 68)';
-
         const chartColors = {
             blue: { bg: 'rgba(100, 149, 237, 0.6)', border: 'rgba(65, 105, 225, 0.8)' },
             green: { bg: 'rgba(102, 187, 106, 0.6)', border: 'rgba(56, 142, 60, 0.8)' },
@@ -121,6 +123,17 @@
             pink: { bg: 'rgba(240, 98, 146, 0.6)', border: 'rgba(194, 24, 91, 0.8)' },
             amber: { bg: 'rgba(255, 202, 40, 0.6)', border: 'rgba(255, 160, 0, 0.8)' }
         };
+
+        // Array de colores para asignar dinámicamente
+        const colorArray = [
+            chartColors.blue,
+            chartColors.green,
+            chartColors.purple,
+            chartColors.orange,
+            chartColors.teal,
+            chartColors.pink,
+            chartColors.amber
+        ];
 
         // Configuraciones base para gráficos
         const baseOptions = {
@@ -138,97 +151,181 @@
                 let text = context.label ? context.label + ': ' : '';
                 text += context.parsed + suffix;
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
                 return text + ' (' + percentage + '%)';
             }
         });
 
-        // Datos de servicios por mes
-        const datosServiciosPorMes = {
-            10: { // Octubre
-                labels: ['Asesoría contable', 'Gestión tributaria', 'Sistemas contables', 'Admin. condominios', 'Gestión de Contabilidad', 'Gestión de Planillas', 'Gestión de RRHH'],
-                data: [68, 54, 35, 28, 22, 18, 12]
-            },
-            11: { // Noviembre
-                labels: ['Asesoría contable', 'Gestión tributaria', 'Sistemas contables', 'Admin. condominios', 'Gestión de Contabilidad', 'Gestión de Planillas', 'Gestión de RRHH'],
-                data: [75, 62, 50, 37, 30, 24, 18]
-            },
-            12: { // Diciembre
-                labels: ['Asesoría contable', 'Gestión tributaria', 'Sistemas contables', 'Admin. condominios', 'Gestión de Contabilidad', 'Gestión de Planillas', 'Gestión de RRHH'],
-                data: [58, 48, 42, 28, 20, 16, 10]
-            }
-        };
-
+        // Variables globales para gráficos
+        let chartSesionesMes = null;
+        let chartHorasTrabajadas = null;
         let chartServiciosInstance = null;
+        let chartProyectosEstado = null;
+        let chartTopClientes = null;
+        let chartTopColaboradores = null;
+        let datosServiciosPorMes = {};
 
-        // Gráfico 1: Sesiones por Mes (Barras)
-        new Chart(document.getElementById('chartSesionesMes'), {
-            type: 'bar',
-            data: {
-                labels: ['Octubre', 'Noviembre', 'Diciembre'],
-                datasets: [{
-                    label: 'Sesiones Completadas',
-                    data: [45, 62, 48],
-                    backgroundColor: [chartColors.blue.bg, chartColors.green.bg, chartColors.purple.bg],
-                    borderColor: [chartColors.blue.border, chartColors.green.border, chartColors.purple.border],
-                    borderWidth: 1.5,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                ...baseOptions,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 10 } } }
-            }
-        });
+        // Cargar datos del dashboard
+        async function cargarDatosDashboard() {
+            const loader = document.getElementById('dashboardLoader');
 
-        // Gráfico 2: Horas Trabajadas (Línea)
-        new Chart(document.getElementById('chartHorasTrabajadas'), {
-            type: 'line',
-            data: {
-                labels: ['Octubre', 'Noviembre', 'Diciembre'],
-                datasets: [{
-                    label: 'Horas',
-                    data: [180, 248, 192],
-                    borderColor: chartColors.green.border,
-                    backgroundColor: chartColors.green.bg,
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 6,
-                    pointBackgroundColor: chartColors.green.border,
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 1.5
-                }]
-            },
-            options: {
-                ...baseOptions,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { stepSize: 50 } } }
+            try {
+                // Mostrar loader
+                loader.classList.remove('hidden');
+
+                const response = await fetch('/Home/ObtenerDatosDashboard');
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar datos del dashboard');
+                }
+
+                const datos = await response.json();
+
+                // Actualizar stats del header
+                actualizarStats(datos.stats);
+
+                // Crear gráficos
+                crearGraficoSesionesPorMes(datos.sesionesPorMes);
+                crearGraficoHorasPorMes(datos.horasPorMes);
+                crearGraficoProyectosPorEstado(datos.proyectosPorEstado);
+                crearGraficoTopClientes(datos.topClientes);
+                crearGraficoTopColaboradores(datos.topColaboradores);
+
+                // Guardar datos de servicios por mes para el selector
+                datosServiciosPorMes = datos.horasPorServicioPorMes;
+
+                // Crear selector de meses dinámicamente
+                crearSelectorMeses(datos.horasPorServicioPorMes);
+
+                // Ocultar loader después de un pequeño delay para mejor UX
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                }, 300);
+
+            } catch (error) {
+                console.error('Error:', error);
+                loader.classList.add('hidden');
+                alert('Error al cargar los datos del dashboard');
             }
-        });
+        }
+
+        // Actualizar estadísticas del header
+        function actualizarStats(stats) {
+            document.getElementById('statClientes').textContent = stats.totalClientes;
+            document.getElementById('statProyectos').textContent = stats.totalProyectos;
+            document.getElementById('statColaboradores').textContent = stats.totalColaboradores;
+            document.getElementById('statSesionesHoy').textContent = stats.sesionesHoy;
+        }
+
+        // Gráfico 1: Sesiones por Mes
+        function crearGraficoSesionesPorMes(datos) {
+            if (chartSesionesMes) chartSesionesMes.destroy();
+
+            const backgrounds = datos.meses.map((_, i) => colorArray[i % colorArray.length].bg);
+            const borders = datos.meses.map((_, i) => colorArray[i % colorArray.length].border);
+
+            chartSesionesMes = new Chart(document.getElementById('chartSesionesMes'), {
+                type: 'bar',
+                data: {
+                    labels: datos.meses,
+                    datasets: [{
+                        label: 'Sesiones Completadas',
+                        data: datos.cantidadSesiones,
+                        backgroundColor: backgrounds,
+                        borderColor: borders,
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    ...baseOptions,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 10 } } }
+                }
+            });
+        }
+
+        // Gráfico 2: Horas Trabajadas por Mes
+        function crearGraficoHorasPorMes(datos) {
+            if (chartHorasTrabajadas) chartHorasTrabajadas.destroy();
+
+            chartHorasTrabajadas = new Chart(document.getElementById('chartHorasTrabajadas'), {
+                type: 'line',
+                data: {
+                    labels: datos.meses,
+                    datasets: [{
+                        label: 'Horas',
+                        data: datos.horas,
+                        borderColor: chartColors.green.border,
+                        backgroundColor: chartColors.green.bg,
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointBackgroundColor: chartColors.green.border,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 1.5
+                    }]
+                },
+                options: {
+                    ...baseOptions,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 50 } } }
+                }
+            });
+        }
+
+        // Crear selector de meses dinámicamente
+        function crearSelectorMeses(horasPorServicioPorMes) {
+            const selector = document.getElementById('selectMesServicio');
+            selector.innerHTML = '';
+
+            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+            // Obtener los meses disponibles (keys del diccionario)
+            const mesesDisponibles = Object.keys(horasPorServicioPorMes).map(Number).sort((a, b) => a - b);
+
+            mesesDisponibles.forEach(mes => {
+                const option = document.createElement('option');
+                option.value = mes;
+                option.textContent = meses[mes - 1];
+                selector.appendChild(option);
+            });
+
+            // Seleccionar el último mes por defecto
+            if (mesesDisponibles.length > 0) {
+                const ultimoMes = mesesDisponibles[mesesDisponibles.length - 1];
+                selector.value = ultimoMes;
+                crearGraficoHorasPorServicio(ultimoMes);
+            }
+
+            // Event listener para cambio de mes
+            selector.addEventListener('change', e => crearGraficoHorasPorServicio(parseInt(e.target.value)));
+        }
 
         // Gráfico 3: Horas por Servicio (Dona con selector de mes)
-        function crearGraficoServicios(mes) {
+        function crearGraficoHorasPorServicio(mes) {
             const datos = datosServiciosPorMes[mes];
+
+            if (!datos || !datos.servicios || datos.servicios.length === 0) {
+                // Si no hay datos, mostrar mensaje o gráfico vacío
+                if (chartServiciosInstance) chartServiciosInstance.destroy();
+                return;
+            }
+
             if (chartServiciosInstance) chartServiciosInstance.destroy();
+
+            const backgrounds = datos.servicios.map((_, i) => colorArray[i % colorArray.length].bg);
 
             chartServiciosInstance = new Chart(document.getElementById('chartDistribucionServicios'), {
                 type: 'doughnut',
                 data: {
-                    labels: datos.labels,
+                    labels: datos.servicios,
                     datasets: [{
                         label: 'Horas',
-                        data: datos.data,
-                        backgroundColor: [
-                            chartColors.blue.bg,
-                            chartColors.green.bg,
-                            chartColors.purple.bg,
-                            chartColors.orange.bg,
-                            chartColors.teal.bg,
-                            chartColors.pink.bg,
-                            chartColors.amber.bg
-                        ],
+                        data: datos.horas,
+                        backgroundColor: backgrounds,
                         borderWidth: 0
                     }]
                 },
@@ -242,90 +339,108 @@
             });
         }
 
-        crearGraficoServicios(11);
-        document.getElementById('selectMesServicio').addEventListener('change', e => crearGraficoServicios(parseInt(e.target.value)));
+        // Gráfico 4: Proyectos Activos vs Finalizados
+        function crearGraficoProyectosPorEstado(datos) {
+            if (chartProyectosEstado) chartProyectosEstado.destroy();
 
-        // Gráfico 4: Proyectos Activos vs Finalizados (Dona)
-        new Chart(document.getElementById('chartProyectosEstado'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Activos', 'Finalizados'],
-                datasets: [{
-                    label: 'Proyectos',
-                    data: [8, 15],
-                    backgroundColor: [chartColors.green.bg, chartColors.blue.bg],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                ...baseOptions,
-                plugins: {
-                    legend: doughnutLegend,
-                    tooltip: { callbacks: percentageTooltip(' proyectos') }
-                }
-            }
-        });
-
-        // Gráfico 5: Top 5 Clientes por Horas (Barras Horizontales)
-        new Chart(document.getElementById('chartTopClientes'), {
-            type: 'bar',
-            data: {
-                labels: ['Banco Nacional', 'Ministerio Hacienda', 'CCSS', 'ICE', 'RECOPE'],
-                datasets: [{
-                    label: 'Horas Totales',
-                    data: [245, 198, 176, 142, 118],
-                    backgroundColor: [chartColors.blue.bg, chartColors.green.bg, chartColors.purple.bg, chartColors.orange.bg, chartColors.teal.bg],
-                    borderColor: [chartColors.blue.border, chartColors.green.border, chartColors.purple.border, chartColors.orange.border, chartColors.teal.border],
-                    borderWidth: 1.5,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                ...baseOptions,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' horas trabajadas' } }
+            chartProyectosEstado = new Chart(document.getElementById('chartProyectosEstado'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Activos', 'Finalizados'],
+                    datasets: [{
+                        label: 'Proyectos',
+                        data: [datos.proyectosActivos, datos.proyectosFinalizados],
+                        backgroundColor: [chartColors.green.bg, chartColors.blue.bg],
+                        borderWidth: 0
+                    }]
                 },
-                scales: { x: { beginAtZero: true, ticks: { stepSize: 50 } } }
-            }
-        });
-
-        // Gráfico 6: Tasa de Utilización por Colaborador (Barras Horizontales con %)
-        new Chart(document.getElementById('chartUtilizacionColaboradores'), {
-            type: 'bar',
-            data: {
-                labels: ['Carlos Ramírez', 'María González', 'Juan Pérez', 'Ana Mora', 'Luis Castro'],
-                datasets: [{
-                    label: 'Tasa de Utilización (%)',
-                    data: [98, 95, 92, 88, 85],
-                    backgroundColor: ctx => {
-                        const val = ctx.parsed.x;
-                        return val >= 95 ? chartColors.green.bg : val >= 85 ? chartColors.orange.bg : chartColors.amber.bg;
-                    },
-                    borderColor: ctx => {
-                        const val = ctx.parsed.x;
-                        return val >= 95 ? chartColors.green.border : val >= 85 ? chartColors.orange.border : chartColors.amber.border;
-                    },
-                    borderWidth: 1.5,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                ...baseOptions,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => ctx.parsed.x + '% de utilización' } }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: { stepSize: 20, callback: val => val + '%' }
+                options: {
+                    ...baseOptions,
+                    plugins: {
+                        legend: doughnutLegend,
+                        tooltip: { callbacks: percentageTooltip(' proyectos') }
                     }
                 }
+            });
+        }
+
+        // Gráfico 5: Top 5 Clientes por Horas
+        function crearGraficoTopClientes(datos) {
+            if (chartTopClientes) chartTopClientes.destroy();
+
+            if (!datos.clientes || datos.clientes.length === 0) {
+                // Si no hay datos, no crear el gráfico
+                return;
             }
+
+            const backgrounds = datos.clientes.map((_, i) => colorArray[i % colorArray.length].bg);
+            const borders = datos.clientes.map((_, i) => colorArray[i % colorArray.length].border);
+
+            chartTopClientes = new Chart(document.getElementById('chartTopClientes'), {
+                type: 'bar',
+                data: {
+                    labels: datos.clientes,
+                    datasets: [{
+                        label: 'Horas Totales',
+                        data: datos.horas,
+                        backgroundColor: backgrounds,
+                        borderColor: borders,
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    ...baseOptions,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' horas trabajadas' } }
+                    },
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 50 } } }
+                }
+            });
+        }
+
+        // Gráfico 6: Top 5 Colaboradores por Horas
+        function crearGraficoTopColaboradores(datos) {
+            if (chartTopColaboradores) chartTopColaboradores.destroy();
+
+            if (!datos.colaboradores || datos.colaboradores.length === 0) {
+                // Si no hay datos, no crear el gráfico
+                return;
+            }
+
+            const backgrounds = datos.colaboradores.map((_, i) => colorArray[i % colorArray.length].bg);
+            const borders = datos.colaboradores.map((_, i) => colorArray[i % colorArray.length].border);
+
+            chartTopColaboradores = new Chart(document.getElementById('chartUtilizacionColaboradores'), {
+                type: 'bar',
+                data: {
+                    labels: datos.colaboradores,
+                    datasets: [{
+                        label: 'Horas Trabajadas',
+                        data: datos.horas,
+                        backgroundColor: backgrounds,
+                        borderColor: borders,
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    ...baseOptions,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' horas trabajadas' } }
+                    },
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 20 } } }
+                }
+            });
+        }
+
+        // Inicializar dashboard al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarDatosDashboard();
         });
     </script>
 }

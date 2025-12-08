@@ -20,12 +20,11 @@
 
                     <div class="table-responsive">
                         <table id="tablaProyectos" class="table table-hover table-sm text-nowrap">
-                            <thead>
+                            <thead class="text-dark">
                             <tr>
-                                <th>Proyecto</th>
-                                <th>Área</th>
-                                <th>Cliente</th>
-                                <th></th>
+                                <th style="width: 45%">Proyecto / Cliente</th>
+                                <th style="width: 40%">Área</th>
+                                <th style="width: 15%"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -33,22 +32,24 @@
                             @foreach (var item in Model.Proyectos)
                             {
                                 <tr>
-                                    <td>@item.Nombre</td>
+                                    <td>
+                                        <div>@item.Nombre</div>
+                                        <small class="text-muted">@item.Contrato.Cliente.Nombre</small>
+                                    </td>
                                     <td>@item.Area.Nombre</td>
-                                    <td>@item.Contrato.Cliente.Nombre</td>
                                     <td class="text-right">
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                            <a class="btn btn-sm btn-light text-primary" asp-controller="Clientes" asp-action="DetalleProyecto" asp-route-id="@item.Id">
+                                            <a class="btn btn-sm btn-outline-secondary font-weight-bold" asp-controller="Clientes" asp-action="DetalleProyecto" asp-route-id="@item.Id">
                                                 Detalle
                                             </a>
 
                                             @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
                                             {
-                                                <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarProyecto" asp-route-id="@item.Id">
-                                                    Modificar
+                                                <a class="btn btn-sm btn-outline-primary" asp-controller="Clientes" asp-action="EditarProyecto" asp-route-id="@item.Id">
+                                                    <i class="fa fa-edit"></i>
                                                 </a>
-                                                <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarProyecto" asp-route-id="@item.Id">
-                                                    Eliminar
+                                                <a class="btn btn-sm btn-outline-danger" asp-controller="Clientes" asp-action="EliminarProyecto" asp-route-id="@item.Id">
+                                                    <i class="fa fa-trash"></i>
                                                 </a>
                                             }
                                         </div>
@@ -70,6 +71,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('#tablaProyectos').DataTable({
+                "order": [[0, "asc"]],
                 "language": {
                     "url": "/dataTables_es-ES.json"
                 }

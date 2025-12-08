@@ -1,62 +1,449 @@
-﻿@model IEnumerable<TipoCliente>
-
 @{
     ViewData["Title"] = "Tipos de cliente";
     ViewBag.BreadcrumbIcon = "fa-building";
     ViewBag.Breadcrumbs = new[] { "Tipos de cliente" };
+    var canEdit = User.IsInRole("Administrador") || User.IsInRole("Coordinador");
 }
-
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                    {
-                        <a asp-action="AgregarTipoCliente" class="btn btn-sm btn-primary">Agregar tipo de cliente</a>
-                        <hr/>
-                    }
-
                     <div class="table-responsive">
-                        <table class="table table-hover table-sm text-nowrap">
-                            <thead>
-                            <tr>
-                                <th class="text-secondary">Nombre</th>
-                                <th class="text-secondary">Descripcion</th>
-                                <th class="text-secondary"></th>
-                            </tr>
+                        <table id="tablaTiposCliente" class="table table-sm table-hover">
+                            <thead class="text-dark">
+                                <tr>
+                                    <th style="width: 30%">Nombre</th>
+                                    <th style="width: 50%">Descripción</th>
+                                    <th style="width: 20%" class="text-right">Acciones</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td>@item.Nombre</td>
-                                    <td>@item.TruncatedDescripcion</td>
-                                    <td class="text-right">
-                                        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                            <a class="btn btn-sm btn-light text-primary" asp-controller="Clientes" asp-action="DetalleTipoCliente" asp-route-id="@item.Id">
-                                                Detalle
-                                            </a>
+                                @if (canEdit)
+                                {
+                                    <!-- Fila para agregar nuevo tipo de cliente -->
+                                    <tr id="row-add" class="table-active">
+                                        <td>
+                                            <input type="text"
+                                                   id="add-nombre"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Nombre del tipo de cliente..."
+                                                   maxlength="255" />
+                                            <small class="text-danger d-none" id="add-nombre-error"></small>
+                                        </td>
+                                        <td>
+                                            <input type="text"
+                                                   id="add-descripcion"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Descripción..."
+                                                   maxlength="2000" />
+                                            <small class="text-danger d-none" id="add-descripcion-error"></small>
+                                        </td>
+                                        <td class="text-right">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-success"
+                                                    id="btn-add-save">
+                                                <i class="fa fa-plus"></i> Agregar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
 
-                                            @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                                            {
-                                                <a class="btn btn-sm btn-light" asp-controller="Clientes" asp-action="EditarTipoCliente" asp-route-id="@item.Id">
-                                                    Modificar
-                                                </a>
-                                                <a class="btn btn-sm btn-light text-danger" asp-controller="Clientes" asp-action="EliminarTipoCliente" asp-route-id="@item.Id">
-                                                    Eliminar
-                                                </a>
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
+                                <!-- Las filas de datos se cargarán aquí via AJAX -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Loading indicator -->
+                    <div id="loading" class="text-center py-3 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="ModalEliminar" tabindex="-1" role="dialog" aria-labelledby="ModalEliminarTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h6 class="modal-title" id="ModalEliminarTitle">
+                    <i class="fa fa-fw fa-trash"></i>
+                    Eliminar tipo de cliente
+                </h6>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"><i class="fa fa-fw fa-window-close"></i></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6>¿Está seguro que desea eliminar el tipo de cliente <strong><span id="nombreEliminar"></span></strong>?</h6>
+                <p class="text-muted mt-3">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        // Variables globales
+        const canEdit = @canEdit.ToString().ToLower();
+        let tiposCliente = [];
+
+        // Al cargar la página
+        $(document).ready(function () {
+            cargarTiposCliente();
+        });
+
+        // Cargar tipos de cliente desde el servidor
+        function cargarTiposCliente() {
+            mostrarLoading(true);
+
+            $.ajax({
+                url: '@Url.Action("ObtenerTiposCliente")',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        tiposCliente = response.data;
+                        renderizarTiposCliente();
+                    } else {
+                        mostrarNotificacion('Error al cargar tipos de cliente', 'danger');
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al cargar tipos de cliente', 'danger');
+                },
+                complete: function () {
+                    mostrarLoading(false);
+                }
+            });
+        }
+
+        // Renderizar tipos de cliente en la tabla
+        function renderizarTiposCliente() {
+            const tbody = $('#tablaTiposCliente tbody');
+            const filaAdd = $('#row-add');
+
+            // Limpiar filas existentes (excepto la de agregar)
+            tbody.find('tr:not(#row-add)').remove();
+
+            // Agregar filas de datos
+            tiposCliente.forEach(function (tipoCliente) {
+                const row = crearFilaLectura(tipoCliente);
+                tbody.append(row);
+            });
+        }
+
+        // Crear fila en modo lectura
+        function crearFilaLectura(tipoCliente) {
+            const detalleBtn = `
+                <a href="@Url.Action("DetalleTipoCliente")?id=${tipoCliente.id}"
+                   class="btn btn-sm btn-outline-secondary font-weight-bold">
+                    Detalle
+                </a>
+            `;
+
+            const accionesEdit = canEdit ? `
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary btn-edit"
+                        data-id="${tipoCliente.id}">
+                    <i class="fa fa-edit"></i>
+                </button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger btn-delete"
+                        data-id="${tipoCliente.id}"
+                        data-nombre="${tipoCliente.nombre}">
+                    <i class="fa fa-trash"></i>
+                </button>
+            ` : '';
+
+            return $(`
+                <tr data-id="${tipoCliente.id}">
+                    <td class="nombre">${tipoCliente.nombre}</td>
+                    <td class="descripcion">${tipoCliente.truncatedDescripcion || tipoCliente.descripcion || ''}</td>
+                    <td class="text-right">
+                        <div class="btn-group btn-group-sm" role="group">
+                            ${detalleBtn}
+                            ${accionesEdit}
+                        </div>
+                    </td>
+                </tr>
+            `);
+        }
+
+        // Crear fila en modo edición
+        function crearFilaEdicion(tipoCliente) {
+            return $(`
+                <tr data-id="${tipoCliente.id}" class="table-warning">
+                    <td>
+                        <input type="text"
+                               class="form-control form-control-sm edit-nombre"
+                               value="${tipoCliente.nombre}"
+                               maxlength="255" />
+                        <small class="text-danger d-none edit-nombre-error"></small>
+                    </td>
+                    <td>
+                        <input type="text"
+                               class="form-control form-control-sm edit-descripcion"
+                               value="${tipoCliente.descripcion || ''}"
+                               maxlength="2000" />
+                        <small class="text-danger d-none edit-descripcion-error"></small>
+                    </td>
+                    <td class="text-right">
+                        <button type="button" class="btn btn-sm btn-success btn-save" data-id="${tipoCliente.id}">
+                            <i class="fa fa-save"></i> Guardar
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary btn-cancel" data-id="${tipoCliente.id}">
+                            <i class="fa fa-times"></i> Cancelar
+                        </button>
+                    </td>
+                </tr>
+            `);
+        }
+
+        // Event: Agregar nuevo tipo de cliente
+        $(document).on('click', '#btn-add-save', function () {
+            const nombre = $('#add-nombre').val().trim();
+            const descripcion = $('#add-descripcion').val().trim();
+
+            // Limpiar errores previos
+            limpiarErroresAgregar();
+
+            // Validaciones client-side
+            if (!nombre) {
+                mostrarErrorAgregar('nombre', 'El nombre es requerido');
+                return;
+            }
+            if (nombre.length > 255) {
+                mostrarErrorAgregar('nombre', 'El nombre debe tener máximo 255 caracteres.');
+                return;
+            }
+            if (!descripcion) {
+                mostrarErrorAgregar('descripcion', 'La descripción es requerida');
+                return;
+            }
+            if (descripcion.length > 2000) {
+                mostrarErrorAgregar('descripcion', 'La descripción debe tener máximo 2000 caracteres.');
+                return;
+            }
+
+            // Enviar al servidor
+            const data = { nombre, descripcion };
+
+            $.ajax({
+                url: '@Url.Action("AgregarTipoClienteJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        // Agregar al array local
+                        tiposCliente.push(response.data);
+
+                        // Agregar fila a la tabla
+                        const nuevaFila = crearFilaLectura(response.data);
+                        $('#tablaTiposCliente tbody').append(nuevaFila);
+
+                        // Limpiar inputs
+                        $('#add-nombre').val('');
+                        $('#add-descripcion').val('');
+
+                        // Mostrar notificación
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        // Mostrar errores del servidor
+                        if (response.errors && response.errors.length > 0) {
+                            response.errors.forEach(error => {
+                                if (error.includes('nombre')) {
+                                    mostrarErrorAgregar('nombre', error);
+                                } else if (error.includes('descripción') || error.includes('descripcion')) {
+                                    mostrarErrorAgregar('descripcion', error);
+                                } else {
+                                    mostrarNotificacion(error, 'danger');
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al agregar tipo de cliente', 'danger');
+                }
+            });
+        });
+
+        // Event: Click en Editar
+        $(document).on('click', '.btn-edit', function () {
+            const id = $(this).data('id');
+            const tipoCliente = tiposCliente.find(tc => tc.id === id);
+
+            if (!tipoCliente) return;
+
+            // Reemplazar fila con modo edición
+            const row = $(`tr[data-id="${id}"]`);
+            const editRow = crearFilaEdicion(tipoCliente);
+            row.replaceWith(editRow);
+        });
+
+        // Event: Click en Cancelar edición
+        $(document).on('click', '.btn-cancel', function () {
+            const id = $(this).data('id');
+            const tipoCliente = tiposCliente.find(tc => tc.id === id);
+
+            if (!tipoCliente) return;
+
+            // Reemplazar fila con modo lectura
+            const row = $(`tr[data-id="${id}"]`);
+            const readRow = crearFilaLectura(tipoCliente);
+            row.replaceWith(readRow);
+        });
+
+        // Event: Click en Guardar edición
+        $(document).on('click', '.btn-save', function () {
+            const id = $(this).data('id');
+            const row = $(`tr[data-id="${id}"]`);
+
+            const nombre = row.find('.edit-nombre').val().trim();
+            const descripcion = row.find('.edit-descripcion').val().trim();
+
+            // Limpiar errores previos
+            row.find('.edit-nombre-error').addClass('d-none').text('');
+            row.find('.edit-descripcion-error').addClass('d-none').text('');
+
+            // Validaciones client-side
+            if (!nombre) {
+                row.find('.edit-nombre-error').removeClass('d-none').text('El nombre es requerido');
+                return;
+            }
+            if (nombre.length > 255) {
+                row.find('.edit-nombre-error').removeClass('d-none').text('El nombre debe tener máximo 255 caracteres.');
+                return;
+            }
+            if (!descripcion) {
+                row.find('.edit-descripcion-error').removeClass('d-none').text('La descripción es requerida');
+                return;
+            }
+            if (descripcion.length > 2000) {
+                row.find('.edit-descripcion-error').removeClass('d-none').text('La descripción debe tener máximo 2000 caracteres.');
+                return;
+            }
+
+            // Enviar al servidor
+            const data = { id, nombre, descripcion };
+
+            $.ajax({
+                url: '@Url.Action("EditarTipoClienteJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        // Actualizar en el array local
+                        const index = tiposCliente.findIndex(tc => tc.id === id);
+                        if (index !== -1) {
+                            tiposCliente[index] = response.data;
+                        }
+
+                        // Reemplazar con fila de lectura
+                        const readRow = crearFilaLectura(response.data);
+                        row.replaceWith(readRow);
+
+                        // Mostrar notificación
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        // Mostrar errores del servidor
+                        if (response.errors && response.errors.length > 0) {
+                            response.errors.forEach(error => {
+                                if (error.includes('nombre')) {
+                                    row.find('.edit-nombre-error').removeClass('d-none').text(error);
+                                } else if (error.includes('descripción') || error.includes('descripcion')) {
+                                    row.find('.edit-descripcion-error').removeClass('d-none').text(error);
+                                } else {
+                                    mostrarNotificacion(error, 'danger');
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al actualizar tipo de cliente', 'danger');
+                }
+            });
+        });
+
+        // Event: Click en Eliminar - Abrir modal
+        $(document).on('click', '.btn-delete', function () {
+            const id = $(this).data('id');
+            const nombre = $(this).data('nombre');
+
+            $('#nombreEliminar').text(nombre);
+            $('#btnConfirmarEliminar').data('id', id);
+            $('#ModalEliminar').modal('show');
+        });
+
+        // Event: Confirmar eliminación desde modal
+        $('#btnConfirmarEliminar').on('click', function () {
+            const id = $(this).data('id');
+            const data = { id };
+
+            $.ajax({
+                url: '@Url.Action("EliminarTipoClienteJson")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        $('#ModalEliminar').modal('hide');
+
+                        tiposCliente = tiposCliente.filter(tc => tc.id !== id);
+
+                        const row = $(`tr[data-id="${id}"]`);
+                        row.fadeOut(300, function () {
+                            $(this).remove();
+                        });
+
+                        mostrarNotificacion(response.message, 'success');
+                    } else {
+                        if (response.errors && response.errors.length > 0) {
+                            mostrarNotificacion(response.errors.join(', '), 'danger');
+                        }
+                    }
+                },
+                error: function () {
+                    mostrarNotificacion('Error de conexión al eliminar tipo de cliente', 'danger');
+                }
+            });
+        });
+
+        // Funciones auxiliares
+        function mostrarLoading(show) {
+            if (show) {
+                $('#loading').removeClass('d-none');
+                $('#tablaTiposCliente').addClass('d-none');
+            } else {
+                $('#loading').addClass('d-none');
+                $('#tablaTiposCliente').removeClass('d-none');
+            }
+        }
+
+        function limpiarErroresAgregar() {
+            $('#add-nombre-error').addClass('d-none').text('');
+            $('#add-descripcion-error').addClass('d-none').text('');
+        }
+
+        function mostrarErrorAgregar(campo, mensaje) {
+            $(`#add-${campo}-error`).removeClass('d-none').text(mensaje);
+        }
+    </script>
+}

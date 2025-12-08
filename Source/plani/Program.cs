@@ -68,6 +68,9 @@ class Program
 
         // Managers
         builder.Services.AddScoped<AreasManager>();
+        builder.Services.AddScoped<ModalidadesManager>();
+        builder.Services.AddScoped<ServiciosManager>();
+        builder.Services.AddScoped<DashboardManager>();
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 

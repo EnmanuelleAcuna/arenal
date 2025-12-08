@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using plani.Identity;
+using plani.Models;
 
 namespace plani.Controllers;
 
@@ -9,17 +10,20 @@ public class HomeController : BaseController
 {
 	private readonly ApplicationUserManager _userManager;
 	private readonly ILogger<HomeController> _logger;
+	private readonly DashboardManager _dashboardManager;
 
 	public HomeController(ApplicationUserManager userManager,
 		ApplicationRoleManager roleManager,
 		IConfiguration configuration,
 		IHttpContextAccessor contextAccesor,
 		ILogger<HomeController> logger,
-		IWebHostEnvironment environment)
+		IWebHostEnvironment environment,
+		DashboardManager dashboardManager)
 		: base(userManager, roleManager, configuration, contextAccesor, environment)
 	{
 		_userManager = userManager;
 		_logger = logger;
+		_dashboardManager = dashboardManager;
 	}
 
 	public IActionResult Privacidad()
@@ -36,5 +40,21 @@ public class HomeController : BaseController
 		ViewBag.NombreUsuario = string.Format("{0} {1} {2}", usuarioConectado.Name, usuarioConectado.FirstLastName,
 			usuarioConectado.SecondLastName);
 		return View();
+	}
+
+	[HttpGet]
+	[Authorize]
+	public async Task<IActionResult> ObtenerDatosDashboard()
+	{
+		try
+		{
+			var datos = await _dashboardManager.ObtenerDatosDashboardAsync();
+			return Json(datos);
+		}
+		catch (Exception ex)
+		{
+			_logger.LogError(ex, "Error al obtener datos del dashboard");
+			return StatusCode(500, new { error = "Error al cargar los datos del dashboard" });
+		}
 	}
 }

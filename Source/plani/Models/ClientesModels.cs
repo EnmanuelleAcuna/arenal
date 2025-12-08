@@ -417,6 +417,8 @@ public class Sesion : Base
 
     public DateTime? FechaFin { get; set; }
 
+    public DateTime? FechaReinicio { get; set; }
+
     [DisplayName("Horas")] public int Horas { get; set; }
 
     [DisplayName("Minutos")] public int Minutes { get; set; }
