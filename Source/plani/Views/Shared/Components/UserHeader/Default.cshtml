@@ -6,10 +6,8 @@
         <div class="user-menu">
             <div class="user-avatar">@Model.UserInitials</div>
             <div>
-                <div style="font-size: 0.875rem; font-weight: 500;">@Model.UserName</div>
-                <div style="font-size: 0.75rem; opacity: 0.8;">
-                    @Model.DisplayRole
-                </div>
+                <div class="user-name">@Model.UserName</div>
+                <div class="user-role">@Model.DisplayRole</div>
             </div>
         </div>
         <form asp-controller="Cuentas"
