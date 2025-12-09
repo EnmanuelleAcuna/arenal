@@ -23,12 +23,6 @@
         @foreach (var navSection in Model.Sections)
         {
             <div class="nav-section">
-                @* Título de la sección si tiene *@
-                @if (!string.IsNullOrEmpty(navSection.Title))
-                {
-                    <div class="nav-section-title">@navSection.Title</div>
-                }
-
                 <div class="nav-item">
                     @if (!navSection.HasSubmenu && navSection.DirectLink != null)
                     {
