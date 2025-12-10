@@ -21,8 +21,15 @@ public class SesionesIndexViewModel
 {
     public List<ProyectoSesionesViewModel> ProyectosSesiones { get; set; }
     public List<Sesion> SesionesActivas { get; set; }
-    public int TotalSesiones => ProyectosSesiones?.Sum(p => p.CantidadSesiones) ?? 0;
-    public double TotalHoras => ProyectosSesiones?.Sum(p => p.TotalHoras) ?? 0;
+
+    /// <summary>
+    /// Lista plana de todas las sesiones ordenadas por fecha (para vista de tabla)
+    /// </summary>
+    public List<Sesion> Sesiones { get; set; }
+
+    public int TotalSesiones => Sesiones?.Count ?? ProyectosSesiones?.Sum(p => p.CantidadSesiones) ?? 0;
+    public double TotalHoras => Sesiones?.Sum(s => s.Horas + s.Minutes / 60.0) ?? ProyectosSesiones?.Sum(p => p.TotalHoras) ?? 0;
+    public double TotalMinutos => Sesiones?.Sum(s => s.Minutes) ?? ProyectosSesiones?.Sum(p => p.TotalMinutos) ?? 0;
 
     [DisplayName("Colaborador")]
     public string IdUsuario { get; set; }

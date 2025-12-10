@@ -1,11 +1,10 @@
-﻿@model plani.Models.SesionesIndexViewModel
+﻿@model SesionesIndexViewModel
 
 @{
     ViewData["Title"] = "Sesiones";
     ViewBag.BreadcrumbIcon = "fa-clock";
     ViewBag.Breadcrumbs = new[] { "Todas las sesiones" };
 }
-
 
 <div class="container-fluid">
     <div class="row">
@@ -34,14 +33,14 @@
                             <div class="col-sm-12 col-md-3 col-lg-2">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.FechaInicio, "Inicio")
-                                    @Html.TextBoxFor(model => model.FechaInicio, new { @class = "form-control form-control-sm", type = "date" })
+                                    @Html.TextBoxFor(model => model.FechaInicio, "{0:yyyy-MM-dd}", new { @class = "form-control form-control-sm", type = "date" })
                                 </div>
                             </div>
 
                             <div class="col-sm-12 col-md-3 col-lg-2">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.FechaFin, "Fin")
-                                    @Html.TextBoxFor(model => model.FechaFin, new { @class = "form-control form-control-sm", type = "date" })
+                                    @Html.TextBoxFor(model => model.FechaFin, "{0:yyyy-MM-dd}", new { @class = "form-control form-control-sm", type = "date" })
                                 </div>
                             </div>
 
@@ -57,10 +56,33 @@
 
                     <hr/>
 
-                    @if (Model.ProyectosSesiones.Count == 0)
+                    @* Badge con resumen de sesiones *@
+                    @{
+                        var totalSesiones = Model.TotalSesiones;
+                        var horasTotalesCalculadas = Model.TotalHoras;
+                        var mesActual = Model.FechaInicio?.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES"));
+                    }
+
+                    @if (totalSesiones > 0)
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Mostrando:</strong>
+                            @if (!string.IsNullOrEmpty(mesActual))
+                            {
+                                <span>@mesActual</span>
+                                <span class="mx-2">|</span>
+                            }
+                            <span>@totalSesiones sesiones</span>
+                            <span class="mx-2">|</span>
+                            <span>@horasTotalesCalculadas.ToString("F1") horas trabajadas</span>
+                        </div>
+                    }
+
+                    @if (Model.Sesiones == null || Model.Sesiones.Count == 0)
                     {
                         <div class="alert alert-warning" role="alert">
-                            No hay asignaciones registradas.
+                            No hay sesiones registradas.
                         </div>
                     }
 
@@ -94,15 +116,15 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach (var proyecto in Model.ProyectosSesiones)
+                            @if (Model.Sesiones != null)
                             {
-                                @foreach (var sesion in proyecto.Sesiones)
+                                @foreach (var sesion in Model.Sesiones)
                                 {
                                     <tr>
                                         <td>@sesion.FechaInicio.ToString("dd-MM-yyyy")</td>
                                         <td>@sesion.ApplicationUser.FullName</td>
-                                        <td>@proyecto.NombreCliente</td>
-                                        <td>@proyecto.NombreProyecto</td>
+                                        <td>@sesion.Proyecto.Contrato.Cliente.Nombre</td>
+                                        <td>@sesion.Proyecto.Nombre</td>
                                         <td>@sesion.Horas</td>
                                         <td>@sesion.Minutes</td>
                                         <td>@sesion.Descripcion</td>
@@ -131,7 +153,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('#tablaSesiones').DataTable({
-                "order": false,
+                "order": [[0, 'desc']],
                 "language": {
                     "url": "/dataTables_es-ES.json"
                 },
@@ -139,11 +161,6 @@
                 buttons: [
                     'excelHtml5'
                 ]
-                /*layout: {
-                    topStart: {
-                        buttons: ['excel']
-                    }
-                }*/
             });
         });
     </script>
