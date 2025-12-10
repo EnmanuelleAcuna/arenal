@@ -891,6 +891,11 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> Sesiones()
     {
+        // Calcular primer y último día del mes actual
+        var hoy = DateTime.UtcNow.Date;
+        var primerDiaMes = new DateTime(hoy.Year, hoy.Month, 1);
+        var ultimoDiaMes = primerDiaMes.AddMonths(1).AddDays(-1).AddHours(23).AddMinutes(59).AddSeconds(59);
+
         var colaboradores = _dbContext.Usuarios.OrderBy(u => u.Name).ToList();
         ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
 
@@ -900,9 +905,10 @@ public class ClientesController : BaseController
         ViewBag.Proyectos = proyectos.Select(c =>
             new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
 
+        // Filtrar por mes actual por defecto
         var sesiones = await _dbContext.Sesiones
-            .Where(s => s.FechaInicio >= DateTime.UtcNow.AddDays(-10))
-            .OrderByDescending(s => s.DateCreated)
+            .Where(s => s.FechaInicio >= primerDiaMes && s.FechaInicio <= ultimoDiaMes)
+            .OrderByDescending(s => s.FechaInicio)
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -911,17 +917,10 @@ public class ClientesController : BaseController
 
         var viewModel = new SesionesIndexViewModel
         {
-            ProyectosSesiones = sesiones
-                .GroupBy(a => a.IdProyecto)
-                .Select(group => new ProyectoSesionesViewModel()
-                {
-                    IdProyecto = group.Key,
-                    NombreProyecto = group.First().Proyecto.Nombre,
-                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
-                    Sesiones = group.ToList()
-                })
-                //.OrderBy(p => p.NombreProyecto)
-                .ToList()
+            // Pre-llenar fechas para que el usuario vea qué período está viendo
+            FechaInicio = primerDiaMes,
+            FechaFin = primerDiaMes.AddMonths(1).AddDays(-1),
+            Sesiones = sesiones
         };
 
         return View(viewModel);
@@ -952,7 +951,7 @@ public class ClientesController : BaseController
                         (model.FechaFin == null || s.FechaFin <= model.FechaFin) &&
                         (model.IdUsuario == null || s.IdColaborador == model.IdUsuario) &&
                         (model.IdProyecto == null || s.IdProyecto.ToString() == model.IdProyecto))
-            .OrderByDescending(s => s.DateCreated)
+            .OrderByDescending(s => s.FechaInicio)
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
@@ -963,17 +962,9 @@ public class ClientesController : BaseController
         var viewModel = new SesionesIndexViewModel
         {
             IdUsuario = model.IdUsuario,
-            ProyectosSesiones = sesiones
-                .GroupBy(a => a.IdProyecto)
-                .Select(group => new ProyectoSesionesViewModel()
-                {
-                    IdProyecto = group.Key,
-                    NombreProyecto = group.First().Proyecto.Nombre,
-                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
-                    Sesiones = group.ToList()
-                })
-                //.OrderBy(p => p.NombreProyecto)
-                .ToList()
+            FechaInicio = model.FechaInicio,
+            FechaFin = model.FechaFin,
+            Sesiones = sesiones
         };
 
         return View(viewModel);
