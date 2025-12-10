@@ -691,3 +691,12 @@ table.dataTable.table-sm .sorting_desc:after {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* ==========================================================================
+   18. VALIDATION SUMMARY STYLES
+   ========================================================================== */
+.validation-summary-errors ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}

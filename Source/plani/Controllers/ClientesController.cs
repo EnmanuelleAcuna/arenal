@@ -775,6 +775,31 @@ public class ClientesController : BaseController
             return View(model);
         }
 
+        // Validar que no exista una asignación activa para este proyecto y colaborador
+        // Nota: El QueryFilter automáticamente filtra IsDeleted = false
+        var asignacionExistente = await _dbContext.Asignaciones
+            .Include(a => a.Proyecto)
+                .ThenInclude(p => p.Contrato)
+                .ThenInclude(c => c.Cliente)
+            .FirstOrDefaultAsync(a =>
+                a.IdProyecto == model.IdProyecto &&
+                a.IdColaborador == model.IdUsuario.ToString());
+
+        if (asignacionExistente != null)
+        {
+            ModelState.AddModelError("",
+                $"El colaborador ya está asignado al proyecto '{asignacionExistente.Proyecto.Nombre}' " +
+                $"del cliente '{asignacionExistente.Proyecto.Contrato.Cliente.Nombre}'. " +
+                $"No se pueden crear asignaciones duplicadas.");
+
+            IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos.Include(c => c.Contrato)
+                .ThenInclude(c => c.Cliente).ToListAsync();
+            ViewBag.Proyectos = proyectos.Select(c =>
+                new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
+
+            return View(model);
+        }
+
         Asignacion asignacion = new Asignacion()
         {
             IdColaborador = model.IdUsuario.ToString(),
