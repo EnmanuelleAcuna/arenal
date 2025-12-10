@@ -143,6 +143,11 @@ CREATE TABLE Asignaciones(
     IsDeleted BIT NULL
 );
 
+-- Constraint UNIQUE: Prevenir asignaciones duplicadas (mismo proyecto + colaborador activo)
+CREATE UNIQUE NONCLUSTERED INDEX UQ_Asignaciones_Proyecto_Colaborador
+ON Asignaciones (IdProyecto, IdColaborador)
+WHERE IsDeleted = 0;
+
 SELECT * FROM Asignaciones;
 
 CREATE TABLE Sesiones(

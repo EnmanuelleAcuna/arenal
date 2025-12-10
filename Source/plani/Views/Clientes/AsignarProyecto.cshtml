@@ -16,11 +16,20 @@
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.IdUsuario)
 
-                        <div class="row">
-                            <div class="col-md-12">
-                                @Html.ValidationSummary(true, "")
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <h5 class="alert-heading">
+                                    <i class="fas fa-exclamation-triangle"></i> Error
+                                </h5>
+                                <div class="validation-summary-errors mb-0">
+                                    @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+                                </div>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                        </div>
+                        }
                         
                         <div class="row">
                             <div class="col-md-12">
