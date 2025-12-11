@@ -29,7 +29,7 @@ public class ServiciosController : BaseController
         IHttpContextAccessor contextAccesor,
         ILogger<ServiciosController> logger,
         IWebHostEnvironment environment)
-        : base(userManager, roleManager, configuration, contextAccesor, environment)
+        : base(userManager, roleManager, configuration, contextAccesor, environment, dbContext)
     {
         _dbContext = dbContext;
         _areasManager = areasManager;

@@ -32,7 +32,7 @@ public class CuentasController : BaseController
         ILogger<CuentasController> logger,
         IWebHostEnvironment environment,
         ApplicationDbContext dbContext)
-        : base(userManager, roleManager, configuration, contextAccesor, environment)
+        : base(userManager, roleManager, configuration, contextAccesor, environment, dbContext)
     {
         _userManager = userManager;
         _roleManager = roleManager;

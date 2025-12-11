@@ -71,6 +71,7 @@ class Program
         builder.Services.AddScoped<ModalidadesManager>();
         builder.Services.AddScoped<ServiciosManager>();
         builder.Services.AddScoped<DashboardManager>();
+        builder.Services.AddScoped<SesionesManager>();
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 

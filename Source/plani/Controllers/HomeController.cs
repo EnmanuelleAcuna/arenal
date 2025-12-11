@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using plani.Identity;
 using plani.Models;
+using plani.Models.Data;
 
 namespace plani.Controllers;
 
@@ -18,8 +19,9 @@ public class HomeController : BaseController
 		IHttpContextAccessor contextAccesor,
 		ILogger<HomeController> logger,
 		IWebHostEnvironment environment,
-		DashboardManager dashboardManager)
-		: base(userManager, roleManager, configuration, contextAccesor, environment)
+		DashboardManager dashboardManager,
+		ApplicationDbContext dbContext)
+		: base(userManager, roleManager, configuration, contextAccesor, environment, dbContext)
 	{
 		_userManager = userManager;
 		_logger = logger;
