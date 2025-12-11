@@ -22,10 +22,10 @@
                         <table id="tablaClientes" class="table table-hover table-sm text-nowrap">
                             <thead class="text-dark">
                             <tr>
-                                <th style="width: 30%">Nombre / Identificación</th>
-                                <th style="width: 30%">Tipo / Dirección</th>
-                                <th style="width: 25%">Descripción</th>
-                                <th style="width: 15%"></th>
+                                <th class="col-w-30">Nombre / Identificación</th>
+                                <th class="col-w-30">Tipo / Dirección</th>
+                                <th class="col-w-25">Descripción</th>
+                                <th class="col-w-15"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -72,8 +72,8 @@
 </div>
 
 @section Scripts {
-    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js" asp-append-version="true"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js" asp-append-version="true"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $('#tablaClientes').DataTable({

@@ -13,7 +13,7 @@
         <form asp-controller="Cuentas"
               asp-action="CerrarSesion"
               asp-route-returnUrl="@Url.Action("Administracion", "Home")"
-              style="margin: 0;">
+              class="m-0">
             <button type="submit" class="btn-logout">
                 <i class="fas fa-sign-out-alt"></i> Salir
             </button>
@@ -21,10 +21,9 @@
     }
     else
     {
-        <a class="btn-logout"
+        <a class="btn-logout text-decoration-none"
            asp-controller="Cuentas"
-           asp-action="IniciarSesion"
-           style="text-decoration: none;">
+           asp-action="IniciarSesion">
             <i class="fas fa-sign-in-alt"></i> Iniciar sesión
         </a>
     }

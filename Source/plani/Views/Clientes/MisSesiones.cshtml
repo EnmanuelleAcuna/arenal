@@ -72,10 +72,8 @@
 
                     <h6>Mis ultimas sesiones</h6>
 
-                    @using (Html.BeginForm("MisSesiones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
+                    @using (Html.BeginForm("MisSesiones", "Clientes", FormMethod.Get, new { autocomplete = "off" }))
                     {
-                        @Html.AntiForgeryToken()
-
                         <div class="row mb-4">
                             <div class="col-sm-12 col-md-6 col-lg-8">
                                 <div class="form-group">
@@ -105,35 +103,35 @@
                         </div>
                     }
 
-                    @if (Model.ProyectosSesiones.Count == 0)
+                    @if (Model.Sesiones == null || Model.Sesiones.Count == 0)
                     {
                         <div class="alert alert-warning" role="alert">
                             No hay sesiones registradas.
                         </div>
                     }
-
-                    @foreach (var proyecto in Model.ProyectosSesiones)
+                    else
                     {
                         <div class="card mb-4">
-                            <div class="card-header">
-                                <h6><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto</h6>
-                            </div>
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table">
                                         <thead>
                                         <tr>
-                                            <th>Sesión</th>
+                                            <th>Fecha</th>
+                                            <th>Cliente</th>
+                                            <th>Proyecto</th>
                                             <th>Horas</th>
-                                            <th>Minutos</th>
+                                            <th>Min</th>
                                             <th></th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach (var sesion in proyecto.Sesiones)
+                                        @foreach (var sesion in Model.Sesiones)
                                         {
                                             <tr>
-                                                <td title="@sesion.Descripcion">@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</td>
+                                                <td>@sesion.FechaInicio.ToString("dd-MM-yyyy")</td>
+                                                <td>@sesion.Proyecto.Contrato.Cliente.Nombre</td>
+                                                <td title="@sesion.Descripcion">@sesion.Proyecto.Nombre</td>
                                                 <td>@sesion.Horas</td>
                                                 <td>@sesion.Minutes</td>
                                                 <td>

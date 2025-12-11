@@ -53,15 +53,13 @@
 </div>
 
 @section Scripts {
-    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
-    @* <script src="~/js/dataTables.responsive.min.js"></script>
-    <script src="~/js/responsive.bootstrap4.min.js"></script> *@
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js" asp-append-version="true"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap4.min.js" asp-append-version="true"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $('#tablaUsuarios').DataTable({
                 "lengthChange": false,
-                @* "responsive": true, *@
                 "language": {
                     "url": "/dataTables_es-ES.json"
                 }

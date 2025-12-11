@@ -11,13 +11,13 @@
 
 	<title>@ViewData["Title"] - Seguimientos Sandí Consultores</title>
 
-	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-	<link rel="stylesheet" href="~/css/site.css"/>
-	<link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css"/>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true"/>
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+	<link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" asp-append-version="true"/>
 
 	@await RenderSectionAsync("Styles", required: false)
 
-	<link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap4.min.css"/>
+	<link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap4.min.css" asp-append-version="true"/>
 	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 </head>
 
@@ -26,7 +26,7 @@
 @await Component.InvokeAsync("NavigationSidebar")
 @await Component.InvokeAsync("Topbar")
 
-<div aria-live="polite" aria-atomic="true" style="position: fixed; top: 70px; right: 20px; z-index: 9999;">
+<div aria-live="polite" aria-atomic="true" class="toast-container-fixed">
 	<div id="toastContainer"></div>
 </div>
 
@@ -36,8 +36,8 @@
 
 <partial name="_FooterPartial"/>
 
-<script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+<script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
 <script type="text/javascript" src="~/js/site.js" asp-append-version="true"></script>
 
 <script>

@@ -37,7 +37,9 @@
                             <div class="col-sm-12 col-md-4">
                                 <span class="d-block d-sm-none d-md-block"><label>&nbsp;</label></span>
                                 <input value="Filtrar" class="btn btn-sm btn-primary" type="submit"/>
-                                @* @Html.ActionLink("Exportar", "Construccion", null, null, new { @class = "btn btn-sm btn-secondary" }) *@
+                                <a href="@Url.Action("ExportarAsignaciones", "Clientes", new { idUsuario = Model.IdUsuario, idProyecto = Model.IdProyecto })" class="btn btn-sm btn-success">
+                                    <i class="fas fa-file-excel"></i> Exportar
+                                </a>
                             </div>
                         </div>
                     }
