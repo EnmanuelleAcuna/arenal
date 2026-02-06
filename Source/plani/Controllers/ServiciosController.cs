@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models;
+using plani.Models.Domain;
+using plani.Models.Managers;
 using plani.Models.Data;
 using plani.Models.ViewModels;
 
@@ -49,7 +51,7 @@ public class ServiciosController : BaseController
     [HttpGet]
     public async Task<IActionResult> DetalleArea(Guid id)
     {
-        Area model = await _dbContext.Areas
+        Area area = await _dbContext.Areas
             .AsNoTracking()
             .Include(a => a.Servicios)
             .Include(a => a.Contratos)
@@ -59,9 +61,9 @@ public class ServiciosController : BaseController
             .ThenInclude(p => p.Cliente)
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (model == null) return NotFound();
+        if (area == null) return NotFound();
 
-        return View(model);
+        return View(new DetalleAreaViewModel(area));
     }
 
     // JSON endpoints for inline editing
@@ -145,13 +147,13 @@ public class ServiciosController : BaseController
     [HttpGet]
     public async Task<IActionResult> DetalleModalidad(Guid id)
     {
-        Modalidad model = await _dbContext.Modalidades
+        Modalidad modalidad = await _dbContext.Modalidades
             .Include(a => a.Servicios)
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (model == null) return NotFound();
+        if (modalidad == null) return NotFound();
 
-        return View(model);
+        return View(new DetalleModalidadViewModel(modalidad));
     }
 
     // JSON endpoints for inline editing

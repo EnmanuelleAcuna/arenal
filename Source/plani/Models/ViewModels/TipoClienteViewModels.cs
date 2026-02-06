@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
+using plani.Models.Domain;
+
 namespace plani.Models.ViewModels;
 
 /// <summary>
@@ -99,4 +101,23 @@ public class EliminarTipoClienteRequest
 {
     [Required]
     public string Id { get; set; }
+}
+
+/// <summary>
+/// ViewModel para detalle de tipo de cliente
+/// </summary>
+public class DetalleTipoClienteViewModel
+{
+    public DetalleTipoClienteViewModel(TipoCliente tipoCliente)
+    {
+        Id = tipoCliente.Id;
+        Nombre = tipoCliente.Nombre;
+        Descripcion = tipoCliente.Descripcion;
+        Clientes = tipoCliente.Clientes;
+    }
+
+    public Guid Id { get; set; }
+    public string Nombre { get; set; }
+    public string Descripcion { get; set; }
+    public IEnumerable<Cliente> Clientes { get; set; }
 }

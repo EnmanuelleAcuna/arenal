@@ -1,4 +1,4 @@
-﻿@model plani.Models.SesionesIndexViewModel
+﻿@model SesionesIndexViewModel
 
 @{
     ViewData["Title"] = "Mis sesiones";
@@ -78,7 +78,7 @@
                             <div class="col-sm-12 col-md-6 col-lg-8">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.IdProyecto)
-                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Todos", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "", new { @class = "form-control form-control-sm", id = "proyecto-select" })
                                 </div>
                             </div>
 
@@ -255,3 +255,11 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            initSelect2('#proyecto-select', 'Todos los proyectos');
+        });
+    </script>
+}

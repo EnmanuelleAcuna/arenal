@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using plani.Models.Data;
 using plani.Models.ViewModels;
 
-namespace plani.Models;
+using plani.Models.Domain;
+
+namespace plani.Models.Managers;
 
 /// <summary>
 /// Manager para la lógica de negocio de Servicios
@@ -35,6 +38,17 @@ public class ServiciosManager
     }
 
     /// <summary>
+    /// Obtiene servicios para dropdown
+    /// </summary>
+    public async Task<IEnumerable<SelectListItem>> ObtenerParaDropdownAsync()
+    {
+        return await _dbContext.Servicios
+            .OrderBy(s => s.Nombre)
+            .Select(s => new SelectListItem(s.Nombre, s.Id.ToString()))
+            .ToListAsync();
+    }
+
+    /// <summary>
     /// Obtiene un servicio por ID
     /// </summary>
     public async Task<Servicio> ObtenerPorIdAsync(Guid id)
@@ -50,7 +64,6 @@ public class ServiciosManager
     /// </summary>
     public async Task<ServicioDetalleViewModel> ObtenerDetallePorIdAsync(Guid id)
     {
-        // Obtener el servicio
         var servicio = await _dbContext.Servicios
             .Include(s => s.Area)
             .Include(s => s.Modalidad)
@@ -80,7 +93,6 @@ public class ServiciosManager
             .OrderBy(p => p.Nombre)
             .ToList();
 
-        // Construir el ViewModel
         var viewModel = new ServicioDetalleViewModel
         {
             Id = servicio.Id,
@@ -109,14 +121,12 @@ public class ServiciosManager
     {
         try
         {
-            // Verificar que el área exista
             var area = await _dbContext.Areas.FindAsync(Guid.Parse(viewModel.IdArea));
             if (area == null || area.IsDeleted)
             {
                 return (false, null, "El área seleccionada no existe o fue eliminada");
             }
 
-            // Verificar que la modalidad exista
             var modalidad = await _dbContext.Modalidades.FindAsync(Guid.Parse(viewModel.IdModalidad));
             if (modalidad == null || modalidad.IsDeleted)
             {
@@ -131,7 +141,6 @@ public class ServiciosManager
 
             if (changes > 0)
             {
-                // Recargar con relaciones
                 servicio = await ObtenerPorIdAsync(servicio.Id);
                 var result = new ServicioListViewModel(servicio);
                 return (true, result, null);
@@ -167,14 +176,12 @@ public class ServiciosManager
                 return (false, null, "El servicio ha sido eliminado y no puede ser modificado");
             }
 
-            // Verificar que el área exista
             var area = await _dbContext.Areas.FindAsync(Guid.Parse(viewModel.IdArea));
             if (area == null || area.IsDeleted)
             {
                 return (false, null, "El área seleccionada no existe o fue eliminada");
             }
 
-            // Verificar que la modalidad exista
             var modalidad = await _dbContext.Modalidades.FindAsync(Guid.Parse(viewModel.IdModalidad));
             if (modalidad == null || modalidad.IsDeleted)
             {
@@ -189,7 +196,6 @@ public class ServiciosManager
 
             if (changes > 0)
             {
-                // Recargar con relaciones
                 servicio = await ObtenerPorIdAsync(servicio.Id);
                 var result = new ServicioListViewModel(servicio);
                 return (true, result, null);
@@ -222,9 +228,6 @@ public class ServiciosManager
             {
                 return (false, "El servicio ya ha sido eliminado");
             }
-
-            // Aquí puedes agregar verificaciones de relaciones si es necesario
-            // Por ejemplo, verificar si el servicio está siendo usado en contratos, proyectos, etc.
 
             servicio.Eliminar(usuarioActual);
             _dbContext.Servicios.Update(servicio);

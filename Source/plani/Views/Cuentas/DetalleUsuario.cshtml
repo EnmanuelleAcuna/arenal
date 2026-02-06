@@ -1,0 +1,83 @@
+@model DetalleUsuarioViewModel
+
+@{
+    ViewData["Title"] = "Detalle de Usuario";
+    ViewBag.BreadcrumbIcon = "fa-user";
+    ViewBag.Breadcrumbs = new[] { "Usuarios", "Detalle" };
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h6>Usuario: <span class="font-weight-bold">@Model.NombreCompleto</span></h6>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-sm-12 col-md-6">
+                            <p><i class="fa fa-envelope text-muted mr-2"></i>@Model.CorreoElectronico</p>
+                            <p><i class="fa fa-id-card text-muted mr-2"></i>@Model.NumeroIdentificacion</p>
+                        </div>
+                        <div class="col-sm-12 col-md-6">
+                            <p>
+                                Estado:
+                                @if (Model.Activo)
+                                {
+                                    <span class="badge badge-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Inactivo</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Roles del Usuario -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-dark mb-3">Roles Asignados</h6>
+                            @if (Model.Roles.Any())
+                            {
+                                <div class="row">
+                                    @foreach (var rol in Model.Roles)
+                                    {
+                                        <div class="col-sm-12 col-md-4 col-lg-3 mb-2">
+                                            <div class="card">
+                                                <div class="card-body py-2 px-3">
+                                                    <i class="fa fa-user-tag text-primary mr-2"></i>
+                                                    <strong>@rol.Name</strong>
+                                                    @if (!string.IsNullOrEmpty(rol.Description))
+                                                    {
+                                                        <p class="text-muted small mb-0 mt-1">@rol.Description</p>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted small">Este usuario no tiene roles asignados.</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                @Html.ActionLink("Usuarios", "Usuarios", null, null, new { @class = "btn btn-sm btn-primary" })
+                                @Html.ActionLink("Editar", "EditarUsuario", new { id = Model.IdUsuario }, new { @class = "btn btn-sm btn-outline-secondary" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

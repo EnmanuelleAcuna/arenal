@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
+using plani.Models.Domain;
+
 namespace plani.Models.ViewModels;
 
 /// <summary>
@@ -151,4 +153,50 @@ public class ProyectoUsandoServicioViewModel
     public string NombreProyecto { get; set; }
     public string NombreCliente { get; set; }
     public string NombreArea { get; set; }
+}
+
+/// <summary>
+/// ViewModel para mostrar el detalle de un área
+/// </summary>
+public class DetalleAreaViewModel
+{
+    public DetalleAreaViewModel() { }
+
+    public DetalleAreaViewModel(Area area)
+    {
+        Id = area.Id;
+        Nombre = area.Nombre;
+        Descripcion = area.Descripcion;
+        Servicios = area.Servicios;
+        Contratos = area.Contratos;
+        Proyectos = area.Proyectos;
+    }
+
+    public Guid Id { get; set; }
+    public string Nombre { get; set; }
+    public string Descripcion { get; set; }
+    public IEnumerable<Servicio> Servicios { get; set; }
+    public IEnumerable<Contrato> Contratos { get; set; }
+    public IEnumerable<Proyecto> Proyectos { get; set; }
+}
+
+/// <summary>
+/// ViewModel para mostrar el detalle de una modalidad
+/// </summary>
+public class DetalleModalidadViewModel
+{
+    public DetalleModalidadViewModel() { }
+
+    public DetalleModalidadViewModel(Modalidad modalidad)
+    {
+        Id = modalidad.Id;
+        Nombre = modalidad.Nombre;
+        Descripcion = modalidad.Descripcion;
+        Servicios = modalidad.Servicios;
+    }
+
+    public Guid Id { get; set; }
+    public string Nombre { get; set; }
+    public string Descripcion { get; set; }
+    public IEnumerable<Servicio> Servicios { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿@model plani.Models.AsignacionesIndexViewModel
+﻿@model AsignacionesIndexViewModel
 
 @{
     ViewData["Title"] = "Asignaciones";
@@ -12,7 +12,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <a asp-action="Colaboradores" asp-controller="Cuentas" class="btn btn-sm btn-primary">Agregar asignación</a>
+                    <a id="btn-agregar-asignacion" asp-action="Colaboradores" asp-controller="Cuentas" class="btn btn-sm btn-primary">Agregar asignación</a>
                     <hr/>
 
                     @using (Html.BeginForm("Asignaciones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
@@ -23,14 +23,14 @@
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.IdUsuario)
-                                    @Html.DropDownListFor(model => model.IdUsuario, new List<SelectListItem>(ViewBag.Colaboradores), "Todos", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdUsuario, new List<SelectListItem>(ViewBag.Colaboradores), "", new { @class = "form-control form-control-sm", id = "usuario-select" })
                                 </div>
                             </div>
 
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.IdProyecto)
-                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Todos", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "", new { @class = "form-control form-control-sm", id = "proyecto-select" })
                                 </div>
                             </div>
 
@@ -53,29 +53,100 @@
                         </div>
                     }
 
-                    @foreach (var proyecto in Model.ProyectosAsignaciones)
+                    @if (Model.ProyectosAsignaciones.Count > 0)
                     {
-                        <div class="card mb-4">
-                            <div class="card-header p-0-5">
-                                <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto</h6>
-                                @*<div class="text-muted">
-                                    Asignaciones: @proyecto.CantidadAsignaciones |
-                                    Horas Estimadas: @proyecto.TotalHorasEstimadas
-                                </div>*@
+                        <nav aria-label="Paginación de asignaciones superior">
+                            <ul class="pagination pagination-sm mb-3 asignaciones-pagination"></ul>
+                        </nav>
+                    }
+
+                    <div id="asignaciones-container">
+                        @foreach (var proyecto in Model.ProyectosAsignaciones)
+                        {
+                            <div class="card mb-4 asignacion-card">
+                                <div class="card-header p-0-5">
+                                    <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto</h6>
+                                </div>
+                                <div class="card-body pl-4 py-2">
+                                    @foreach (var asignacion in proyecto.Asignaciones)
+                                    {
+                                        <p class="mb-0">
+                                            <span class="font-weight-bold">@asignacion.ApplicationUser.FullName</span> |
+                                            <span>@asignacion.Descripcion</span>
+                                        </p>
+                                    }
+                                </div>
                             </div>
-                            <div class="card-body pl-4 py-2">
-                                @foreach (var asignacion in proyecto.Asignaciones)
-                                {
-                                    <p class="mb-0">
-                                        <span class="font-weight-bold">@asignacion.ApplicationUser.FullName</span> |
-                                        <span>@asignacion.Descripcion</span>
-                                    </p>
-                                }
-                            </div>
-                        </div>
+                        }
+                    </div>
+
+                    @if (Model.ProyectosAsignaciones.Count > 0)
+                    {
+                        <nav aria-label="Paginación de asignaciones inferior">
+                            <ul class="pagination pagination-sm mb-0 asignaciones-pagination"></ul>
+                        </nav>
                     }
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            initSelect2('#usuario-select', 'Todos los colaboradores');
+            initSelect2('#proyecto-select', 'Todos los proyectos');
+
+            var pageSize = 10;
+            var cards = $('.asignacion-card');
+            var totalCards = cards.length;
+            var totalPages = Math.ceil(totalCards / pageSize);
+            var currentPage = 1;
+
+            function showPage(page) {
+                currentPage = page;
+                var start = (page - 1) * pageSize;
+                var end = start + pageSize;
+
+                cards.hide();
+                cards.slice(start, end).show();
+
+                $('.asignaciones-pagination').each(function() {
+                    var pagination = $(this);
+                    pagination.empty();
+
+                    pagination.append(
+                        '<li class="page-item ' + (page === 1 ? 'disabled' : '') + '">' +
+                        '<a class="page-link" href="#" data-page="' + (page - 1) + '">Anterior</a></li>'
+                    );
+
+                    for (var i = 1; i <= totalPages; i++) {
+                        pagination.append(
+                            '<li class="page-item ' + (i === page ? 'active' : '') + '">' +
+                            '<a class="page-link" href="#" data-page="' + i + '">' + i + '</a></li>'
+                        );
+                    }
+
+                    pagination.append(
+                        '<li class="page-item ' + (page === totalPages ? 'disabled' : '') + '">' +
+                        '<a class="page-link" href="#" data-page="' + (page + 1) + '">Siguiente</a></li>'
+                    );
+                });
+            }
+
+            $(document).on('click', '.asignaciones-pagination .page-link', function(e) {
+                e.preventDefault();
+                var page = parseInt($(this).data('page'));
+                if (page >= 1 && page <= totalPages) {
+                    showPage(page);
+                    document.getElementById('btn-agregar-asignacion').scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+
+            if (totalCards > 0) {
+                showPage(1);
+            }
+        });
+    </script>
+}

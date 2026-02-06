@@ -1,3 +1,5 @@
+using plani.Models.Domain;
+
 namespace plani.Models.ViewModels;
 
 /// <summary>

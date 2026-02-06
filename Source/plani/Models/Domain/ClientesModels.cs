@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text.Json;
 using plani.Identity;
 
-namespace plani.Models;
+namespace plani.Models.Domain;
 
 [Table("TiposCliente")]
 public class TipoCliente : Base
@@ -47,13 +47,6 @@ public class TipoCliente : Base
     }
 
     public override string ToString() => JsonSerializer.Serialize(this);
-}
-
-public class IndexClientesViewModel
-{
-    [DisplayName("Filtrar por")] public string PalabraClave { get; set; }
-
-    public IEnumerable<Cliente> Clientes { get; set; }
 }
 
 [Table("Clientes")]
@@ -215,13 +208,6 @@ public class Contrato : Base
     public override string ToString() => JsonSerializer.Serialize(this);
 }
 
-public class IndexProyectosViewModel
-{
-    [DisplayName("Filtrar por")] public string PalabraClave { get; set; }
-
-    public IEnumerable<Proyecto> Proyectos { get; set; }
-}
-
 [Table("Proyectos")]
 public class Proyecto : Base
 {
@@ -290,6 +276,16 @@ public class Proyecto : Base
     public string TruncatedDescripcion =>
         Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
 
+    [DisplayName("Horas Estimadas")]
+    [Range(0, 10000, ErrorMessage = "Las horas estimadas deben estar entre 0 y 10,000.")]
+    public int? HorasEstimadas { get; set; }
+
+    [ForeignKey(nameof(Responsable))]
+    public string IdResponsable { get; set; }
+
+    [DisplayName("Responsable")]
+    public ApplicationUser Responsable { get; set; }
+
     public ICollection<Asignacion> Asignaciones { get; set; }
 
     public void Actualizar(Proyecto proyecto, string actualizadoPor)
@@ -300,6 +296,8 @@ public class Proyecto : Base
         Descripcion = proyecto.Descripcion;
         IdArea = proyecto.IdArea;
         IdContrato = proyecto.IdContrato;
+        HorasEstimadas = proyecto.HorasEstimadas;
+        IdResponsable = proyecto.IdResponsable;
         RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
     }
 

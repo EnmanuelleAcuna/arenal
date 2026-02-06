@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
-namespace plani.Models;
+namespace plani.Models.Domain;
 
 [Table("Areas")]
 public class Area : Base

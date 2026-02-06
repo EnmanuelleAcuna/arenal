@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using plani.Models.ViewModels;
 
-namespace plani.ViewComponents;
+namespace plani.Models.ViewComponents;
 
 /// <summary>
 /// View Component para breadcrumbs.

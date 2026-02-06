@@ -88,6 +88,23 @@
 		  "images/sort_asc.png",
 		  "images/sort_desc.png"
       ]
+    },
+    {
+      "library": "select2@4.0.13",
+      "destination": "wwwroot/lib/select2/",
+      "files": [
+        "css/select2.min.css",
+        "js/select2.min.js",
+        "js/i18n/es.js"
+      ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "@ttskch/select2-bootstrap4-theme@1.5.2",
+      "destination": "wwwroot/lib/select2-bootstrap4-theme/",
+      "files": [
+        "dist/select2-bootstrap4.min.css"
+      ]
     }
   ]
 }

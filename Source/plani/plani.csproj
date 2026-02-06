@@ -75,4 +75,8 @@
 	    <DependentUpon>LocalizedIdentityErrorDescriber.resx</DependentUpon>
 	  </Compile>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <_ContentIncludedByDefault Remove="wwwroot\lib\select2-bootstrap4-theme\dist\select2-bootstrap4.min.css" />
+	</ItemGroup>
 </Project>

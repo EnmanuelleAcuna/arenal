@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using plani.Models;
+using plani.Models.Domain;
 
 namespace plani.Identity;
 
@@ -11,12 +12,14 @@ public class ApplicationUser : IdentityUser
     {
         Asignaciones = new List<Asignacion>();
         Sesiones = new List<Sesion>();
+        ProyectosACargo = new List<Proyecto>();
     }
 
     public ApplicationUser(string userName) : base(userName)
     {
         Asignaciones = new List<Asignacion>();
         Sesiones = new List<Sesion>();
+        ProyectosACargo = new List<Proyecto>();
     }
 
     public ApplicationUser(string id, string correo, string nombre, string primerApellido,
@@ -33,6 +36,7 @@ public class ApplicationUser : IdentityUser
 
         Asignaciones = new List<Asignacion>();
         Sesiones = new List<Sesion>();
+        ProyectosACargo = new List<Proyecto>();
     }
 
     public string IdentificationNumber { get; private set; }
@@ -109,6 +113,7 @@ public class ApplicationUser : IdentityUser
 
     public ICollection<Asignacion> Asignaciones { get; set; }
     public ICollection<Sesion> Sesiones { get; set; }
+    public ICollection<Proyecto> ProyectosACargo { get; set; }
 
     public void SetNewPersonalInformation(string name, string firstLastName, string secondLastName,
         string identification)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using plani.Identity;
+using plani.Models.Domain;
 
 namespace plani.Models.Data;
 
@@ -43,6 +44,13 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Cliente>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Contrato>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Proyecto>().HasQueryFilter(e => !e.IsDeleted);
+
+        // Relación Proyecto -> Responsable (ApplicationUser)
+        modelBuilder.Entity<Proyecto>()
+            .HasOne(p => p.Responsable)
+            .WithMany(u => u.ProyectosACargo)
+            .HasForeignKey(p => p.IdResponsable)
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Area>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Modalidad>().HasQueryFilter(e => !e.IsDeleted);

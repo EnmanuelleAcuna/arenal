@@ -1,4 +1,4 @@
-@model Proyecto
+@model EditarProyectoViewModel
 
 @{
     ViewData["Title"] = "Modificar proyecto";
@@ -34,7 +34,7 @@
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label>Área</label>
-                                    @Html.DropDownListFor(model => model.IdArea, new List<SelectListItem>(ViewBag.Areas), "Seleccione un área", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdArea, new List<SelectListItem>(ViewBag.Areas), "", new { @class = "form-control form-control-sm", id = "area-select" })
                                     @Html.ValidationMessageFor(model => model.IdArea)
                                 </div>
                             </div>
@@ -44,7 +44,7 @@
                             <div class="col-sm-12">
                                 <div class="form-group">
                                     <label>Contrato</label>
-                                    @Html.DropDownListFor(model => model.IdContrato, new List<SelectListItem>(ViewBag.Contratos), "Seleccione contrato", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdContrato, new List<SelectListItem>(ViewBag.Contratos), "", new { @class = "form-control form-control-sm", id = "contrato-select" })
                                     @Html.ValidationMessageFor(model => model.IdContrato)
                                 </div>
                             </div>
@@ -60,7 +60,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-12 col-md-4">
+                            <div class="col-sm-12 col-md-3">
                                 <div class="form-group">
                                     <label for="FechaInicio">Fecha de inicio</label>
                                     <input asp-for="FechaInicio" class="form-control form-control-sm"/>
@@ -68,10 +68,26 @@
                                 </div>
                             </div>
 
-                            <div class="col-sm-12 col-md-4">
+                            <div class="col-sm-12 col-md-3">
                                 <div class="form-group">
                                     <label for="FechaFin">Fecha de finalización</label>
                                     <input asp-for="FechaFin" class="form-control form-control-sm"/>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-2">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.HorasEstimadas)
+                                    @Html.TextBoxFor(model => model.HorasEstimadas, new { @class = "form-control form-control-sm", @type = "number", @min = "0", @max = "10000" })
+                                    @Html.ValidationMessageFor(model => model.HorasEstimadas)
+                                </div>
+                            </div>
+
+                            <div class="col-sm-12 col-md-4">
+                                <div class="form-group">
+                                    <label>Responsable</label>
+                                    @Html.DropDownListFor(model => model.IdResponsable, new List<SelectListItem>(ViewBag.Responsables), "", new { @class = "form-control form-control-sm", id = "responsable-select" })
+                                    @Html.ValidationMessageFor(model => model.IdResponsable)
                                 </div>
                             </div>
                         </div>
@@ -79,7 +95,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Regresar", "Proyectos", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "Proyectos", null, null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }
@@ -91,4 +107,11 @@
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        $(document).ready(function() {
+            initSelect2('#area-select', 'Seleccione área');
+            initSelect2('#contrato-select', 'Seleccione contrato');
+            initSelect2('#responsable-select', 'Seleccione responsable');
+        });
+    </script>
 }

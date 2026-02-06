@@ -115,6 +115,8 @@ CREATE TABLE Proyectos
     FechaInicio DATETIME NOT NULL,
     FechaFin DATETIME NULL,
     Descripcion NVARCHAR(2000) NULL,
+    HorasEstimadas INT NULL,
+    IdResponsable NVARCHAR(450) NULL CONSTRAINT FK_Proyectos_Responsable FOREIGN KEY REFERENCES AspNetUsers (Id),
     DateCreated DATETIME NOT NULL CONSTRAINT DF_Proyectos_DateCreated DEFAULT GETDATE(),
 	CreatedBy NVARCHAR(100) NOT NULL,
 	DateUpdated DATETIME NULL,

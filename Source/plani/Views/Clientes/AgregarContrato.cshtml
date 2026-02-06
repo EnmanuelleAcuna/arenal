@@ -1,4 +1,4 @@
-﻿@model Contrato
+﻿@model AgregarContratoViewModel
 
 @{
     ViewData["Title"] = "Agregar contrato";
@@ -33,7 +33,7 @@
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label>Área</label>
-                                    @Html.DropDownListFor(model => model.IdArea, new List<SelectListItem>(ViewBag.Areas), "Seleccione un área", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdArea, new List<SelectListItem>(ViewBag.Areas), "", new { @class = "form-control form-control-sm", id = "area-select" })
                                     @Html.ValidationMessageFor(model => model.IdArea)
                                 </div>
                             </div>
@@ -41,7 +41,7 @@
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label>Cliente</label>
-                                    @Html.DropDownListFor(model => model.IdCliente, new List<SelectListItem>(ViewBag.Clientes), "Seleccione un cliente", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdCliente, new List<SelectListItem>(ViewBag.Clientes), "", new { @class = "form-control form-control-sm", id = "cliente-select" })
                                     @Html.ValidationMessageFor(model => model.IdCliente)
                                 </div>
                             </div>
@@ -70,7 +70,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Regresar", "Contratos", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "Contratos", null, null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }
@@ -82,4 +82,10 @@
 
 @section Scripts{
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        $(document).ready(function() {
+            initSelect2('#area-select', 'Seleccione área');
+            initSelect2('#cliente-select', 'Seleccione cliente');
+        });
+    </script>
 }

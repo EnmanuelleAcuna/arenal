@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using plani.Models.Data;
 using plani.Models.ViewModels;
 
-namespace plani.Models;
+using plani.Models.Domain;
+
+namespace plani.Models.Managers;
 
 /// <summary>
 /// Manager para la lógica de negocio de Modalidades
@@ -38,6 +40,16 @@ public class ModalidadesManager
     public async Task<Modalidad> ObtenerPorIdAsync(Guid id)
     {
         return await _dbContext.Modalidades.FindAsync(id);
+    }
+
+    /// <summary>
+    /// Obtiene una modalidad con sus servicios para vista de detalle
+    /// </summary>
+    public async Task<Modalidad> ObtenerDetalleAsync(Guid id)
+    {
+        return await _dbContext.Modalidades
+            .Include(m => m.Servicios)
+            .FirstOrDefaultAsync(m => m.Id == id);
     }
 
     /// <summary>

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models;
+using plani.Models.Domain;
+using plani.Models.Managers;
 using plani.Models.Data;
 using plani.Models.ViewModels;
 
@@ -56,16 +58,14 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> DetalleTipoCliente(Guid id)
     {
-        TipoCliente model = await _dbContext.TiposCliente
+        TipoCliente tipoCliente = await _dbContext.TiposCliente
             .Include(tc => tc.Clientes)
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (model == null) return NotFound();
+        if (tipoCliente == null) return NotFound();
 
-        return View(model);
+        return View(new DetalleTipoClienteViewModel(tipoCliente));
     }
-
-    // JSON endpoints for inline editing
 
     [HttpGet]
     public async Task<JsonResult> ObtenerTiposCliente()
@@ -197,15 +197,15 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> DetalleCliente(Guid id)
     {
-        Cliente model = await _dbContext.Clientes
+        Cliente cliente = await _dbContext.Clientes
             .Include(c => c.TipoCliente)
             .Include(c => c.Contratos).ThenInclude(c => c.Proyectos)
             .ThenInclude(p => p.Area)
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (model == null) return NotFound();
+        if (cliente == null) return NotFound();
 
-        return View(model);
+        return View(new DetalleClienteViewModel(cliente));
     }
 
     [HttpGet]
@@ -219,7 +219,7 @@ public class ClientesController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarCliente(Cliente model)
+    public async Task<IActionResult> AgregarCliente(AgregarClienteViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -232,19 +232,24 @@ public class ClientesController : BaseController
             return View(model);
         }
 
-        model.Nombre = model.Nombre.Trim();
-        model.Descripcion = model.Descripcion.Trim();
-        model.Direccion = model.Direccion.Trim();
+        var cliente = new Cliente
+        {
+            Identificacion = model.Identificacion?.Trim(),
+            Nombre = model.Nombre?.Trim(),
+            Descripcion = model.Descripcion?.Trim(),
+            Direccion = model.Direccion?.Trim(),
+            IdTipoCliente = model.IdTipoCliente
+        };
 
-        model.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.Clientes.AddAsync(model);
+        cliente.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
+        await _dbContext.Clientes.AddAsync(cliente);
 
         // Add new Contrato for that Cliente
         Contrato contrato = new Contrato
         {
-            IdCliente = model.Id,
-            Identificacion = "CONTRATO-" + model.Id,
-            Descripcion = "Contrato de " + model.Nombre.Trim(),
+            IdCliente = cliente.Id,
+            Identificacion = "CONTRATO-" + cliente.Id,
+            Descripcion = "Contrato de " + cliente.Nombre,
             FechaInicio = DateTime.UtcNow,
             IdArea = Guid.Parse("f9c46324-5f71-4faf-0171-08dd2fd1b693")
         };
@@ -263,19 +268,19 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> EditarCliente(Guid id)
     {
-        Cliente model = await _dbContext.Clientes.FindAsync(id);
+        Cliente cliente = await _dbContext.Clientes.FindAsync(id);
 
-        if (model == null) return NotFound();
+        if (cliente == null) return NotFound();
 
         IEnumerable<TipoCliente> tiposCliente = await _dbContext.TiposCliente.ToListAsync();
         ViewBag.TiposCliente = tiposCliente.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
-        return View(model);
+        return View(new EditarClienteViewModel(cliente));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarCliente(Cliente model)
+    public async Task<ActionResult> EditarCliente(EditarClienteViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -292,7 +297,12 @@ public class ClientesController : BaseController
 
         if (cliente == null) return NotFound();
 
-        cliente.Actualizar(model, GetCurrentUser());
+        cliente.Identificacion = model.Identificacion;
+        cliente.Nombre = model.Nombre;
+        cliente.Direccion = model.Direccion;
+        cliente.Descripcion = model.Descripcion;
+        cliente.IdTipoCliente = model.IdTipoCliente;
+        cliente.RegistrarActualizacion(GetCurrentUser(), DateTime.UtcNow);
         _dbContext.Clientes.Update(cliente);
         int changes = await _dbContext.SaveChangesAsync();
 
@@ -305,16 +315,16 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> EliminarCliente(Guid id)
     {
-        var model = await _dbContext.Clientes.FindAsync(id);
+        var cliente = await _dbContext.Clientes.FindAsync(id);
 
-        if (model == null) return NotFound();
+        if (cliente == null) return NotFound();
 
-        return View(model);
+        return View(new EliminarClienteViewModel(cliente));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarCliente(Cliente model)
+    public async Task<IActionResult> EliminarCliente(EliminarClienteViewModel model)
     {
         Cliente cliente = await _dbContext.Clientes.FindAsync(model.Id);
 
@@ -339,22 +349,22 @@ public class ClientesController : BaseController
     {
         List<Contrato> contratos =
             await _dbContext.Contratos.Include(c => c.Cliente).Include(c => c.Area).ToListAsync();
-        return View(contratos);
+        return View(contratos.Select(c => new DetalleContratoViewModel(c)));
     }
 
     [HttpGet]
     public async Task<IActionResult> DetalleContrato(Guid id)
     {
-        Contrato model = await _dbContext.Contratos
+        Contrato contrato = await _dbContext.Contratos
             .Include(c => c.Area)
             .Include(c => c.Cliente)
             .Include(c => c.Proyectos)
             .ThenInclude(p => p.Area)
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (model == null) return NotFound();
+        if (contrato == null) return NotFound();
 
-        return View(model);
+        return View(new DetalleContratoViewModel(contrato));
     }
 
     [HttpGet]
@@ -371,7 +381,7 @@ public class ClientesController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarContrato(Contrato model)
+    public async Task<IActionResult> AgregarContrato(AgregarContratoViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -387,8 +397,17 @@ public class ClientesController : BaseController
             return View(model);
         }
 
-        model.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.Contratos.AddAsync(model);
+        var contrato = new Contrato
+        {
+            IdCliente = model.IdCliente,
+            Identificacion = model.Identificacion,
+            Descripcion = model.Descripcion,
+            FechaInicio = model.FechaInicio,
+            IdArea = model.IdArea
+        };
+
+        contrato.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
+        await _dbContext.Contratos.AddAsync(contrato);
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Contratos));
@@ -400,9 +419,9 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> EditarContrato(Guid id)
     {
-        Contrato model = await _dbContext.Contratos.FindAsync(id);
+        Contrato contrato = await _dbContext.Contratos.FindAsync(id);
 
-        if (model == null) return NotFound();
+        if (contrato == null) return NotFound();
 
         IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
         ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
@@ -410,12 +429,12 @@ public class ClientesController : BaseController
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
-        return View(model);
+        return View(new EditarContratoViewModel(contrato));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarContrato(Contrato model)
+    public async Task<ActionResult> EditarContrato(EditarContratoViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -435,7 +454,12 @@ public class ClientesController : BaseController
 
         if (contrato == null) return NotFound();
 
-        contrato.Actualizar(model, GetCurrentUser());
+        contrato.Identificacion = model.Identificacion;
+        contrato.FechaInicio = model.FechaInicio;
+        contrato.Descripcion = model.Descripcion;
+        contrato.IdCliente = model.IdCliente;
+        contrato.IdArea = model.IdArea;
+        contrato.RegistrarActualizacion(GetCurrentUser(), DateTime.UtcNow);
         _dbContext.Contratos.Update(contrato);
         int changes = await _dbContext.SaveChangesAsync();
 
@@ -448,17 +472,17 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> EliminarContrato(Guid id)
     {
-        Contrato model =
+        Contrato contrato =
             await _dbContext.Contratos.Include(c => c.Cliente).Where(c => c.Id == id).FirstOrDefaultAsync();
 
-        if (model == null) return NotFound();
+        if (contrato == null) return NotFound();
 
-        return View(model);
+        return View(new EliminarContratoViewModel(contrato));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarContrato(Contrato model)
+    public async Task<IActionResult> EliminarContrato(EliminarContratoViewModel model)
     {
         Contrato contrato = await _dbContext.Contratos.FindAsync(model.Id);
 
@@ -498,15 +522,16 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> DetalleProyecto(Guid id)
     {
-        Proyecto model = await _dbContext.Proyectos
+        Proyecto proyecto = await _dbContext.Proyectos
             .Include(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
             .Include(p => p.Area)
+            .Include(p => p.Responsable)
             .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (model == null) return NotFound();
+        if (proyecto == null) return NotFound();
 
-        return View(model);
+        return View(new DetalleProyectoViewModel(proyecto));
     }
 
     [HttpGet]
@@ -519,12 +544,14 @@ public class ClientesController : BaseController
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
+        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
+
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarProyecto(Proyecto model)
+    public async Task<IActionResult> AgregarProyecto(AgregarProyectoViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -538,25 +565,40 @@ public class ClientesController : BaseController
             IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
             ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
+            ViewBag.Responsables = await ObtenerColaboradoresDropdown();
+
             return View(model);
         }
 
-        model.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.Proyectos.AddAsync(model);
+        var proyecto = new Proyecto
+        {
+            Nombre = model.Nombre,
+            Descripcion = model.Descripcion,
+            FechaInicio = model.FechaInicio,
+            FechaFin = model.FechaFin,
+            HorasEstimadas = model.HorasEstimadas,
+            IdContrato = model.IdContrato,
+            IdArea = model.IdArea,
+            IdResponsable = model.IdResponsable
+        };
+
+        proyecto.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
+        await _dbContext.Proyectos.AddAsync(proyecto);
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Proyectos));
 
         ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Proyecto)));
+        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
         return View(model);
     }
 
     [HttpGet]
     public async Task<IActionResult> EditarProyecto(Guid id)
     {
-        Proyecto model = await _dbContext.Proyectos.FindAsync(id);
+        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(id);
 
-        if (model == null) return NotFound();
+        if (proyecto == null) return NotFound();
 
         IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
         ViewBag.Contratos = contratos.Select(c =>
@@ -565,12 +607,14 @@ public class ClientesController : BaseController
         IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
         ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
-        return View(model);
+        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
+
+        return View(new EditarProyectoViewModel(proyecto));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarProyecto(Proyecto model)
+    public async Task<ActionResult> EditarProyecto(EditarProyectoViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -584,6 +628,8 @@ public class ClientesController : BaseController
             IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
             ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
 
+            ViewBag.Responsables = await ObtenerColaboradoresDropdown();
+
             return View(model);
         }
 
@@ -591,32 +637,41 @@ public class ClientesController : BaseController
 
         if (proyecto == null) return NotFound();
 
-        proyecto.Actualizar(model, GetCurrentUser());
+        proyecto.Nombre = model.Nombre;
+        proyecto.FechaInicio = model.FechaInicio;
+        proyecto.FechaFin = model.FechaFin;
+        proyecto.Descripcion = model.Descripcion;
+        proyecto.IdArea = model.IdArea;
+        proyecto.IdContrato = model.IdContrato;
+        proyecto.HorasEstimadas = model.HorasEstimadas;
+        proyecto.IdResponsable = model.IdResponsable;
+        proyecto.RegistrarActualizacion(GetCurrentUser(), DateTime.UtcNow);
         _dbContext.Proyectos.Update(proyecto);
         int changes = await _dbContext.SaveChangesAsync();
 
         if (changes > 0) return RedirectToAction(nameof(Proyectos));
         ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Proyecto)));
 
+        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
         return View(model);
     }
 
     [HttpGet]
     public async Task<IActionResult> EliminarProyecto(Guid id)
     {
-        Proyecto model = await _dbContext.Proyectos
+        Proyecto proyecto = await _dbContext.Proyectos
             .Include(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
             .FirstOrDefaultAsync(c => c.Id == id);
 
-        if (model == null) return NotFound();
+        if (proyecto == null) return NotFound();
 
-        return View(model);
+        return View(new EliminarProyectoViewModel(proyecto));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarProyecto(Proyecto model)
+    public async Task<IActionResult> EliminarProyecto(EliminarProyectoViewModel model)
     {
         Proyecto proyecto = await _dbContext.Proyectos.FindAsync(model.Id);
 
@@ -910,21 +965,21 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> EliminarAsignacion(Guid id)
     {
-        var model = await _dbContext.Asignaciones
+        var asignacion = await _dbContext.Asignaciones
             .Include(a => a.ApplicationUser)
             .Include(a => a.Proyecto)
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
             .FirstOrDefaultAsync(c => c.Id == id);
 
-        if (model == null) return NotFound();
+        if (asignacion == null) return NotFound();
 
-        return View(model);
+        return View(new EliminarAsignacionViewModel(asignacion));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarAsignacion(Asignacion model)
+    public async Task<IActionResult> EliminarAsignacion(EliminarAsignacionViewModel model)
     {
         Asignacion asignacion = await _dbContext.Asignaciones.FindAsync(model.Id);
 
@@ -1264,11 +1319,11 @@ public class ClientesController : BaseController
     [HttpGet]
     public async Task<IActionResult> DetalleSesion(Guid id)
     {
-        var model = await _sesionesManager.ObtenerSesionPorId(id);
+        var sesion = await _sesionesManager.ObtenerSesionPorId(id);
 
-        if (model == null) return NotFound();
+        if (sesion == null) return NotFound();
 
-        return View(model);
+        return View(new DetalleSesionViewModel(sesion));
     }
 
     #endregion

@@ -1,4 +1,4 @@
-﻿@model Proyecto
+﻿@model DetalleProyectoViewModel
 
 @{
     ViewData["Title"] = "Proyectos";
@@ -21,42 +21,16 @@
                             <p>Área: <b>@Model.Area.Nombre</b></p>
                             <p>Cliente: <b>@Model.Contrato.Cliente.Nombre</b></p>
                             <p>Contrato: <b>@Model.Contrato.Identificacion</b></p>
-                            <p>Fecha de inicio: <b>@Model.LongDateFechaInicio</b></p>
-                            <p>Fecha de finalización: <b>@Model.LongDateFechaFin</b></p>
+                            <p>Fecha de inicio: <b>@Model.FechaInicioFormateada</b></p>
+                            <p>Fecha de finalización: <b>@Model.FechaFinFormateada</b></p>
+                            <p>Horas estimadas: <b>@(Model.HorasEstimadas?.ToString() ?? "No definidas")</b></p>
+                            <p>Responsable: <b>@(Model.Responsable?.FullName ?? "No asignado")</b></p>
                         </div>
                     </div>
 
-                    @* <div class="row mt-4"> *@
-                    @*     <div class="col-12"> *@
-                    @*         <h6 class="font-weight-bold">Proyectos</h6> *@
-                    @*         <div class="table-responsive"> *@
-                    @*             <table class="table table-hover table-sm text-nowrap"> *@
-                    @*                 <thead> *@
-                    @*                 <tr> *@
-                    @*                     <th>@Html.DisplayNameFor(m => m.Proyectos.FirstOrDefault().Nombre)</th> *@
-                    @*                     <th>Área</th> *@
-                    @*                 </tr> *@
-                    @*                 </thead> *@
-                    @* *@
-                    @*                 <tbody> *@
-                    @* *@
-                    @*                 @foreach (var proyecto in Model.Proyectos) *@
-                    @*                 { *@
-                    @*                     <tr> *@
-                    @*                         <td>@proyecto.Nombre</td> *@
-                    @*                         <td>@proyecto.Area.Nombre</td> *@
-                    @*                     </tr> *@
-                    @*                 } *@
-                    @* *@
-                    @*                 </tbody> *@
-                    @*             </table> *@
-                    @*         </div> *@
-                    @*     </div> *@
-                    @* </div> *@
-
                     <div class="row">
                         <div class="col-12">
-                            @Html.ActionLink("Regresar", "Proyectos", null, null, new { @class = "btn btn-sm btn-primary" })
+                            @Html.ActionLink("Proyectos", "Proyectos", null, null, new { @class = "btn btn-sm btn-primary" })
                         </div>
                     </div>
                 </div>

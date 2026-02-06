@@ -116,7 +116,7 @@ textarea {
 }
 
 .sidebar-brand-text {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 700;
     line-height: 1.2;
     white-space: nowrap;
@@ -746,4 +746,36 @@ table.dataTable.table-sm .sorting_desc:after {
 
 .charts-header .form-control-sm {
     width: auto;
+}
+
+/* ==========================================================================
+   23. INFO CARDS & TABLE UTILITIES
+   ========================================================================== */
+/* Light blue info card background */
+.card-info-light {
+    background-color: #f0f7ff;
+}
+
+/* Truncated description cell */
+.cell-description {
+    max-width: 200px;
+}
+
+/* ==========================================================================
+   24. SELECT2 BOOTSTRAP 4 SMALL SIZE
+   ========================================================================== */
+/* Match Select2 height to form-control-sm (default is calc(1.5em + .75rem + 2px)) */
+.select2-container--bootstrap4 .select2-selection--single {
+    height: calc(1.5em + .5rem + 2px) !important;
+    font-size: 0.875rem;
+}
+
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+    padding-left: 0.5rem;
+    line-height: calc(1.5em + 0.5rem);
+}
+
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__placeholder {
+    line-height: calc(1.5em + 0.5rem);
+    color: #6c757d;
 }

@@ -1,4 +1,4 @@
-﻿@model plani.Models.PausarSesionModel
+﻿@model PausarSesionModel
 
 @{
     ViewData["Title"] = "Pausar sesión";
@@ -52,7 +52,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <input value="Pausar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Regresar", "MisSesiones", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "MisSesiones", null, null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }

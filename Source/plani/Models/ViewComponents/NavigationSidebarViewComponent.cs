@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using plani.Identity;
 using plani.Models.ViewModels;
 
-namespace plani.ViewComponents;
+namespace plani.Models.ViewComponents;
 
 /// <summary>
 /// View Component para el sidebar de navegación.
@@ -126,7 +126,6 @@ public class NavigationSidebarViewComponent : ViewComponent
         var isCoordinador = User.IsInRole("Coordinador");
         var isColaborador = User.IsInRole("Colaborador");
 
-        // Items según roles
         if (isAdmin || isCoordinador)
         {
             submenuItems.Add(new NavigationLink

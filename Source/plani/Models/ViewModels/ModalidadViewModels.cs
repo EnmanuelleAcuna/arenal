@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
+using plani.Models.Domain;
+
 namespace plani.Models.ViewModels;
 
 /// <summary>

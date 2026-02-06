@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using plani.Models.Data;
 using plani.Models.ViewModels;
 
-namespace plani.Models;
+using plani.Models.Domain;
+
+namespace plani.Models.Managers;
 
 /// <summary>
 /// Manager para la lógica de negocio de Áreas
@@ -33,11 +36,38 @@ public class AreasManager
     }
 
     /// <summary>
+    /// Obtiene áreas para dropdown
+    /// </summary>
+    public async Task<IEnumerable<SelectListItem>> ObtenerParaDropdownAsync()
+    {
+        return await _dbContext.Areas
+            .OrderBy(a => a.Nombre)
+            .Select(a => new SelectListItem(a.Nombre, a.Id.ToString()))
+            .ToListAsync();
+    }
+
+    /// <summary>
     /// Obtiene un área por ID
     /// </summary>
     public async Task<Area> ObtenerPorIdAsync(Guid id)
     {
         return await _dbContext.Areas.FindAsync(id);
+    }
+
+    /// <summary>
+    /// Obtiene un área con todas sus relaciones para vista de detalle
+    /// </summary>
+    public async Task<Area> ObtenerDetalleAsync(Guid id)
+    {
+        return await _dbContext.Areas
+            .AsNoTracking()
+            .Include(a => a.Servicios)
+            .Include(a => a.Contratos)
+                .ThenInclude(c => c.Cliente)
+            .Include(a => a.Proyectos)
+                .ThenInclude(p => p.Contrato)
+                .ThenInclude(c => c.Cliente)
+            .FirstOrDefaultAsync(a => a.Id == id);
     }
 
     /// <summary>
