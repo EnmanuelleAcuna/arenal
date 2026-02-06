@@ -18,14 +18,14 @@
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.IdUsuario)
-                                    @Html.DropDownListFor(model => model.IdUsuario, new List<SelectListItem>(ViewBag.Colaboradores), "Todos", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdUsuario, new List<SelectListItem>(ViewBag.Colaboradores), "", new { @class = "form-control form-control-sm", id = "usuario-select" })
                                 </div>
                             </div>
 
                             <div class="col-sm-12 col-md-8 col-lg-8">
                                 <div class="form-group">
                                     @Html.LabelFor(model => model.IdProyecto)
-                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Todos", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "", new { @class = "form-control form-control-sm", id = "proyecto-select" })
                                 </div>
                             </div>
 
@@ -147,12 +147,9 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#tablaSesiones').DataTable({
-                "order": [[0, 'desc']],
-                "language": {
-                    "url": "/dataTables_es-ES.json"
-                }
-            });
+            initDataTable('#tablaSesiones', { order: [[0, 'desc']] });
+            initSelect2('#usuario-select', 'Todos los colaboradores');
+            initSelect2('#proyecto-select', 'Todos los proyectos');
         });
     </script>
 }

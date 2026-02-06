@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using plani.Identity;
 
-namespace plani.ViewComponents;
+namespace plani.Models.ViewComponents;
 
 /// <summary>
 /// View Component para el topbar (header).

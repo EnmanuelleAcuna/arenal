@@ -1,4 +1,4 @@
-﻿@model Cliente
+﻿@model AgregarClienteViewModel
 
 @{
     ViewData["Title"] = "Agregar cliente";
@@ -41,7 +41,7 @@
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label>Tipo de Cliente</label>
-                                    @Html.DropDownListFor(model => model.IdTipoCliente, new List<SelectListItem>(ViewBag.TiposCliente), "Seleccione un tipo de cliente", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdTipoCliente, new List<SelectListItem>(ViewBag.TiposCliente), "", new { @class = "form-control form-control-sm", id = "tipocliente-select" })
                                     @Html.ValidationMessageFor(model => model.IdTipoCliente)
                                 </div>
                             </div>
@@ -70,7 +70,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Regresar", "Clientes", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "Clientes", null, null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }
@@ -82,4 +82,9 @@
 
 @section Scripts{
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        $(document).ready(function() {
+            initSelect2('#tipocliente-select', 'Seleccione tipo de cliente');
+        });
+    </script>
 }

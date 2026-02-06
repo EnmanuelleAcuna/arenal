@@ -1,8 +1,39 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using plani.Identity;
+using plani.Models.Domain;
 
-namespace plani.Models;
+namespace plani.Models.ViewModels;
+
+public class UsuariosIndexViewModel
+{
+    public UsuariosIndexViewModel() { }
+
+    public UsuariosIndexViewModel(ApplicationUser usuario, string roles)
+    {
+        IdUsuario = usuario.Id;
+        Nombre = string.Format(new CultureInfo("es-CR"), "{0} {1} {2}", usuario.Name, usuario.FirstLastName, usuario.SecondLastName);
+        Correo = usuario.Email;
+        NumeroIdentificacion = usuario.IdentificationNumber;
+        Roles = roles;
+        Estado = (bool)usuario.Active ? "Activo" : "Inactivo";
+    }
+
+    public string IdUsuario { get; set; }
+
+    [Display(Name = "Nombre completo")]
+    public string Nombre { get; set; }
+
+    [Display(Name = "Correo electrónico")]
+    public string Correo { get; set; }
+
+    [Display(Name = "Identificación")]
+    public string NumeroIdentificacion { get; set; }
+
+    public string Roles { get; set; }
+
+    public string Estado { get; set; }
+}
 
 public class IniciarSesionViewModel
 {
@@ -46,117 +77,6 @@ public class RestablecerContrasenaViewModel
     public string Code { get; set; }
 }
 
-public class RolesIndexViewModel
-{
-    public RolesIndexViewModel(ApplicationRole rol)
-    {
-        IdRol = rol.Id;
-        Nombre = rol.Name;
-        Descripcion = rol.Description;
-    }
-
-    public string IdRol { get; set; }
-
-    public string Nombre { get; set; }
-
-    [Display(Name = "Descripción")] public string Descripcion { get; set; }
-}
-
-public class DetalleRolViewModel
-{
-    public DetalleRolViewModel(ApplicationRole rol, IList<ApplicationUser> usuarios)
-    {
-        IdRol = rol.Id;
-        Nombre = rol.Name;
-        Descripcion = rol.Description;
-
-        Usuarios = usuarios;
-    }
-
-    public string IdRol { get; set; }
-
-    public string Nombre { get; set; }
-
-    [Display(Name = "Descripción")] public string Descripcion { get; set; }
-
-    public IList<ApplicationUser> Usuarios { get; set; }
-}
-
-public class AgregarRolViewModel
-{
-    [Required(ErrorMessage = "El nombre es requerido.")]
-    [StringLength(50, ErrorMessage = "El nombre no puede exceder los 50 caracteres.")]
-    public string Nombre { get; set; }
-
-    [Display(Name = "Descripción")]
-    [Required(ErrorMessage = "La descripción es requerida.")]
-    [StringLength(250, ErrorMessage = "La descripción no debe exceder los 250 caracteres.")]
-    public string Descripcion { get; set; }
-
-    public ApplicationRole ToApplicationRole()
-    {
-        ApplicationRole rol = new(Guid.NewGuid().ToString(), Nombre, Descripcion);
-        return rol;
-    }
-}
-
-public class EditarRolViewModel
-{
-    public EditarRolViewModel()
-    {
-    }
-
-    public EditarRolViewModel(ApplicationRole rol)
-    {
-        IdRol = rol.Id;
-        Nombre = rol.Name;
-        Descripcion = rol.Description;
-    }
-
-    public string IdRol { get; set; }
-
-    [Required(ErrorMessage = "El nombre es requerido.")]
-    [StringLength(50, ErrorMessage = "El nombre no puede exceder los 50 caracteres.")]
-    public string Nombre { get; set; }
-
-    [Display(Name = "Descripción")]
-    [Required(ErrorMessage = "La descripción es requerida.")]
-    [StringLength(250, ErrorMessage = "La descripción no puede exceder los 250 caracteres.")]
-    public string Descripcion { get; set; }
-
-    public ApplicationRole ToApplicationRole() => new(IdRol, Nombre, Descripcion);
-}
-
-public class UsuariosIndexViewModel
-{
-    public UsuariosIndexViewModel() { }
-
-    public UsuariosIndexViewModel(ApplicationUser usuario, string roles)
-    {
-        IdUsuario = usuario.Id;
-        Nombre = string.Format(new CultureInfo("es-CR"), "{0} {1} {2}", usuario.Name, usuario.FirstLastName, usuario.SecondLastName);
-        Correo = usuario.Email;
-        NumeroIdentificacion = usuario.IdentificationNumber;
-        Roles = roles;
-        Estado = (bool)usuario.Active ? "Activo" : "Inactivo";
-    }
-
-    public string IdUsuario { get; set; }
-
-    [Display(Name = "Nombre completo")]
-    public string Nombre { get; set; }
-
-    [Display(Name = "Correo electrónico")]
-    public string Correo { get; set; }
-
-    [Display(Name = "Identificación")]
-    public string NumeroIdentificacion { get; set; }
-
-    public string Roles { get; set; }
-
-    public string Estado { get; set; }
-}
-
 public class AgregarUsuarioViewModel
 {
     [Required(ErrorMessage = "El nombre es requerido.")]
@@ -194,21 +114,19 @@ public class AgregarUsuarioViewModel
     [DataType(DataType.Password)]
     public string ConfirmarContrasena { get; set; }
 
-    [Display(Name = "Activo")] public bool Estado { get; set; }
+    [Display(Name = "Activo")]
+    public bool Estado { get; set; }
 
     public ApplicationUser Entidad()
     {
-        ApplicationUser usuario = new(Guid.NewGuid().ToString(), CorreoElectronico, Nombre,
+        return new ApplicationUser(Guid.NewGuid().ToString(), CorreoElectronico, Nombre,
             PrimerApellido, SegundoApellido, NumeroIdentificacion, true);
-        return usuario;
     }
 }
 
 public class EditarUsuarioViewModel
 {
-    public EditarUsuarioViewModel()
-    {
-    }
+    public EditarUsuarioViewModel() { }
 
     public EditarUsuarioViewModel(ApplicationUser usuario, IList<ApplicationRole> roles)
     {
@@ -219,8 +137,7 @@ public class EditarUsuarioViewModel
         NumeroIdentificacion = usuario.IdentificationNumber;
         CorreoElectronico = usuario.Email;
         Estado = (bool)usuario.Active;
-
-        NombreCompleto = String.Format("{0} {1} {2}", this.Nombre, this.PrimerApellido, this.SegundoApellido);
+        NombreCompleto = $"{Nombre} {PrimerApellido} {SegundoApellido}";
         Roles = roles;
     }
 
@@ -251,9 +168,10 @@ public class EditarUsuarioViewModel
     [StringLength(50, ErrorMessage = "El correo electrónico no puede exceder los 50 caracteres.")]
     public string CorreoElectronico { get; set; }
 
-    [Display(Name = "Activo")] public bool Estado { get; set; }
+    [Display(Name = "Activo")]
+    public bool Estado { get; set; }
 
-    public string NombreCompleto { get; }
+    public string NombreCompleto { get; set; }
 
     public IList<ApplicationRole> Roles { get; set; }
 
@@ -261,8 +179,47 @@ public class EditarUsuarioViewModel
 
     public ApplicationUser Entidad()
     {
-        ApplicationUser usuario = new(IdUsuario, CorreoElectronico, Nombre, PrimerApellido,
+        return new ApplicationUser(IdUsuario, CorreoElectronico, Nombre, PrimerApellido,
             SegundoApellido, NumeroIdentificacion, true);
-        return usuario;
     }
+}
+
+public class DetalleColaboradorViewModel
+{
+    public DetalleColaboradorViewModel(ApplicationUser usuario, IList<Asignacion> asignaciones, IList<Proyecto> proyectosACargo)
+    {
+        IdUsuario = usuario.Id;
+        NombreCompleto = usuario.FullName;
+        CorreoElectronico = usuario.Email;
+        NumeroIdentificacion = usuario.IdentificationNumber;
+        Asignaciones = asignaciones;
+        ProyectosACargo = proyectosACargo;
+    }
+
+    public string IdUsuario { get; set; }
+    public string NombreCompleto { get; set; }
+    public string CorreoElectronico { get; set; }
+    public string NumeroIdentificacion { get; set; }
+    public IList<Asignacion> Asignaciones { get; set; }
+    public IList<Proyecto> ProyectosACargo { get; set; }
+}
+
+public class DetalleUsuarioViewModel
+{
+    public DetalleUsuarioViewModel(ApplicationUser usuario, IList<ApplicationRole> roles)
+    {
+        IdUsuario = usuario.Id;
+        NombreCompleto = usuario.FullName;
+        CorreoElectronico = usuario.Email;
+        NumeroIdentificacion = usuario.IdentificationNumber;
+        Activo = usuario.Active ?? false;
+        Roles = roles;
+    }
+
+    public string IdUsuario { get; set; }
+    public string NombreCompleto { get; set; }
+    public string CorreoElectronico { get; set; }
+    public string NumeroIdentificacion { get; set; }
+    public bool Activo { get; set; }
+    public IList<ApplicationRole> Roles { get; set; }
 }

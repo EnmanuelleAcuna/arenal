@@ -1,4 +1,4 @@
-@model Contrato
+@model EliminarContratoViewModel
 
 @{
     ViewData["Title"] = "Eliminar contrato";
@@ -33,7 +33,7 @@
 
                             <div class="col-12">
                                 <input value="Eliminar" class="btn btn-sm btn-danger" type="submit"/>
-                                @Html.ActionLink("Regresar", "Contratos", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "Contratos", null, null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }

@@ -1,4 +1,4 @@
-namespace plani.Models;
+namespace plani.Models.Domain;
 
 public interface IBaseCore<T>
 {

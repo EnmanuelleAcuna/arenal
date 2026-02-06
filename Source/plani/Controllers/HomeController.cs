@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using plani.Identity;
 using plani.Models;
+using plani.Models.Managers;
 using plani.Models.Data;
 
 namespace plani.Controllers;

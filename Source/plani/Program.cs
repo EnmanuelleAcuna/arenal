@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models;
+using plani.Models.Managers;
 using plani.Models.Data;
 
 namespace plani;
@@ -59,19 +60,20 @@ class Program
             options.Cookie.HttpOnly = true;
             options.Cookie.SameSite = SameSiteMode.Strict;
             options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            // options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
             options.SlidingExpiration = true;
             options.LoginPath = "/Cuentas/IniciarSesion";
         });
 
         builder.Services.AddScoped<IEmailSender, EmailSender>();
 
-        // Managers
         builder.Services.AddScoped<AreasManager>();
         builder.Services.AddScoped<ModalidadesManager>();
         builder.Services.AddScoped<ServiciosManager>();
         builder.Services.AddScoped<DashboardManager>();
         builder.Services.AddScoped<SesionesManager>();
+        builder.Services.AddScoped<ProyectosManager>();
+        builder.Services.AddScoped<ColaboradoresManager>();
+        builder.Services.AddScoped<ClientesManager>();
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 

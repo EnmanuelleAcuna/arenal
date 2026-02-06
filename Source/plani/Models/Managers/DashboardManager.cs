@@ -4,7 +4,9 @@ using plani.Identity;
 using plani.Models.Data;
 using plani.Models.ViewModels;
 
-namespace plani.Models;
+using plani.Models.Domain;
+
+namespace plani.Models.Managers;
 
 /// <summary>
 /// Manager para la lógica de negocio del Dashboard de administración

@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using plani.Models.Data;
+using plani.Models.Domain;
+using plani.Models.ViewModels;
 
-namespace plani.Models;
+namespace plani.Models.Managers;
 
 /// <summary>
 /// Manager para la lógica de negocio de Sesiones de trabajo
@@ -41,6 +43,27 @@ public class SesionesManager
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
             .ToListAsync();
+    }
+
+    /// <summary>
+    /// Obtiene sesiones filtradas con límite opcional cuando no hay filtros
+    /// </summary>
+    public async Task<List<Sesion>> ObtenerSesionesFiltradasConLimite(
+        string idUsuario,
+        string idProyecto = null,
+        DateTime? fechaInicio = null,
+        DateTime? fechaFin = null,
+        int limiteSinFiltros = 25)
+    {
+        var tieneFiltroDeFecha = fechaInicio != null || fechaFin != null;
+        var tieneFiltrodeProyecto = !string.IsNullOrEmpty(idProyecto);
+
+        if (!tieneFiltroDeFecha && !tieneFiltrodeProyecto)
+        {
+            return await ObtenerSesionesUsuario(idUsuario, limiteSinFiltros);
+        }
+
+        return await ObtenerSesionesFiltradas(idUsuario, idProyecto, fechaInicio, fechaFin);
     }
 
     /// <summary>
@@ -261,6 +284,51 @@ public class SesionesManager
         var ultimoDiaMes = primerDiaMes.AddMonths(1).AddDays(-1);
 
         return (primerDiaMes, ultimoDiaMes);
+    }
+
+    #endregion
+
+    #region Exportación
+
+    /// <summary>
+    /// Genera archivo Excel con las sesiones
+    /// </summary>
+    public byte[] ExportarSesionesExcel(List<Sesion> sesiones)
+    {
+        using var workbook = new ClosedXML.Excel.XLWorkbook();
+        var worksheet = workbook.Worksheets.Add("Sesiones");
+
+        worksheet.Cell(1, 1).Value = "Fecha";
+        worksheet.Cell(1, 2).Value = "Colaborador";
+        worksheet.Cell(1, 3).Value = "Cliente";
+        worksheet.Cell(1, 4).Value = "Proyecto";
+        worksheet.Cell(1, 5).Value = "Horas";
+        worksheet.Cell(1, 6).Value = "Minutos";
+        worksheet.Cell(1, 7).Value = "Detalle";
+
+        var headerRange = worksheet.Range(1, 1, 1, 7);
+        headerRange.Style.Font.Bold = true;
+        headerRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.FromHtml("#1e3a5f");
+        headerRange.Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
+
+        int row = 2;
+        foreach (var sesion in sesiones)
+        {
+            worksheet.Cell(row, 1).Value = sesion.FechaInicio.ToString("dd/MM/yyyy");
+            worksheet.Cell(row, 2).Value = sesion.ApplicationUser?.FullName;
+            worksheet.Cell(row, 3).Value = sesion.Proyecto?.Contrato?.Cliente?.Nombre;
+            worksheet.Cell(row, 4).Value = sesion.Proyecto?.Nombre;
+            worksheet.Cell(row, 5).Value = sesion.Horas;
+            worksheet.Cell(row, 6).Value = sesion.Minutes;
+            worksheet.Cell(row, 7).Value = sesion.Descripcion;
+            row++;
+        }
+
+        worksheet.Columns().AdjustToContents();
+
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+        return stream.ToArray();
     }
 
     #endregion

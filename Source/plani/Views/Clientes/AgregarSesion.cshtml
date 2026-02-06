@@ -1,4 +1,4 @@
-﻿@model plani.Models.AgregarSesionModel
+﻿@model AgregarSesionModel
 
 @{
     ViewData["Title"] = "Agregar sesión";
@@ -25,7 +25,7 @@
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label>Proyecto</label>
-                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "Seleccione un proyecto", new { @class = "form-control form-control-sm select2", id = "proyecto-select" })
+                                    @Html.DropDownListFor(model => model.IdProyecto, new List<SelectListItem>(ViewBag.Proyectos), "", new { @class = "form-control form-control-sm", id = "proyecto-select" })
                                     @Html.ValidationMessageFor(model => model.IdProyecto)
                                 </div>
                             </div>
@@ -41,7 +41,7 @@
                             <div class="col-sm-12 col-md-4">
                                 <div class="form-group">
                                     <label>Servicio</label>
-                                    @Html.DropDownListFor(model => model.IdServicio, new List<SelectListItem>(ViewBag.Servicios), "Seleccione un servicio", new { @class = "form-control form-control-sm" })
+                                    @Html.DropDownListFor(model => model.IdServicio, new List<SelectListItem>(ViewBag.Servicios), "", new { @class = "form-control form-control-sm", id = "servicio-select" })
                                     @Html.ValidationMessageFor(model => model.IdServicio)
                                 </div>
                             </div>
@@ -75,7 +75,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Regresar", "MisSesiones", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "MisSesiones", null, null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }
@@ -86,28 +86,11 @@
 </div>
 
 @section Scripts{
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script>
         $(document).ready(function() {
-            // Wait for DOM to be fully loaded
-            setTimeout(function() {
-                // Use a specific ID instead of a class
-                $("#proyecto-select").select2({
-                    placeholder: "Seleccione proyecto",
-                    allowClear: true,
-                    width: '100%',
-                    // Explicitly enable search
-                    minimumResultsForSearch: 0,
-                    // Force dropdown to open above or below as needed
-                    dropdownAutoWidth: true,
-                    // Debug mode to help identify issues
-                    debug: true
-                });
-                
-                // Check if Select2 was initialized properly
-                console.log("Select2 initialized:", $("#cliente-select").data("select2"));
-            }, 500);
+            initSelect2('#proyecto-select', 'Seleccione proyecto');
+            initSelect2('#servicio-select', 'Seleccione servicio');
         });
     </script>
 }

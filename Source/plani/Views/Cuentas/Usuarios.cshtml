@@ -12,6 +12,10 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
+                    <a asp-action="AgregarUsuario" class="btn btn-sm btn-secondary">Agregar usuario</a>
+
+                    <hr/>
+
                     <div class="table-responsive">
                         <table id="tablaUsuarios" class="table table-hover table-sm text-nowrap">
                             <thead>
@@ -33,10 +37,13 @@
                                         <td>@usuario.Estado</td>
                                         <td class="text-right">
                                             <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                                <a class="btn btn-sm btn-outline-light text-dark font-weight-bold"
+                                                <a class="btn btn-sm btn-outline-secondary font-weight-bold"
+                                                    asp-action="DetalleUsuario"
+                                                    asp-route-id="@usuario.IdUsuario">Detalle</a>
+                                                <a class="btn btn-sm btn-outline-primary"
                                                     asp-action="EditarUsuario"
                                                     asp-route-id="@usuario.IdUsuario">Modificar</a>
-                                                <a class="btn btn-sm btn-outline-light text-danger"
+                                                <a class="btn btn-sm btn-outline-danger"
                                                     asp-action="EliminarUsuario"
                                                     asp-route-id="@usuario.IdUsuario">Eliminar</a>
                                             </div>
@@ -58,12 +65,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#tablaUsuarios').DataTable({
-                "lengthChange": false,
-                "language": {
-                    "url": "/dataTables_es-ES.json"
-                }
-            });
+            initDataTable('#tablaUsuarios', { lengthChange: false });
         });
     </script>
 }

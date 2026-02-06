@@ -4,7 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 using plani.Identity;
 using plani.Models.ViewModels;
 
-namespace plani.ViewComponents;
+namespace plani.Models.ViewComponents;
 
 /// <summary>
 /// View Component para mostrar la información del usuario en el header.
