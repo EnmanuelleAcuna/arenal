@@ -17,6 +17,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Servicio> Servicios { get; set; }
     public virtual DbSet<Asignacion> Asignaciones { get; set; }
     public virtual DbSet<Sesion> Sesiones { get; set; }
+    public virtual DbSet<SesionLog> SesionLogs { get; set; }
 
     public ApplicationDbContext()
     {
@@ -57,5 +58,12 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Servicio>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Asignacion>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Sesion>().HasQueryFilter(e => !e.IsDeleted);
+
+        // Relación Sesion -> SesionLogs
+        modelBuilder.Entity<SesionLog>()
+            .HasOne(l => l.Sesion)
+            .WithMany(s => s.Logs)
+            .HasForeignKey(l => l.IdSesion)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

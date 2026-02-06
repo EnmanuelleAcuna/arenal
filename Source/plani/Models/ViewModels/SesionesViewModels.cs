@@ -101,6 +101,8 @@ public class DetalleSesionViewModel
         DateCreated = sesion.DateCreated;
         Servicio = sesion.Servicio;
         Proyecto = sesion.Proyecto;
+        Estado = sesion.EstadoDescripcion;
+        Logs = sesion.Logs?.OrderBy(l => l.Fecha).ToList() ?? new List<SesionLog>();
     }
 
     public Guid Id { get; set; }
@@ -117,4 +119,5 @@ public class DetalleSesionViewModel
     public DateTime DateCreated { get; set; }
     public Servicio Servicio { get; set; }
     public Proyecto Proyecto { get; set; }
+    public List<SesionLog> Logs { get; set; } = new();
 }
