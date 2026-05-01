@@ -1,4 +1,4 @@
-﻿@model DetalleSesionViewModel
+@model DetalleSesionViewModel
 
 @{
     ViewData["Title"] = "Sesiones";
@@ -14,13 +14,14 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <p>
-                                <b>Descripción de la sesión:</b> @Html.DisplayFor(model => model.Descripcion)
+                                <b>Descripcion de la sesion:</b> @Html.DisplayFor(model => model.Descripcion)
                             </p>
                         </div>
 
                         <div class="col-sm-12">
                             <p>Servicio: <b>@Model.Servicio.Nombre</b></p>
                             <p>Cliente: <b>@Model.Proyecto.Contrato.Cliente.Nombre</b></p>
+                            <p>Estado: <b>@Model.Estado</b></p>
                         </div>
 
                         <div class="col-sm-12">
@@ -46,6 +47,40 @@
                             }
                         </div>
                     </div>
+
+                    @if (Model.Logs != null && Model.Logs.Count > 0)
+                    {
+                        <hr/>
+                        <h6>Historial de eventos</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                <tr>
+                                    <th>Evento</th>
+                                    <th>Fecha</th>
+                                    <th>Tiempo</th>
+                                    <th>Usuario</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var log in Model.Logs)
+                                {
+                                    <tr>
+                                        <td>@log.TipoEventoDescripcion</td>
+                                        <td>@log.Fecha.AddHours(-6).ToString("dd-MM-yyyy hh:mm:ss tt")</td>
+                                        <td>@log.TiempoFormateado</td>
+                                        <td>@log.CreadoPor</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <hr/>
+                    <a asp-action="MisSesiones" asp-controller="Clientes" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Regresar
+                    </a>
                 </div>
             </div>
         </div>

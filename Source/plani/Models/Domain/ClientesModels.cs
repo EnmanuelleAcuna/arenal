@@ -370,6 +370,7 @@ public class Sesion : Base
 {
     public Sesion() : base()
     {
+        Logs = new List<SesionLog>();
     }
 
     public Sesion(Guid id, DateTime fechaInicio, int horas, int minutes, string descripcion, Guid idProyecto,
@@ -383,6 +384,8 @@ public class Sesion : Base
 
         IdProyecto = idProyecto;
         IdColaborador = idColaborador;
+
+        Logs = new List<SesionLog>();
     }
 
     public Sesion(Guid id, DateTime fechaInicio, int horas, int minutes, string descripcion, Proyecto proyecto,
@@ -399,6 +402,8 @@ public class Sesion : Base
 
         IdProyecto = proyecto.Id;
         Proyecto = proyecto;
+
+        Logs = new List<SesionLog>();
     }
 
     public Guid Id { get; set; }
@@ -411,11 +416,7 @@ public class Sesion : Base
 
     [Column("Fecha")] public DateTime FechaInicio { get; set; }
 
-    [Column("FechaPausa")] public DateTime? FechaPausa { get; set; }
-
     public DateTime? FechaFin { get; set; }
-
-    public DateTime? FechaReinicio { get; set; }
 
     [DisplayName("Horas")] public int Horas { get; set; }
 
@@ -428,9 +429,28 @@ public class Sesion : Base
     [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
+    /// <summary>
+    /// Estado actual de la sesión (Activa, Pausada, Finalizada)
+    /// </summary>
+    public EstadoSesion Estado { get; set; } = EstadoSesion.Activa;
+
+    /// <summary>
+    /// Logs de eventos de esta sesión (auditoría)
+    /// </summary>
+    public ICollection<SesionLog> Logs { get; set; }
+
     [NotMapped]
     public string TruncatedDescripcion =>
         Descripcion?.Length > 50 ? Descripcion.Substring(0, 50) + "..." : Descripcion;
+
+    [NotMapped]
+    public string EstadoDescripcion => Estado switch
+    {
+        EstadoSesion.Activa => "Activa",
+        EstadoSesion.Pausada => "Pausada",
+        EstadoSesion.Finalizada => "Finalizada",
+        _ => "Desconocido"
+    };
 
     public void Actualizar(Sesion sesion, string actualizadoPor)
     {

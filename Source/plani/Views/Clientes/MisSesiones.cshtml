@@ -34,9 +34,9 @@
                                 </h6>
                                 <p>@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</p>
                                 <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                    @if (!sesion.FechaFin.HasValue)
+                                    @if (sesion.Estado != plani.Models.Domain.EstadoSesion.Finalizada)
                                     {
-                                        if (sesion.FechaPausa.HasValue)
+                                        if (sesion.Estado == plani.Models.Domain.EstadoSesion.Pausada)
                                         {
                                             <a class="btn btn-sm btn-primary" asp-controller="Clientes"
                                                asp-action="ReanudarSesion"
@@ -53,11 +53,14 @@
                                             </a>
                                         }
 
-                                        <a class="btn btn-sm btn-dark" asp-controller="Clientes"
-                                           asp-action="FinalizarSesion"
-                                           asp-route-id="@sesion.Id">
-                                            Finalizar sesión
-                                        </a>
+                                        @if (sesion.Estado == plani.Models.Domain.EstadoSesion.Activa)
+                                        {
+                                            <a class="btn btn-sm btn-dark" asp-controller="Clientes"
+                                               asp-action="FinalizarSesion"
+                                               asp-route-id="@sesion.Id">
+                                                Finalizar sesión
+                                            </a>
+                                        }
                                     }
                                     <a class="btn btn-sm btn-outline-primary text-primary" asp-controller="Clientes"
                                        asp-action="DetalleSesion" asp-route-id="@sesion.Id">

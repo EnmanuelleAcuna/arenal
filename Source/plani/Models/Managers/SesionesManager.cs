@@ -42,6 +42,7 @@ public class SesionesManager
             .Include(s => s.Proyecto)
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
+            .Include(s => s.Logs)
             .ToListAsync();
     }
 
@@ -79,21 +80,23 @@ public class SesionesManager
             .Include(s => s.Proyecto)
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
+            .Include(s => s.Logs)
             .ToListAsync();
     }
 
     /// <summary>
-    /// Obtiene las sesiones activas (sin FechaFin) de un usuario
+    /// Obtiene las sesiones activas o pausadas (sin finalizar) de un usuario
     /// </summary>
     public async Task<List<Sesion>> ObtenerSesionesActivas(string idUsuario)
     {
         return await _dbContext.Sesiones
-            .Where(s => s.IdColaborador == idUsuario && s.FechaFin == null)
+            .Where(s => s.IdColaborador == idUsuario && s.Estado != EstadoSesion.Finalizada)
             .OrderByDescending(s => s.FechaInicio)
             .Include(s => s.ApplicationUser)
             .Include(s => s.Proyecto)
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
+            .Include(s => s.Logs)
             .ToListAsync();
     }
 
@@ -108,16 +111,17 @@ public class SesionesManager
             .Include(s => s.Proyecto)
             .ThenInclude(p => p.Contrato)
             .ThenInclude(c => c.Cliente)
+            .Include(s => s.Logs.OrderBy(l => l.Fecha))
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
     /// <summary>
-    /// Cuenta las sesiones activas de un usuario
+    /// Cuenta las sesiones activas (en curso) de un usuario
     /// </summary>
     public async Task<int> ContarSesionesActivas(string idUsuario)
     {
         return await _dbContext.Sesiones
-            .CountAsync(s => s.IdColaborador == idUsuario && s.FechaFin == null);
+            .CountAsync(s => s.IdColaborador == idUsuario && s.Estado != EstadoSesion.Finalizada);
     }
 
     #endregion
@@ -129,6 +133,8 @@ public class SesionesManager
     /// </summary>
     public async Task<bool> CrearSesionManual(AgregarSesionModel model, string idColaborador, string userEmail)
     {
+        var fechaUtc = model.Fecha.AddHours(6);
+
         var sesion = new Sesion
         {
             IdColaborador = idColaborador,
@@ -137,12 +143,20 @@ public class SesionesManager
             Horas = model.Horas,
             Minutes = model.Minutos,
             Descripcion = model.Descripcion,
-            FechaInicio = model.Fecha.AddHours(6),
-            FechaFin = model.Fecha.AddHours(6)
+            FechaInicio = fechaUtc,
+            FechaFin = fechaUtc,
+            Estado = EstadoSesion.Finalizada
         };
 
         sesion.RegristrarCreacion(userEmail, DateTime.UtcNow);
         await _dbContext.Sesiones.AddAsync(sesion);
+
+        // Crear log de inicio y finalización para sesiones manuales
+        var logInicio = new SesionLog(sesion.Id, TipoEventoSesion.Inicio, fechaUtc, 0, 0, userEmail);
+        var logFin = new SesionLog(sesion.Id, TipoEventoSesion.Finalizacion, fechaUtc, model.Horas, model.Minutos, userEmail);
+
+        await _dbContext.SesionLogs.AddAsync(logInicio);
+        await _dbContext.SesionLogs.AddAsync(logFin);
 
         return await _dbContext.SaveChangesAsync() > 0;
     }
@@ -159,19 +173,26 @@ public class SesionesManager
             return (false, "No puede iniciar una nueva sesión si tiene dos sesiones activas.");
         }
 
+        var ahora = DateTime.UtcNow;
+
         var sesion = new Sesion
         {
             IdColaborador = idColaborador,
             IdProyecto = model.IdProyecto,
             IdServicio = model.IdServicio,
-            FechaInicio = DateTime.UtcNow,
+            FechaInicio = ahora,
             Horas = 0,
             Minutes = 0,
-            Descripcion = model.Descripcion
+            Descripcion = model.Descripcion,
+            Estado = EstadoSesion.Activa
         };
 
-        sesion.RegristrarCreacion(userEmail, DateTime.UtcNow);
+        sesion.RegristrarCreacion(userEmail, ahora);
         await _dbContext.Sesiones.AddAsync(sesion);
+
+        // Crear log de inicio
+        var logInicio = new SesionLog(sesion.Id, TipoEventoSesion.Inicio, ahora, 0, 0, userEmail);
+        await _dbContext.SesionLogs.AddAsync(logInicio);
 
         var guardado = await _dbContext.SaveChangesAsync() > 0;
         return (guardado, guardado ? null : "Error al iniciar la sesión.");
@@ -182,17 +203,31 @@ public class SesionesManager
     /// </summary>
     public async Task<(bool exito, string error)> PausarSesion(Guid idSesion, string descripcion, string userEmail)
     {
-        var sesion = await _dbContext.Sesiones.FindAsync(idSesion);
+        var sesion = await _dbContext.Sesiones
+            .Include(s => s.Logs)
+            .FirstOrDefaultAsync(s => s.Id == idSesion);
 
         if (sesion == null)
             return (false, "Sesión no encontrada.");
 
-        sesion.FechaPausa = DateTime.UtcNow;
+        if (sesion.Estado != EstadoSesion.Activa)
+            return (false, "Solo puede pausar una sesión activa.");
 
-        // Calcular tiempo transcurrido desde FechaReinicio (si fue reanudada) o FechaInicio
-        CalcularYAgregarTiempo(sesion, sesion.FechaPausa.Value);
+        var ahora = DateTime.UtcNow;
 
+        // Calcular tiempo transcurrido desde el último evento de inicio o reanudación
+        var (horas, minutos) = CalcularTiempoDesdeUltimoEvento(sesion.Logs, ahora);
+
+        // Crear log de pausa
+        var logPausa = new SesionLog(sesion.Id, TipoEventoSesion.Pausa, ahora, horas, minutos, userEmail);
+        await _dbContext.SesionLogs.AddAsync(logPausa);
+
+        // Actualizar tiempo acumulado en la sesión
+        AgregarTiempo(sesion, horas, minutos);
+
+        sesion.Estado = EstadoSesion.Pausada;
         sesion.Descripcion = descripcion;
+        sesion.RegistrarActualizacion(userEmail, ahora);
 
         _dbContext.Sesiones.Update(sesion);
         var guardado = await _dbContext.SaveChangesAsync() > 0;
@@ -205,14 +240,25 @@ public class SesionesManager
     /// </summary>
     public async Task<(bool exito, string error)> ReanudarSesion(Guid idSesion, string descripcion, string userEmail)
     {
-        var sesion = await _dbContext.Sesiones.FindAsync(idSesion);
+        var sesion = await _dbContext.Sesiones
+            .Include(s => s.Logs)
+            .FirstOrDefaultAsync(s => s.Id == idSesion);
 
         if (sesion == null)
             return (false, "Sesión no encontrada.");
 
-        sesion.FechaReinicio = DateTime.UtcNow;
-        sesion.FechaPausa = null;
+        if (sesion.Estado != EstadoSesion.Pausada)
+            return (false, "Solo puede reanudar una sesión pausada.");
+
+        var ahora = DateTime.UtcNow;
+
+        // Crear log de reanudación (tiempo 0, solo marca el punto de reinicio)
+        var logReanudacion = new SesionLog(sesion.Id, TipoEventoSesion.Reanudacion, ahora, 0, 0, userEmail);
+        await _dbContext.SesionLogs.AddAsync(logReanudacion);
+
+        sesion.Estado = EstadoSesion.Activa;
         sesion.Descripcion = descripcion;
+        sesion.RegistrarActualizacion(userEmail, ahora);
 
         _dbContext.Sesiones.Update(sesion);
         var guardado = await _dbContext.SaveChangesAsync() > 0;
@@ -225,21 +271,35 @@ public class SesionesManager
     /// </summary>
     public async Task<(bool exito, string error)> FinalizarSesion(Guid idSesion, string descripcion, string userEmail)
     {
-        var sesion = await _dbContext.Sesiones.FindAsync(idSesion);
+        var sesion = await _dbContext.Sesiones
+            .Include(s => s.Logs)
+            .FirstOrDefaultAsync(s => s.Id == idSesion);
 
         if (sesion == null)
             return (false, "Sesión no encontrada.");
 
-        sesion.FechaFin = DateTime.UtcNow;
+        if (sesion.Estado == EstadoSesion.Finalizada)
+            return (false, "La sesión ya está finalizada.");
 
-        // Solo calcular tiempo si la sesión NO está pausada
-        // Si está pausada, el tiempo ya fue contabilizado en PausarSesion
-        if (sesion.FechaPausa == null)
-        {
-            CalcularYAgregarTiempo(sesion, sesion.FechaFin.Value);
-        }
+        if (sesion.Estado == EstadoSesion.Pausada)
+            return (false, "Debe reanudar la sesión antes de finalizarla.");
 
+        var ahora = DateTime.UtcNow;
+
+        // Calcular tiempo transcurrido desde el último evento de inicio o reanudación
+        var (horas, minutos) = CalcularTiempoDesdeUltimoEvento(sesion.Logs, ahora);
+
+        // Crear log de finalización
+        var logFin = new SesionLog(sesion.Id, TipoEventoSesion.Finalizacion, ahora, horas, minutos, userEmail);
+        await _dbContext.SesionLogs.AddAsync(logFin);
+
+        // Actualizar tiempo acumulado en la sesión
+        AgregarTiempo(sesion, horas, minutos);
+
+        sesion.FechaFin = ahora;
+        sesion.Estado = EstadoSesion.Finalizada;
         sesion.Descripcion = descripcion;
+        sesion.RegistrarActualizacion(userEmail, ahora);
 
         _dbContext.Sesiones.Update(sesion);
         var guardado = await _dbContext.SaveChangesAsync() > 0;
@@ -252,18 +312,36 @@ public class SesionesManager
     #region Métodos auxiliares
 
     /// <summary>
-    /// Calcula el tiempo transcurrido y lo agrega a la sesión
+    /// Calcula el tiempo transcurrido desde el último evento de inicio o reanudación
     /// </summary>
-    private void CalcularYAgregarTiempo(Sesion sesion, DateTime fechaHasta)
+    private (int horas, int minutos) CalcularTiempoDesdeUltimoEvento(ICollection<SesionLog> logs, DateTime fechaHasta)
     {
-        // Usar FechaReinicio si existe (sesión reanudada), sino FechaInicio
-        DateTime fechaReferencia = sesion.FechaReinicio ?? sesion.FechaInicio;
-        TimeSpan diferencia = fechaHasta - fechaReferencia;
+        // Buscar el último evento de inicio o reanudación
+        var ultimoEventoActivo = logs
+            .Where(l => l.TipoEvento == TipoEventoSesion.Inicio || l.TipoEvento == TipoEventoSesion.Reanudacion)
+            .OrderByDescending(l => l.Fecha)
+            .FirstOrDefault();
 
-        int horasTotales = (int)diferencia.TotalHours;
+        if (ultimoEventoActivo == null)
+        {
+            _logger.LogWarning("No se encontró evento de inicio o reanudación para calcular tiempo");
+            return (0, 0);
+        }
+
+        TimeSpan diferencia = fechaHasta - ultimoEventoActivo.Fecha;
+
+        int horas = (int)diferencia.TotalHours;
         int minutos = diferencia.Minutes;
 
-        sesion.Horas += horasTotales;
+        return (horas, minutos);
+    }
+
+    /// <summary>
+    /// Agrega tiempo a la sesión y normaliza los minutos
+    /// </summary>
+    private void AgregarTiempo(Sesion sesion, int horas, int minutos)
+    {
+        sesion.Horas += horas;
         sesion.Minutes += minutos;
 
         // Normalizar si los minutos exceden 60
@@ -286,6 +364,17 @@ public class SesionesManager
         return (primerDiaMes, ultimoDiaMes);
     }
 
+    /// <summary>
+    /// Obtiene los logs de una sesión ordenados cronológicamente
+    /// </summary>
+    public async Task<List<SesionLog>> ObtenerLogsSesion(Guid idSesion)
+    {
+        return await _dbContext.SesionLogs
+            .Where(l => l.IdSesion == idSesion)
+            .OrderBy(l => l.Fecha)
+            .ToListAsync();
+    }
+
     #endregion
 
     #region Exportación
@@ -304,9 +393,10 @@ public class SesionesManager
         worksheet.Cell(1, 4).Value = "Proyecto";
         worksheet.Cell(1, 5).Value = "Horas";
         worksheet.Cell(1, 6).Value = "Minutos";
-        worksheet.Cell(1, 7).Value = "Detalle";
+        worksheet.Cell(1, 7).Value = "Estado";
+        worksheet.Cell(1, 8).Value = "Detalle";
 
-        var headerRange = worksheet.Range(1, 1, 1, 7);
+        var headerRange = worksheet.Range(1, 1, 1, 8);
         headerRange.Style.Font.Bold = true;
         headerRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.FromHtml("#1e3a5f");
         headerRange.Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
@@ -320,7 +410,8 @@ public class SesionesManager
             worksheet.Cell(row, 4).Value = sesion.Proyecto?.Nombre;
             worksheet.Cell(row, 5).Value = sesion.Horas;
             worksheet.Cell(row, 6).Value = sesion.Minutes;
-            worksheet.Cell(row, 7).Value = sesion.Descripcion;
+            worksheet.Cell(row, 7).Value = sesion.EstadoDescripcion;
+            worksheet.Cell(row, 8).Value = sesion.Descripcion;
             row++;
         }
 
