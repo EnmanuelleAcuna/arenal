@@ -10,8 +10,7 @@
 
         <div class="card">
             <div class="card-body">
-                @using (Html.BeginForm("RestablecerContrasena", "Cuentas", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, true, new { autocomplete = "off" }))
-                {
+                @using (Html.BeginForm("RestablecerContrasena", "Cuentas", new { ViewBag.ReturnUrl }, method: FormMethod.Post, antiforgery: true, new { autocomplete = "off" })) {
                     @Html.AntiForgeryToken()
                     @Html.HiddenFor(m => m.Code)
 
@@ -34,7 +33,7 @@
                     </div>
 
                     <div class="center red-text font-bold">
-                        @Html.ValidationSummary(true, "", new { @class = "data-error" })
+                        @Html.ValidationSummary(excludePropertyErrors: true, "", new { @class = "data-error" })
                     </div>
 
                     <div class="w-100 text-center">
@@ -43,8 +42,7 @@
                         </button>
 
                         <small>
-                            @Html.ActionLink("Iniciar sesión", "IniciarSesion", "Cuentas", null, new
-                            {
+                            @Html.ActionLink("Iniciar sesión", "IniciarSesion", "Cuentas", routeValues: null, new {
                                 @class = "text-secondary ", title = "Iniciar sesión"
                             })
                         </small>

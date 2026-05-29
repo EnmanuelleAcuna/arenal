@@ -11,8 +11,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("EliminarContrato", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("EliminarContrato", "Clientes", method: FormMethod.Post, new { autocomplete = "off" })) {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.Id)
                         @Html.HiddenFor(model => model.Identificacion)
@@ -20,20 +19,22 @@
 
                         <div class="row">
                             <div class="col-md-12">
-                                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                                @Html.ValidationSummary(excludePropertyErrors: true, "", new { @class = "alert alert-danger" })
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-sm-12">
                                 <h6>
-                                    ¿Seguro que desea eliminar el contrato <b>@Html.DisplayFor(model => model.Identificacion)</b> del cliente: <b>@Html.DisplayFor(model => model.Cliente.Nombre)</b>?
+                                    ¿Seguro que desea eliminar el contrato
+                                    <b>@Html.DisplayFor(model => model.Identificacion)</b> del cliente:
+                                    <b>@Html.DisplayFor(model => model.Cliente.Nombre)</b>?
                                 </h6>
                             </div>
 
                             <div class="col-12">
                                 <input value="Eliminar" class="btn btn-sm btn-danger" type="submit"/>
-                                @Html.ActionLink("Cancelar", "Contratos", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "Contratos", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }

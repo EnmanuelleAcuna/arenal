@@ -1,10 +1,7 @@
 namespace plani.Models.Domain;
 
-public class Base
-{
-    protected Base()
-    {
-    }
+public class Base {
+    protected Base() { }
 
     public DateTime DateCreated { get; private set; }
     public string CreatedBy { get; private set; }
@@ -13,43 +10,36 @@ public class Base
     public string DeletedBy { get; private set; }
     public DateTime? DateDeleted { get; private set; }
     public bool IsDeleted { get; private set; }
-    
-    public void Eliminar(string eliminadoPor)
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException(Utils.MensajeErrorObjetoYaEliminado);
-        
+
+    public void Eliminar(string eliminadoPor) {
+        if (IsDeleted) {
+            throw new InvalidOperationException(message: Utils.MensajeErrorObjetoYaEliminado);
+        }
+
         IsDeleted = true;
-        RegistrarEliminacion(eliminadoPor, DateTime.UtcNow);
+        RegistrarEliminacion(eliminadoPor: eliminadoPor, eliminadoEl: DateTime.UtcNow);
     }
 
-    public void RegristrarCreacion(string creadoPor, DateTime creadoEl)
-    {
+    public void RegristrarCreacion(string creadoPor, DateTime creadoEl) {
         CreatedBy = creadoPor;
         DateCreated = creadoEl;
     }
 
-    public void RegistrarActualizacion(string actualizadoPor, DateTime actualizadoEl)
-    {
+    public void RegistrarActualizacion(string actualizadoPor, DateTime actualizadoEl) {
         UpdatedBy = actualizadoPor;
         DateUpdated = actualizadoEl;
     }
 
-    private void RegistrarEliminacion(string eliminadoPor, DateTime eliminadoEl)
-    {
+    private void RegistrarEliminacion(string eliminadoPor, DateTime eliminadoEl) {
         DeletedBy = eliminadoPor;
         DateDeleted = eliminadoEl;
     }
 }
 
-public class BaseViewModel
-{
-    public BaseViewModel()
-    {
-    }
+public class BaseViewModel {
+    public BaseViewModel() { }
 
-    public BaseViewModel(Base baseModel)
-    {
+    public BaseViewModel(Base baseModel) {
         CreadoPor = baseModel.CreatedBy;
         CreadoEl = baseModel.DateCreated.ToString("dd/MM/yyyy");
         EditadoPor = baseModel.UpdatedBy;

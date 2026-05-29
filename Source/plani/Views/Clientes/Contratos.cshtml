@@ -29,8 +29,7 @@
                             </thead>
                             <tbody>
 
-                            @foreach (var item in Model)
-                            {
+                            @foreach (DetalleContratoViewModel item in Model) {
                                 <tr>
                                     <td>@item.Identificacion</td>
                                     <td>@item.Area.Nombre</td>
@@ -64,6 +63,6 @@
 
 @section Scripts {
     <script type="text/javascript">
-		
-	</script>
+
+    </script>
 }

@@ -8,15 +8,12 @@ using plani.Identity;
 namespace plani.Models.Domain;
 
 [Table("TiposCliente")]
-public class TipoCliente : Base
-{
-    public TipoCliente() : base()
-    {
+public class TipoCliente : Base {
+    public TipoCliente() {
         Clientes = new List<Cliente>();
     }
 
-    public TipoCliente(Guid id, string nombre, string descripcion) : base()
-    {
+    public TipoCliente(Guid id, string nombre, string descripcion) {
         Id = id;
         Nombre = nombre;
         Descripcion = descripcion;
@@ -26,40 +23,38 @@ public class TipoCliente : Base
 
     [Key] public Guid Id { get; set; }
 
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     [NotMapped]
     public string TruncatedDescripcion =>
-        Descripcion?.Length > 50 ? Descripcion.Substring(0, 50) + "..." : Descripcion;
+        Descripcion?.Length > 50 ? Descripcion.Substring(startIndex: 0, length: 50) + "..." : Descripcion;
 
     public ICollection<Cliente> Clientes { get; set; }
 
-    public void Actualizar(TipoCliente tipoCliente, string actualizadoPor)
-    {
+    public void Actualizar(TipoCliente tipoCliente, string actualizadoPor) {
         Nombre = tipoCliente.Nombre;
         Descripcion = tipoCliente.Descripcion;
-        RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
+        RegistrarActualizacion(actualizadoPor: actualizadoPor, actualizadoEl: DateTime.UtcNow);
     }
 
-    public override string ToString() => JsonSerializer.Serialize(this);
+    public override string ToString() {
+        return JsonSerializer.Serialize(this);
+    }
 }
 
 [Table("Clientes")]
-public class Cliente : Base
-{
-    public Cliente() : base()
-    {
+public class Cliente : Base {
+    public Cliente() {
         Contratos = new List<Contrato>();
     }
 
     public Cliente(Guid id, string identificacion, string nombre, string direccion, string descripcion,
-        TipoCliente tipoCliente) : base()
-    {
+        TipoCliente tipoCliente) {
         Id = id;
         Identificacion = identificacion;
         Nombre = nombre;
@@ -73,8 +68,7 @@ public class Cliente : Base
     }
 
     public Cliente(Guid id, string identificacion, string nombre, string direccion, string descripcion,
-        Guid idTipoCliente) : base()
-    {
+        Guid idTipoCliente) {
         Id = id;
         Identificacion = identificacion;
         Nombre = nombre;
@@ -88,57 +82,55 @@ public class Cliente : Base
 
     [Key] public Guid Id { get; set; }
 
-    [StringLength(100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
+    [StringLength(maximumLength: 100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
     public string Identificacion { get; set; }
 
-    [StringLength(250, ErrorMessage = "El nombre debe tener máximo 250 caracteres.")]
+    [StringLength(maximumLength: 250, ErrorMessage = "El nombre debe tener máximo 250 caracteres.")]
     public string Nombre { get; set; }
 
     [DisplayName("Dirección")]
-    [StringLength(1000, ErrorMessage = "La dirección debe tener máximo 1000 caracteres.")]
+    [StringLength(maximumLength: 1000, ErrorMessage = "La dirección debe tener máximo 1000 caracteres.")]
     public string Direccion { get; set; }
 
     [NotMapped]
     public string TruncatedDireccion =>
-        Direccion?.Length > 20 ? Direccion.Substring(0, 20) + "..." : Direccion;
+        Direccion?.Length > 20 ? Direccion.Substring(startIndex: 0, length: 20) + "..." : Direccion;
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     [NotMapped]
     public string TruncatedDescripcion =>
-        Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
+        Descripcion?.Length > 20 ? Descripcion.Substring(startIndex: 0, length: 20) + "..." : Descripcion;
 
     [ForeignKey(nameof(TipoCliente))] public Guid IdTipoCliente { get; set; }
     public TipoCliente TipoCliente { get; set; }
 
     public ICollection<Contrato> Contratos { get; set; }
 
-    public void Actualizar(Cliente cliente, string actualizadoPor)
-    {
+    public void Actualizar(Cliente cliente, string actualizadoPor) {
         Identificacion = cliente.Identificacion;
         Nombre = cliente.Nombre;
         Direccion = cliente.Direccion;
         Descripcion = cliente.Descripcion;
         IdTipoCliente = cliente.IdTipoCliente;
-        RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
+        RegistrarActualizacion(actualizadoPor: actualizadoPor, actualizadoEl: DateTime.UtcNow);
     }
 
-    public override string ToString() => JsonSerializer.Serialize(this);
+    public override string ToString() {
+        return JsonSerializer.Serialize(this);
+    }
 }
 
 [Table("Contratos")]
-public class Contrato : Base
-{
-    public Contrato() : base()
-    {
+public class Contrato : Base {
+    public Contrato() {
         Proyectos = new List<Proyecto>();
     }
 
     public Contrato(Guid id, string identificacion, DateTime fechaInicio, string descripcion, Guid idCliente,
-        Guid idArea) : base()
-    {
+        Guid idArea) {
         Id = id;
         Identificacion = identificacion;
         FechaInicio = fechaInicio;
@@ -151,8 +143,7 @@ public class Contrato : Base
     }
 
     public Contrato(Guid id, string identificacion, DateTime fechaInicio, string descripcion, Cliente cliente,
-        Area area) : base()
-    {
+        Area area) {
         Id = id;
         Identificacion = identificacion;
         FechaInicio = fechaInicio;
@@ -170,22 +161,22 @@ public class Contrato : Base
     public Guid Id { get; set; }
 
     [DisplayName("Identificación")]
-    [StringLength(100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
+    [StringLength(maximumLength: 100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
     public string Identificacion { get; set; }
 
     [DisplayName("Fecha de inicio")]
-    [DataType(DataType.Date)]
+    [DataType(dataType: DataType.Date)]
     public DateTime FechaInicio { get; set; }
 
     [NotMapped] public string LongDateFechaInicio => FechaInicio.ToString("D", new CultureInfo("es-ES"));
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     [NotMapped]
     public string TruncatedDescripcion =>
-        Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
+        Descripcion?.Length > 20 ? Descripcion.Substring(startIndex: 0, length: 20) + "..." : Descripcion;
 
     [ForeignKey(nameof(Cliente))] public Guid IdCliente { get; set; }
     public Cliente Cliente { get; set; }
@@ -195,30 +186,28 @@ public class Contrato : Base
 
     public ICollection<Proyecto> Proyectos { get; set; }
 
-    public void Actualizar(Contrato contrato, string actualizadoPor)
-    {
+    public void Actualizar(Contrato contrato, string actualizadoPor) {
         Identificacion = contrato.Identificacion;
         FechaInicio = contrato.FechaInicio;
         Descripcion = contrato.Descripcion;
         IdCliente = contrato.IdCliente;
         IdArea = contrato.IdArea;
-        RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
+        RegistrarActualizacion(actualizadoPor: actualizadoPor, actualizadoEl: DateTime.UtcNow);
     }
 
-    public override string ToString() => JsonSerializer.Serialize(this);
+    public override string ToString() {
+        return JsonSerializer.Serialize(this);
+    }
 }
 
 [Table("Proyectos")]
-public class Proyecto : Base
-{
-    public Proyecto() : base()
-    {
+public class Proyecto : Base {
+    public Proyecto() {
         Asignaciones = new List<Asignacion>();
     }
 
     public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, string descripcion, Guid idArea,
-        Guid idContrato) : base()
-    {
+        Guid idContrato) {
         Id = id;
         Nombre = nombre;
         FechaInicio = fechaInicio;
@@ -232,8 +221,7 @@ public class Proyecto : Base
     }
 
     public Proyecto(Guid id, string nombre, DateTime fechaInicio, DateTime fechaFin, string descripcion, Area area,
-        Contrato contrato) : base()
-    {
+        Contrato contrato) {
         Id = id;
         Nombre = nombre;
         FechaInicio = fechaInicio;
@@ -251,14 +239,14 @@ public class Proyecto : Base
 
     public Guid Id { get; set; }
 
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
-    [DataType(DataType.Date)] public DateTime FechaInicio { get; set; }
+    [DataType(dataType: DataType.Date)] public DateTime FechaInicio { get; set; }
 
     [NotMapped] public string LongDateFechaInicio => FechaInicio.ToString("D", new CultureInfo("es-ES"));
 
-    [DataType(DataType.Date)] public DateTime? FechaFin { get; set; }
+    [DataType(dataType: DataType.Date)] public DateTime? FechaFin { get; set; }
 
     [NotMapped] public string LongDateFechaFin => FechaFin?.ToString("D", new CultureInfo("es-ES"));
 
@@ -269,27 +257,24 @@ public class Proyecto : Base
     public Contrato Contrato { get; set; }
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     [NotMapped]
     public string TruncatedDescripcion =>
-        Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
+        Descripcion?.Length > 20 ? Descripcion.Substring(startIndex: 0, length: 20) + "..." : Descripcion;
 
     [DisplayName("Horas Estimadas")]
-    [Range(0, 10000, ErrorMessage = "Las horas estimadas deben estar entre 0 y 10,000.")]
+    [Range(minimum: 0, maximum: 10000, ErrorMessage = "Las horas estimadas deben estar entre 0 y 10,000.")]
     public int? HorasEstimadas { get; set; }
 
-    [ForeignKey(nameof(Responsable))]
-    public string IdResponsable { get; set; }
+    [ForeignKey(nameof(Responsable))] public string IdResponsable { get; set; }
 
-    [DisplayName("Responsable")]
-    public ApplicationUser Responsable { get; set; }
+    [DisplayName("Responsable")] public ApplicationUser Responsable { get; set; }
 
     public ICollection<Asignacion> Asignaciones { get; set; }
 
-    public void Actualizar(Proyecto proyecto, string actualizadoPor)
-    {
+    public void Actualizar(Proyecto proyecto, string actualizadoPor) {
         Nombre = proyecto.Nombre;
         FechaInicio = proyecto.FechaInicio;
         FechaFin = proyecto.FechaFin;
@@ -298,21 +283,19 @@ public class Proyecto : Base
         IdContrato = proyecto.IdContrato;
         HorasEstimadas = proyecto.HorasEstimadas;
         IdResponsable = proyecto.IdResponsable;
-        RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
+        RegistrarActualizacion(actualizadoPor: actualizadoPor, actualizadoEl: DateTime.UtcNow);
     }
 
-    public override string ToString() => JsonSerializer.Serialize(this);
+    public override string ToString() {
+        return JsonSerializer.Serialize(this);
+    }
 }
 
 [Table("Asignaciones")]
-public class Asignacion : Base
-{
-    public Asignacion() : base()
-    {
-    }
+public class Asignacion : Base {
+    public Asignacion() { }
 
-    public Asignacion(Guid id, int horasEstimadas, string descripcion, Guid idProyecto, string idColaborador) : base()
-    {
+    public Asignacion(Guid id, int horasEstimadas, string descripcion, Guid idProyecto, string idColaborador) {
         Id = id;
         HorasEstimadas = horasEstimadas;
         Descripcion = descripcion;
@@ -322,8 +305,7 @@ public class Asignacion : Base
     }
 
     public Asignacion(Guid id, int horasEstimadas, string descripcion, Proyecto proyecto,
-        ApplicationUser usuario) : base()
-    {
+        ApplicationUser usuario) {
         Id = id;
         HorasEstimadas = horasEstimadas;
         Descripcion = descripcion;
@@ -346,36 +328,34 @@ public class Asignacion : Base
     [DisplayName("Horas estimadas")] public int HorasEstimadas { get; set; }
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     [NotMapped]
     public string TruncatedDescripcion =>
-        Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
+        Descripcion?.Length > 20 ? Descripcion.Substring(startIndex: 0, length: 20) + "..." : Descripcion;
 
-    public void Actualizar(Asignacion asignacion, string actualizadoPor)
-    {
+    public void Actualizar(Asignacion asignacion, string actualizadoPor) {
         HorasEstimadas = asignacion.HorasEstimadas;
         Descripcion = asignacion.Descripcion;
         IdProyecto = asignacion.IdProyecto;
         IdColaborador = asignacion.IdColaborador;
-        RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
+        RegistrarActualizacion(actualizadoPor: actualizadoPor, actualizadoEl: DateTime.UtcNow);
     }
 
-    public override string ToString() => JsonSerializer.Serialize(this);
+    public override string ToString() {
+        return JsonSerializer.Serialize(this);
+    }
 }
 
 [Table("Sesiones")]
-public class Sesion : Base
-{
-    public Sesion() : base()
-    {
+public class Sesion : Base {
+    public Sesion() {
         Logs = new List<SesionLog>();
     }
 
     public Sesion(Guid id, DateTime fechaInicio, int horas, int minutes, string descripcion, Guid idProyecto,
-        string idColaborador) : base()
-    {
+        string idColaborador) {
         Id = id;
         FechaInicio = fechaInicio;
         Horas = horas;
@@ -389,8 +369,7 @@ public class Sesion : Base
     }
 
     public Sesion(Guid id, DateTime fechaInicio, int horas, int minutes, string descripcion, Proyecto proyecto,
-        ApplicationUser usuario) : base()
-    {
+        ApplicationUser usuario) {
         Id = id;
         FechaInicio = fechaInicio;
         Horas = horas;
@@ -426,34 +405,32 @@ public class Sesion : Base
     public Servicio Servicio { get; set; }
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     /// <summary>
-    /// Estado actual de la sesión (Activa, Pausada, Finalizada)
+    ///     Estado actual de la sesión (Activa, Pausada, Finalizada)
     /// </summary>
     public EstadoSesion Estado { get; set; } = EstadoSesion.Activa;
 
     /// <summary>
-    /// Logs de eventos de esta sesión (auditoría)
+    ///     Logs de eventos de esta sesión (auditoría)
     /// </summary>
     public ICollection<SesionLog> Logs { get; set; }
 
     [NotMapped]
     public string TruncatedDescripcion =>
-        Descripcion?.Length > 50 ? Descripcion.Substring(0, 50) + "..." : Descripcion;
+        Descripcion?.Length > 50 ? Descripcion.Substring(startIndex: 0, length: 50) + "..." : Descripcion;
 
     [NotMapped]
-    public string EstadoDescripcion => Estado switch
-    {
+    public string EstadoDescripcion => Estado switch {
         EstadoSesion.Activa => "Activa",
         EstadoSesion.Pausada => "Pausada",
         EstadoSesion.Finalizada => "Finalizada",
         _ => "Desconocido"
     };
 
-    public void Actualizar(Sesion sesion, string actualizadoPor)
-    {
+    public void Actualizar(Sesion sesion, string actualizadoPor) {
         FechaInicio = sesion.FechaInicio;
         Horas = sesion.Horas;
         Minutes = sesion.Minutes;
@@ -461,8 +438,10 @@ public class Sesion : Base
         IdProyecto = sesion.IdProyecto;
         IdColaborador = sesion.IdColaborador;
         IdServicio = sesion.IdServicio;
-        RegistrarActualizacion(actualizadoPor, DateTime.UtcNow);
+        RegistrarActualizacion(actualizadoPor: actualizadoPor, actualizadoEl: DateTime.UtcNow);
     }
 
-    public override string ToString() => JsonSerializer.Serialize(this);
+    public override string ToString() {
+        return JsonSerializer.Serialize(this);
+    }
 }

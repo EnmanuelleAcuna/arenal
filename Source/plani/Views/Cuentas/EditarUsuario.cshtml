@@ -11,15 +11,14 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("EditarUsuario", "Cuentas", FormMethod.Post, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("EditarUsuario", "Cuentas", method: FormMethod.Post, new { autocomplete = "off" })) {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.IdUsuario)
                         @Html.HiddenFor(model => model.CorreoElectronico)
 
                         <div class="row">
                             <div class="col-md-12">
-                                @Html.ValidationSummary(true, "")
+                                @Html.ValidationSummary(excludePropertyErrors: true, "")
                             </div>
                         </div>
 
@@ -73,8 +72,7 @@
                             </div>
                             <div class="col-sm-12 mt-2">
                                 <div class="row">
-                                    @foreach (var rol in ViewBag.ListaRoles)
-                                    {
+                                    @foreach (dynamic rol in ViewBag.ListaRoles) {
                                         <div class="col-sm-12 col-md-3 d-inline">
                                             <div class="row">
                                                 <div class="col-1 d-inline">
@@ -95,7 +93,7 @@
                             <div class="col-12">
                                 <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
                                     <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                    @Html.ActionLink("Cancelar", "Usuarios", null, null, new { @class = "btn btn-sm btn-outline-light text-danger" })
+                                    @Html.ActionLink("Cancelar", "Usuarios", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-outline-light text-danger" })
                                 </div>
                             </div>
                         </div>
@@ -115,7 +113,7 @@
         });
 
         function MarcarCheckbox() {
-            const RolesUsuario = @Html.Raw(@Json.Serialize(@Model.Roles));
+            const RolesUsuario = @Html.Raw(Json.Serialize(value: Model.Roles));
 
             // Recorrer todos los elementos HTML que son CheckBox
             $("input[type=checkbox]").each(function () {

@@ -1,26 +1,22 @@
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models;
+using plani.Models.Data;
 using plani.Models.Domain;
 using plani.Models.Managers;
-using plani.Models.Data;
 using plani.Models.ViewModels;
 
 namespace plani.Controllers;
 
 [Authorize]
-public class ClientesController : BaseController
-{
-    private readonly ApplicationDbContext _dbContext;
+public class ClientesController : BaseController {
+    private readonly AreasManager _areasManager;
+    private readonly ClientesManager _clientesManager;
     private readonly ILogger<ClientesController> _logger;
-    private readonly ApplicationUserManager _userManager;
-    private readonly IEmailSender _emailSender;
+    private readonly ProyectosManager _proyectosManager;
     private readonly SesionesManager _sesionesManager;
+    private readonly ApplicationUserManager _userManager;
 
     public ClientesController(
         ApplicationDbContext dbContext,
@@ -30,61 +26,52 @@ public class ClientesController : BaseController
         ILogger<ClientesController> logger,
         IHttpContextAccessor contextAccesor,
         IWebHostEnvironment environment,
-        IEmailSender emailSender,
-        SesionesManager sesionesManager)
-        : base(userManager, roleManager, configuration, contextAccesor, environment, dbContext)
-    {
-        _dbContext = dbContext;
+        SesionesManager sesionesManager,
+        ClientesManager clientesManager,
+        AreasManager areasManager,
+        ProyectosManager proyectosManager)
+        : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment, dbContext: dbContext) {
         _logger = logger;
         _userManager = userManager;
-        _emailSender = emailSender;
         _sesionesManager = sesionesManager;
+        _clientesManager = clientesManager;
+        _areasManager = areasManager;
+        _proyectosManager = proyectosManager;
     }
 
     [HttpGet]
-    public IActionResult Construccion()
-    {
+    public IActionResult Construccion() {
         return View();
     }
 
     #region Tipos de cliente
 
     [HttpGet]
-    public IActionResult TiposCliente()
-    {
+    public IActionResult TiposCliente() {
         return View();
     }
 
     [HttpGet]
-    public async Task<IActionResult> DetalleTipoCliente(Guid id)
-    {
-        TipoCliente tipoCliente = await _dbContext.TiposCliente
-            .Include(tc => tc.Clientes)
-            .FirstOrDefaultAsync(a => a.Id == id);
+    public async Task<IActionResult> DetalleTipoCliente(Guid id) {
+        TipoCliente tipoCliente = await _clientesManager.ObtenerTipoClientePorIdAsync(id: id);
 
-        if (tipoCliente == null) return NotFound();
+        if (tipoCliente == null) {
+            return NotFound();
+        }
 
-        return View(new DetalleTipoClienteViewModel(tipoCliente));
+        return View(new DetalleTipoClienteViewModel(tipoCliente: tipoCliente));
     }
 
     [HttpGet]
-    public async Task<JsonResult> ObtenerTiposCliente()
-    {
-        var tiposCliente = await _dbContext.TiposCliente
-            .OrderBy(tc => tc.Nombre)
-            .ToListAsync();
-
-        var viewModels = tiposCliente.Select(tc => new TipoClienteListViewModel(tc));
-
+    public async Task<JsonResult> ObtenerTiposCliente() {
+        IEnumerable<TipoClienteListViewModel> viewModels = await _clientesManager.ObtenerTodosTiposClienteAsync();
         return Json(new { success = true, data = viewModels });
     }
 
     [HttpPost]
-    public async Task<JsonResult> AgregarTipoClienteJson([FromBody] AgregarTipoClienteViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            var errors = ModelState.Values
+    public async Task<JsonResult> AgregarTipoClienteJson([FromBody] AgregarTipoClienteViewModel model) {
+        if (!ModelState.IsValid) {
+            List<string> errors = ModelState.Values
                 .SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage)
                 .ToList();
@@ -92,27 +79,19 @@ public class ClientesController : BaseController
             return Json(new { success = false, errors });
         }
 
-        var tipoCliente = model.ToEntity();
-        tipoCliente.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
+        (bool success, TipoClienteListViewModel data, string error) = await _clientesManager.CrearTipoClienteAsync(viewModel: model, GetCurrentUser());
 
-        await _dbContext.TiposCliente.AddAsync(tipoCliente);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0)
-        {
-            var data = new TipoClienteListViewModel(tipoCliente);
+        if (success) {
             return Json(new { success = true, message = "Tipo de cliente agregado exitosamente", data });
         }
 
-        return Json(new { success = false, errors = new[] { "Error al agregar el tipo de cliente" } });
+        return Json(new { success = false, errors = new[] { error } });
     }
 
     [HttpPost]
-    public async Task<JsonResult> EditarTipoClienteJson([FromBody] EditarTipoClienteViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            var errors = ModelState.Values
+    public async Task<JsonResult> EditarTipoClienteJson([FromBody] EditarTipoClienteViewModel model) {
+        if (!ModelState.IsValid) {
+            List<string> errors = ModelState.Values
                 .SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage)
                 .ToList();
@@ -120,224 +99,130 @@ public class ClientesController : BaseController
             return Json(new { success = false, errors });
         }
 
-        var tipoCliente = await _dbContext.TiposCliente.FindAsync(Guid.Parse(model.Id));
+        (bool success, TipoClienteListViewModel data, string error) = await _clientesManager.ActualizarTipoClienteAsync(viewModel: model, GetCurrentUser());
 
-        if (tipoCliente == null)
-        {
-            return Json(new { success = false, errors = new[] { "Tipo de cliente no encontrado" } });
-        }
-
-        var updatedEntity = model.ToEntity();
-        tipoCliente.Actualizar(updatedEntity, GetCurrentUser());
-
-        _dbContext.TiposCliente.Update(tipoCliente);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0)
-        {
-            var data = new TipoClienteListViewModel(tipoCliente);
+        if (success) {
             return Json(new { success = true, message = "Tipo de cliente actualizado exitosamente", data });
         }
 
-        return Json(new { success = false, errors = new[] { "Error al actualizar el tipo de cliente" } });
+        return Json(new { success = false, errors = new[] { error } });
     }
 
     [HttpPost]
-    public async Task<JsonResult> EliminarTipoClienteJson([FromBody] EliminarTipoClienteRequest request)
-    {
-        var tipoCliente = await _dbContext.TiposCliente.FindAsync(Guid.Parse(request.Id));
+    public async Task<JsonResult> EliminarTipoClienteJson([FromBody] EliminarTipoClienteRequest request) {
+        (bool success, string error) = await _clientesManager.EliminarTipoClienteAsync(Guid.Parse(input: request.Id), GetCurrentUser());
 
-        if (tipoCliente == null)
-        {
-            return Json(new { success = false, errors = new[] { "Tipo de cliente no encontrado" } });
-        }
-
-        // Verificar si el tipo de cliente tiene clientes asignados
-        var clientes = await _dbContext.Clientes
-            .Where(c => c.IdTipoCliente == tipoCliente.Id)
-            .ToListAsync();
-
-        if (clientes.Any())
-        {
-            return Json(new { success = false, errors = new[] { "No se puede eliminar el tipo de cliente porque tiene clientes asignados" } });
-        }
-
-        tipoCliente.Eliminar(GetCurrentUser());
-        _dbContext.TiposCliente.Update(tipoCliente);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0)
-        {
+        if (success) {
             return Json(new { success = true, message = "Tipo de cliente eliminado exitosamente" });
         }
 
-        return Json(new { success = false, errors = new[] { "Error al eliminar el tipo de cliente" } });
+        return Json(new { success = false, errors = new[] { error } });
     }
-
 
     #endregion
 
     #region Clientes
 
     [HttpGet]
-    public async Task<IActionResult> Clientes(string palabraClave)
-    {
-        IEnumerable<Cliente> clientes = await _dbContext.Clientes
-            .Where(c => palabraClave == null || (c.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
-                        (c.Descripcion.ToLower().Contains(palabraClave.ToLower())) ||
-                        (c.Direccion.ToLower().Contains(palabraClave.ToLower())))
-            .OrderBy(c => c.Nombre)
-            .Include(c => c.TipoCliente)
-            .ToListAsync();
-
+    public async Task<IActionResult> Clientes(string palabraClave) {
+        IEnumerable<Cliente> clientes = await _clientesManager.ObtenerTodosClientesAsync(palabraClave: palabraClave);
         IndexClientesViewModel model = new() { PalabraClave = palabraClave, Clientes = clientes };
-        return View(model);
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> DetalleCliente(Guid id)
-    {
-        Cliente cliente = await _dbContext.Clientes
-            .Include(c => c.TipoCliente)
-            .Include(c => c.Contratos).ThenInclude(c => c.Proyectos)
-            .ThenInclude(p => p.Area)
-            .FirstOrDefaultAsync(a => a.Id == id);
+    public async Task<IActionResult> DetalleCliente(Guid id) {
+        Cliente cliente = await _clientesManager.ObtenerClienteDetalleAsync(id: id);
 
-        if (cliente == null) return NotFound();
+        if (cliente == null) {
+            return NotFound();
+        }
 
-        return View(new DetalleClienteViewModel(cliente));
+        return View(new DetalleClienteViewModel(cliente: cliente));
     }
 
     [HttpGet]
-    public async Task<IActionResult> AgregarCliente()
-    {
-        IEnumerable<TipoCliente> tiposCliente = await _dbContext.TiposCliente.ToListAsync();
-        ViewBag.TiposCliente = tiposCliente.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
+    public async Task<IActionResult> AgregarCliente() {
+        await PrepararViewBagsCliente();
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarCliente(AgregarClienteViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<IActionResult> AgregarCliente(AgregarClienteViewModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Cliente)), GetModelStateErrors()));
-
-            IEnumerable<TipoCliente> tiposCliente = await _dbContext.TiposCliente.ToListAsync();
-            ViewBag.TiposCliente = tiposCliente.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            return View(model);
+            await PrepararViewBagsCliente();
+            return View(model: model);
         }
 
-        var cliente = new Cliente
-        {
-            Identificacion = model.Identificacion?.Trim(),
-            Nombre = model.Nombre?.Trim(),
-            Descripcion = model.Descripcion?.Trim(),
-            Direccion = model.Direccion?.Trim(),
-            IdTipoCliente = model.IdTipoCliente
-        };
+        (bool success, _, string error) = await _clientesManager.CrearClienteAsync(model.ToEntity(), GetCurrentUser());
 
-        cliente.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.Clientes.AddAsync(cliente);
+        if (success) {
+            return RedirectToAction(nameof(Clientes));
+        }
 
-        // Add new Contrato for that Cliente
-        Contrato contrato = new Contrato
-        {
-            IdCliente = cliente.Id,
-            Identificacion = "CONTRATO-" + cliente.Id,
-            Descripcion = "Contrato de " + cliente.Nombre,
-            FechaInicio = DateTime.UtcNow,
-            IdArea = Guid.Parse("f9c46324-5f71-4faf-0171-08dd2fd1b693")
-        };
-
-        contrato.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.Contratos.AddAsync(contrato);
-
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(Clientes));
-
-        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Cliente)));
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorAgregar(nameof(Cliente)));
+        await PrepararViewBagsCliente();
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> EditarCliente(Guid id)
-    {
-        Cliente cliente = await _dbContext.Clientes.FindAsync(id);
+    public async Task<IActionResult> EditarCliente(Guid id) {
+        Cliente cliente = await _clientesManager.ObtenerClientePorIdAsync(id: id);
 
-        if (cliente == null) return NotFound();
+        if (cliente == null) {
+            return NotFound();
+        }
 
-        IEnumerable<TipoCliente> tiposCliente = await _dbContext.TiposCliente.ToListAsync();
-        ViewBag.TiposCliente = tiposCliente.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-        return View(new EditarClienteViewModel(cliente));
+        await PrepararViewBagsCliente();
+        return View(new EditarClienteViewModel(cliente: cliente));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarCliente(EditarClienteViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<ActionResult> EditarCliente(EditarClienteViewModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorActualizar(nameof(Cliente)), GetModelStateErrors()));
-
-            IEnumerable<TipoCliente> tiposCliente = await _dbContext.TiposCliente.ToListAsync();
-            ViewBag.TiposCliente = tiposCliente.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            return View(model);
+            await PrepararViewBagsCliente();
+            return View(model: model);
         }
 
-        Cliente cliente = await _dbContext.Clientes.FindAsync(model.Id);
+        (bool success, string error) = await _clientesManager.ActualizarClienteAsync(model.ToEntity(), GetCurrentUser());
 
-        if (cliente == null) return NotFound();
+        if (success) {
+            return RedirectToAction(nameof(Clientes));
+        }
 
-        cliente.Identificacion = model.Identificacion;
-        cliente.Nombre = model.Nombre;
-        cliente.Direccion = model.Direccion;
-        cliente.Descripcion = model.Descripcion;
-        cliente.IdTipoCliente = model.IdTipoCliente;
-        cliente.RegistrarActualizacion(GetCurrentUser(), DateTime.UtcNow);
-        _dbContext.Clientes.Update(cliente);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(Clientes));
-        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Cliente)));
-
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorActualizar(nameof(Cliente)));
+        await PrepararViewBagsCliente();
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> EliminarCliente(Guid id)
-    {
-        var cliente = await _dbContext.Clientes.FindAsync(id);
+    public async Task<IActionResult> EliminarCliente(Guid id) {
+        Cliente cliente = await _clientesManager.ObtenerClientePorIdAsync(id: id);
 
-        if (cliente == null) return NotFound();
+        if (cliente == null) {
+            return NotFound();
+        }
 
-        return View(new EliminarClienteViewModel(cliente));
+        return View(new EliminarClienteViewModel(cliente: cliente));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarCliente(EliminarClienteViewModel model)
-    {
-        Cliente cliente = await _dbContext.Clientes.FindAsync(model.Id);
+    public async Task<IActionResult> EliminarCliente(EliminarClienteViewModel model) {
+        (bool success, string error) = await _clientesManager.EliminarClienteAsync(id: model.Id, GetCurrentUser());
 
-        if (cliente == null) return NotFound();
+        if (success) {
+            return RedirectToAction(nameof(Clientes));
+        }
 
-        cliente.Eliminar(GetCurrentUser());
-        _dbContext.Clientes.Update(cliente);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(Clientes));
-
-        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Cliente)));
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorEliminar(nameof(Cliente)));
+        return View(model: model);
     }
 
     #endregion
@@ -345,157 +230,104 @@ public class ClientesController : BaseController
     #region Contratos
 
     [HttpGet]
-    public async Task<IActionResult> Contratos()
-    {
-        List<Contrato> contratos =
-            await _dbContext.Contratos.Include(c => c.Cliente).Include(c => c.Area).ToListAsync();
-        return View(contratos.Select(c => new DetalleContratoViewModel(c)));
+    public async Task<IActionResult> Contratos() {
+        IEnumerable<Contrato> contratos = await _clientesManager.ObtenerTodosContratosAsync();
+        return View(contratos.Select(c => new DetalleContratoViewModel(contrato: c)));
     }
 
     [HttpGet]
-    public async Task<IActionResult> DetalleContrato(Guid id)
-    {
-        Contrato contrato = await _dbContext.Contratos
-            .Include(c => c.Area)
-            .Include(c => c.Cliente)
-            .Include(c => c.Proyectos)
-            .ThenInclude(p => p.Area)
-            .FirstOrDefaultAsync(a => a.Id == id);
+    public async Task<IActionResult> DetalleContrato(Guid id) {
+        Contrato contrato = await _clientesManager.ObtenerContratoDetalleAsync(id: id);
 
-        if (contrato == null) return NotFound();
+        if (contrato == null) {
+            return NotFound();
+        }
 
-        return View(new DetalleContratoViewModel(contrato));
+        return View(new DetalleContratoViewModel(contrato: contrato));
     }
 
     [HttpGet]
-    public async Task<IActionResult> AgregarContrato()
-    {
-        IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
-        ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-        IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
-        ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
+    public async Task<IActionResult> AgregarContrato() {
+        await PrepararViewBagsContrato();
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarContrato(AgregarContratoViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<IActionResult> AgregarContrato(AgregarContratoViewModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Contrato)), GetModelStateErrors()));
-
-            IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
-            ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
-            ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            return View(model);
+            await PrepararViewBagsContrato();
+            return View(model: model);
         }
 
-        var contrato = new Contrato
-        {
-            IdCliente = model.IdCliente,
-            Identificacion = model.Identificacion,
-            Descripcion = model.Descripcion,
-            FechaInicio = model.FechaInicio,
-            IdArea = model.IdArea
-        };
+        (bool success, _, string error) = await _clientesManager.CrearContratoAsync(model.ToEntity(), GetCurrentUser());
 
-        contrato.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.Contratos.AddAsync(contrato);
-        int changes = await _dbContext.SaveChangesAsync();
+        if (success) {
+            return RedirectToAction(nameof(Contratos));
+        }
 
-        if (changes > 0) return RedirectToAction(nameof(Contratos));
-
-        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Contrato)));
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorAgregar(nameof(Contrato)));
+        await PrepararViewBagsContrato();
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> EditarContrato(Guid id)
-    {
-        Contrato contrato = await _dbContext.Contratos.FindAsync(id);
+    public async Task<IActionResult> EditarContrato(Guid id) {
+        Contrato contrato = await _clientesManager.ObtenerContratoPorIdAsync(id: id);
 
-        if (contrato == null) return NotFound();
+        if (contrato == null) {
+            return NotFound();
+        }
 
-        IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
-        ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-        IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
-        ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-        return View(new EditarContratoViewModel(contrato));
+        await PrepararViewBagsContrato();
+        return View(new EditarContratoViewModel(contrato: contrato));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarContrato(EditarContratoViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<ActionResult> EditarContrato(EditarContratoViewModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorActualizar(nameof(Contrato)), GetModelStateErrors()));
-
-            IEnumerable<Cliente> clientes = await _dbContext.Clientes.ToListAsync();
-            ViewBag.Clientes = clientes.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
-            ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            return View(model);
+            await PrepararViewBagsContrato();
+            return View(model: model);
         }
 
-        Contrato contrato = await _dbContext.Contratos.FindAsync(model.Id);
+        (bool success, string error) = await _clientesManager.ActualizarContratoAsync(model.ToEntity(), GetCurrentUser());
 
-        if (contrato == null) return NotFound();
+        if (success) {
+            return RedirectToAction(nameof(Contratos));
+        }
 
-        contrato.Identificacion = model.Identificacion;
-        contrato.FechaInicio = model.FechaInicio;
-        contrato.Descripcion = model.Descripcion;
-        contrato.IdCliente = model.IdCliente;
-        contrato.IdArea = model.IdArea;
-        contrato.RegistrarActualizacion(GetCurrentUser(), DateTime.UtcNow);
-        _dbContext.Contratos.Update(contrato);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(Contratos));
-        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Contrato)));
-
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorActualizar(nameof(Contrato)));
+        await PrepararViewBagsContrato();
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> EliminarContrato(Guid id)
-    {
-        Contrato contrato =
-            await _dbContext.Contratos.Include(c => c.Cliente).Where(c => c.Id == id).FirstOrDefaultAsync();
+    public async Task<IActionResult> EliminarContrato(Guid id) {
+        Contrato contrato = await _clientesManager.ObtenerContratoConClienteAsync(id: id);
 
-        if (contrato == null) return NotFound();
+        if (contrato == null) {
+            return NotFound();
+        }
 
-        return View(new EliminarContratoViewModel(contrato));
+        return View(new EliminarContratoViewModel(contrato: contrato));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarContrato(EliminarContratoViewModel model)
-    {
-        Contrato contrato = await _dbContext.Contratos.FindAsync(model.Id);
+    public async Task<IActionResult> EliminarContrato(EliminarContratoViewModel model) {
+        (bool success, string error) = await _clientesManager.EliminarContratoAsync(id: model.Id, GetCurrentUser());
 
-        if (contrato == null) return NotFound();
+        if (success) {
+            return RedirectToAction(nameof(Contratos));
+        }
 
-        contrato.Eliminar(GetCurrentUser());
-        _dbContext.Contratos.Update(contrato);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(Contratos));
-
-        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Contrato)));
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorEliminar(nameof(Contrato)));
+        return View(model: model);
     }
 
     #endregion
@@ -503,188 +335,105 @@ public class ClientesController : BaseController
     #region Proyectos
 
     [HttpGet]
-    public async Task<IActionResult> Proyectos(string palabraClave)
-    {
-        IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos
-            .Where(c => palabraClave == null || (c.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
-                        (c.Contrato.Cliente.Nombre.ToLower().Contains(palabraClave.ToLower())) ||
-                        (c.Area.Nombre.ToLower().Contains(palabraClave.ToLower())))
-            .OrderBy(p => p.Nombre)
-            .Include(p => p.Contrato)
-            .ThenInclude(c => c.Cliente)
-            .Include(p => p.Area)
-            .ToListAsync();
-
+    public async Task<IActionResult> Proyectos(string palabraClave) {
+        IEnumerable<Proyecto> proyectos = await _proyectosManager.ObtenerTodosProyectosAsync(palabraClave: palabraClave);
         IndexProyectosViewModel model = new() { PalabraClave = palabraClave, Proyectos = proyectos };
-        return View(model);
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> DetalleProyecto(Guid id)
-    {
-        Proyecto proyecto = await _dbContext.Proyectos
-            .Include(p => p.Contrato)
-            .ThenInclude(c => c.Cliente)
-            .Include(p => p.Area)
-            .Include(p => p.Responsable)
-            .FirstOrDefaultAsync(a => a.Id == id);
+    public async Task<IActionResult> DetalleProyecto(Guid id) {
+        Proyecto proyecto = await _proyectosManager.ObtenerProyectoDetalleAsync(id: id);
 
-        if (proyecto == null) return NotFound();
+        if (proyecto == null) {
+            return NotFound();
+        }
 
-        return View(new DetalleProyectoViewModel(proyecto));
+        return View(new DetalleProyectoViewModel(proyecto: proyecto));
     }
 
     [HttpGet]
-    public async Task<IActionResult> AgregarProyecto()
-    {
-        IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
-        ViewBag.Contratos = contratos.Select(c =>
-            new SelectListItem(text: $"{c.Cliente.Nombre}", c.Id.ToString()));
-
-        IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
-        ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
-
+    public async Task<IActionResult> AgregarProyecto() {
+        await PrepararViewBagsProyecto();
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarProyecto(AgregarProyectoViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<IActionResult> AgregarProyecto(AgregarProyectoViewModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Proyecto)), GetModelStateErrors()));
-
-            IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
-            ViewBag.Contratos = contratos.Select(c =>
-                new SelectListItem(text: $"{c.Cliente.Nombre} - {c.Identificacion}", c.Id.ToString()));
-
-            IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
-            ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            ViewBag.Responsables = await ObtenerColaboradoresDropdown();
-
-            return View(model);
+            await PrepararViewBagsProyecto();
+            return View(model: model);
         }
 
-        var proyecto = new Proyecto
-        {
-            Nombre = model.Nombre,
-            Descripcion = model.Descripcion,
-            FechaInicio = model.FechaInicio,
-            FechaFin = model.FechaFin,
-            HorasEstimadas = model.HorasEstimadas,
-            IdContrato = model.IdContrato,
-            IdArea = model.IdArea,
-            IdResponsable = model.IdResponsable
-        };
+        (bool success, _, string error) = await _proyectosManager.CrearProyectoAsync(model.ToEntity(), GetCurrentUser());
 
-        proyecto.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.Proyectos.AddAsync(proyecto);
-        int changes = await _dbContext.SaveChangesAsync();
+        if (success) {
+            return RedirectToAction(nameof(Proyectos));
+        }
 
-        if (changes > 0) return RedirectToAction(nameof(Proyectos));
-
-        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Proyecto)));
-        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorAgregar(nameof(Proyecto)));
+        await PrepararViewBagsProyecto();
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> EditarProyecto(Guid id)
-    {
-        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(id);
+    public async Task<IActionResult> EditarProyecto(Guid id) {
+        Proyecto proyecto = await _proyectosManager.ObtenerProyectoPorIdAsync(id: id);
 
-        if (proyecto == null) return NotFound();
+        if (proyecto == null) {
+            return NotFound();
+        }
 
-        IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
-        ViewBag.Contratos = contratos.Select(c =>
-            new SelectListItem(text: $"{c.Cliente.Nombre}", c.Id.ToString()));
-
-        IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
-        ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
-
-        return View(new EditarProyectoViewModel(proyecto));
+        await PrepararViewBagsProyecto();
+        return View(new EditarProyectoViewModel(proyecto: proyecto));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> EditarProyecto(EditarProyectoViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<ActionResult> EditarProyecto(EditarProyectoViewModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorActualizar(nameof(Proyecto)), GetModelStateErrors()));
-
-            IEnumerable<Contrato> contratos = await _dbContext.Contratos.Include(c => c.Cliente).ToListAsync();
-            ViewBag.Contratos = contratos.Select(c =>
-                new SelectListItem(text: $"{c.Cliente.Nombre} - {c.Identificacion}", c.Id.ToString()));
-
-            IEnumerable<Area> areas = await _dbContext.Areas.ToListAsync();
-            ViewBag.Areas = areas.Select(tc => new SelectListItem(text: tc.Nombre, tc.Id.ToString()));
-
-            ViewBag.Responsables = await ObtenerColaboradoresDropdown();
-
-            return View(model);
+            await PrepararViewBagsProyecto();
+            return View(model: model);
         }
 
-        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(model.Id);
+        (bool success, string error) = await _proyectosManager.ActualizarProyectoAsync(model.ToEntity(), GetCurrentUser());
 
-        if (proyecto == null) return NotFound();
+        if (success) {
+            return RedirectToAction(nameof(Proyectos));
+        }
 
-        proyecto.Nombre = model.Nombre;
-        proyecto.FechaInicio = model.FechaInicio;
-        proyecto.FechaFin = model.FechaFin;
-        proyecto.Descripcion = model.Descripcion;
-        proyecto.IdArea = model.IdArea;
-        proyecto.IdContrato = model.IdContrato;
-        proyecto.HorasEstimadas = model.HorasEstimadas;
-        proyecto.IdResponsable = model.IdResponsable;
-        proyecto.RegistrarActualizacion(GetCurrentUser(), DateTime.UtcNow);
-        _dbContext.Proyectos.Update(proyecto);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(Proyectos));
-        ModelState.AddModelError("", Utils.MensajeErrorActualizar(nameof(Proyecto)));
-
-        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorActualizar(nameof(Proyecto)));
+        await PrepararViewBagsProyecto();
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> EliminarProyecto(Guid id)
-    {
-        Proyecto proyecto = await _dbContext.Proyectos
-            .Include(p => p.Contrato)
-            .ThenInclude(c => c.Cliente)
-            .FirstOrDefaultAsync(c => c.Id == id);
+    public async Task<IActionResult> EliminarProyecto(Guid id) {
+        Proyecto proyecto = await _proyectosManager.ObtenerProyectoConContratoAsync(id: id);
 
-        if (proyecto == null) return NotFound();
+        if (proyecto == null) {
+            return NotFound();
+        }
 
-        return View(new EliminarProyectoViewModel(proyecto));
+        return View(new EliminarProyectoViewModel(proyecto: proyecto));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarProyecto(EliminarProyectoViewModel model)
-    {
-        Proyecto proyecto = await _dbContext.Proyectos.FindAsync(model.Id);
+    public async Task<IActionResult> EliminarProyecto(EliminarProyectoViewModel model) {
+        (bool success, string error) = await _proyectosManager.EliminarProyectoAsync(id: model.Id, GetCurrentUser());
 
-        if (proyecto == null) return NotFound();
+        if (success) {
+            return RedirectToAction(nameof(Proyectos));
+        }
 
-        proyecto.Eliminar(GetCurrentUser());
-        _dbContext.Proyectos.Update(proyecto);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0) return RedirectToAction(nameof(Proyectos));
-
-        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Proyecto)));
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorEliminar(nameof(Proyecto)));
+        return View(model: model);
     }
 
     #endregion
@@ -692,308 +441,114 @@ public class ClientesController : BaseController
     #region Asignaciones
 
     [HttpGet]
-    public async Task<IActionResult> Asignaciones()
-    {
-        var colaboradores = _dbContext.Usuarios.OrderBy(u => u.Name).ToList();
-        ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
+    public async Task<IActionResult> Asignaciones() {
+        await PrepararViewBagsAsignacionesIndex();
 
-        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
-            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
+        List<Asignacion> asignaciones = await _proyectosManager.ObtenerTodasAsignacionesAsync();
 
-        ViewBag.Proyectos = proyectos.Select(c =>
-            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
-
-        var asignaciones = await _dbContext.Asignaciones
-            .Include(a => a.ApplicationUser)
-            .Include(a => a.Proyecto)
-            .ThenInclude(p => p.Contrato)
-            .ThenInclude(c => c.Cliente)
-            .ToListAsync();
-
-        var viewModel = new AsignacionesIndexViewModel
-        {
-            ProyectosAsignaciones = asignaciones
-                .GroupBy(a => a.IdProyecto)
-                .Select(group => new ProyectoAsignacionesViewModel
-                {
-                    IdProyecto = group.Key,
-                    NombreProyecto = group.First().Proyecto.Nombre,
-                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
-                    Asignaciones = group.ToList()
-                })
-                .OrderBy(p => p.NombreProyecto)
-                .ToList()
+        AsignacionesIndexViewModel viewModel = new() {
+            ProyectosAsignaciones = _proyectosManager.AgruparAsignacionesPorProyecto(asignaciones: asignaciones)
         };
 
-        return View(viewModel);
+        return View(model: viewModel);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Asignaciones(AsignacionesIndexViewModel model)
-    {
-        var colaboradores = _dbContext.Usuarios.OrderBy(u => u.Name).ToList();
-        ViewBag.Colaboradores = colaboradores.Select(c => new SelectListItem(text: c.FullName, c.Id));
+    public async Task<IActionResult> Asignaciones(AsignacionesIndexViewModel model) {
+        await PrepararViewBagsAsignacionesIndex();
 
-        var proyectos = _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
-            .OrderBy(c => c.Contrato.Cliente.Nombre).ToList();
-        ViewBag.Proyectos = proyectos.Select(c =>
-            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
+        List<Asignacion> asignaciones = await _proyectosManager.ObtenerAsignacionesFiltradasAsync(idUsuario: model.IdUsuario, idProyecto: model.IdProyecto);
 
-        var asignaciones = await _dbContext.Asignaciones
-            .Where(a => (model.IdUsuario == null || a.IdColaborador == model.IdUsuario) &&
-                        (model.IdProyecto == null || a.IdProyecto.ToString() == model.IdProyecto))
-            .Include(a => a.ApplicationUser)
-            .Include(a => a.Proyecto)
-            .ThenInclude(p => p.Contrato)
-            .ThenInclude(c => c.Cliente)
-            .ToListAsync();
-
-        var viewModel = new AsignacionesIndexViewModel
-        {
+        AsignacionesIndexViewModel viewModel = new() {
             IdUsuario = model.IdUsuario,
-            ProyectosAsignaciones = asignaciones
-                .GroupBy(a => a.IdProyecto)
-                .Select(group => new ProyectoAsignacionesViewModel
-                {
-                    IdProyecto = group.Key,
-                    NombreProyecto = group.First().Proyecto.Nombre,
-                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
-                    Asignaciones = group.ToList()
-                })
-                .OrderBy(p => p.NombreProyecto)
-                .ToList()
+            IdProyecto = model.IdProyecto,
+            ProyectosAsignaciones = _proyectosManager.AgruparAsignacionesPorProyecto(asignaciones: asignaciones)
         };
 
-        return View(viewModel);
+        return View(model: viewModel);
     }
 
     [HttpGet]
     public async Task<IActionResult> ExportarAsignaciones(
         string idUsuario = null,
-        string idProyecto = null)
-    {
-        var asignaciones = await _dbContext.Asignaciones
-            .Where(a => (idUsuario == null || a.IdColaborador == idUsuario) &&
-                        (idProyecto == null || a.IdProyecto.ToString() == idProyecto))
-            .Include(a => a.ApplicationUser)
-            .Include(a => a.Proyecto)
-            .ThenInclude(p => p.Contrato)
-            .ThenInclude(c => c.Cliente)
-            .OrderBy(a => a.Proyecto.Contrato.Cliente.Nombre)
-            .ThenBy(a => a.Proyecto.Nombre)
-            .ToListAsync();
+        string idProyecto = null) {
+        List<Asignacion> asignaciones = await _proyectosManager.ObtenerAsignacionesParaExportarAsync(idUsuario: idUsuario, idProyecto: idProyecto);
+        byte[] content = _proyectosManager.ExportarAsignacionesExcel(asignaciones: asignaciones);
+        string fileName = $"Asignaciones_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
-        using var workbook = new ClosedXML.Excel.XLWorkbook();
-        var worksheet = workbook.Worksheets.Add("Asignaciones");
-
-        // Headers
-        worksheet.Cell(1, 1).Value = "Cliente";
-        worksheet.Cell(1, 2).Value = "Proyecto";
-        worksheet.Cell(1, 3).Value = "Colaborador";
-        worksheet.Cell(1, 4).Value = "Horas Estimadas";
-        worksheet.Cell(1, 5).Value = "Descripción";
-
-        // Style headers
-        var headerRange = worksheet.Range(1, 1, 1, 5);
-        headerRange.Style.Font.Bold = true;
-        headerRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.FromHtml("#1e3a5f");
-        headerRange.Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-        // Data
-        int row = 2;
-        foreach (var asignacion in asignaciones)
-        {
-            worksheet.Cell(row, 1).Value = asignacion.Proyecto?.Contrato?.Cliente?.Nombre;
-            worksheet.Cell(row, 2).Value = asignacion.Proyecto?.Nombre;
-            worksheet.Cell(row, 3).Value = asignacion.ApplicationUser?.FullName;
-            worksheet.Cell(row, 4).Value = asignacion.HorasEstimadas;
-            worksheet.Cell(row, 5).Value = asignacion.Descripcion;
-            row++;
-        }
-
-        worksheet.Columns().AdjustToContents();
-
-        using var stream = new MemoryStream();
-        workbook.SaveAs(stream);
-        var content = stream.ToArray();
-        var fileName = $"Asignaciones_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-
-        return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        return File(fileContents: content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileDownloadName: fileName);
     }
 
     [HttpGet]
-    public async Task<IActionResult> MisAsignaciones()
-    {
+    public async Task<IActionResult> MisAsignaciones() {
         ApplicationUser usuario = await _userManager.FindByEmailAsync(GetCurrentUser());
 
-        var asignaciones = await _dbContext.Asignaciones
-            .Include(a => a.ApplicationUser)
-            .Include(a => a.Proyecto)
-            .ThenInclude(p => p.Contrato)
-            .ThenInclude(c => c.Cliente)
-            .Where(a => a.IdColaborador == usuario.Id)
-            .ToListAsync();
+        List<Asignacion> asignaciones = await _proyectosManager.ObtenerAsignacionesUsuarioAsync(idUsuario: usuario.Id);
 
-        var viewModel = new AsignacionesIndexViewModel
-        {
-            ProyectosAsignaciones = asignaciones
-                .GroupBy(a => a.IdProyecto)
-                .Select(group => new ProyectoAsignacionesViewModel
-                {
-                    IdProyecto = group.Key,
-                    NombreProyecto = group.First().Proyecto.Nombre,
-                    NombreCliente = group.First().Proyecto.Contrato.Cliente.Nombre,
-                    Asignaciones = group.ToList()
-                })
-                .OrderBy(p => p.NombreProyecto)
-                .ToList()
+        AsignacionesIndexViewModel viewModel = new() {
+            ProyectosAsignaciones = _proyectosManager.AgruparAsignacionesPorProyecto(asignaciones: asignaciones)
         };
 
-        return View(viewModel);
+        return View(model: viewModel);
     }
 
     [HttpGet]
-    public async Task<IActionResult> AsignarProyecto(Guid id)
-    {
-        ApplicationUser colaborador = await _dbContext.Usuarios.FindAsync(id.ToString());
-        AgregarAsignacionModel model = new AgregarAsignacionModel
-        {
+    public async Task<IActionResult> AsignarProyecto(Guid id) {
+        ApplicationUser colaborador = await _userManager.FindByIdAsync(id.ToString());
+        AgregarAsignacionModel model = new() {
             NombreColaborador = colaborador.FullName,
             IdUsuario = id
         };
 
-        IEnumerable<Proyecto> proyectos =
-            await _dbContext.Proyectos.Include(c => c.Contrato).ThenInclude(c => c.Cliente).ToListAsync();
-        ViewBag.Proyectos = proyectos.Select(c =>
-            new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
+        ViewBag.Proyectos = await _proyectosManager.ObtenerParaDropdownAsync();
 
-        return View(model);
+        return View(model: model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AsignarProyecto(AgregarAsignacionModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<IActionResult> AsignarProyecto(AgregarAsignacionModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Asignacion)), GetModelStateErrors()));
 
-            IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos.Include(c => c.Contrato)
-                .ThenInclude(c => c.Cliente).ToListAsync();
-            ViewBag.Proyectos = proyectos.Select(c =>
-                new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
-
-            return View(model);
+            ViewBag.Proyectos = await _proyectosManager.ObtenerParaDropdownAsync();
+            return View(model: model);
         }
 
-        // Validar que no exista una asignación activa para este proyecto y colaborador
-        // Nota: El QueryFilter automáticamente filtra IsDeleted = false
-        var asignacionExistente = await _dbContext.Asignaciones
-            .Include(a => a.Proyecto)
-                .ThenInclude(p => p.Contrato)
-                .ThenInclude(c => c.Cliente)
-            .FirstOrDefaultAsync(a =>
-                a.IdProyecto == model.IdProyecto &&
-                a.IdColaborador == model.IdUsuario.ToString());
+        (bool success, _, string error) = await _proyectosManager.CrearAsignacionAsync(model: model, GetCurrentUser());
 
-        if (asignacionExistente != null)
-        {
-            ModelState.AddModelError("",
-                $"El colaborador ya está asignado al proyecto '{asignacionExistente.Proyecto.Nombre}' " +
-                $"del cliente '{asignacionExistente.Proyecto.Contrato.Cliente.Nombre}'. " +
-                $"No se pueden crear asignaciones duplicadas.");
-
-            IEnumerable<Proyecto> proyectos = await _dbContext.Proyectos.Include(c => c.Contrato)
-                .ThenInclude(c => c.Cliente).ToListAsync();
-            ViewBag.Proyectos = proyectos.Select(c =>
-                new SelectListItem(text: $"{c.Contrato.Cliente.Nombre} - {c.Nombre}", c.Id.ToString()));
-
-            return View(model);
-        }
-
-        Asignacion asignacion = new Asignacion()
-        {
-            IdColaborador = model.IdUsuario.ToString(),
-            IdProyecto = model.IdProyecto,
-            HorasEstimadas = model.HorasEstimadas,
-            Descripcion = model.Descripcion
-        };
-
-        asignacion.RegristrarCreacion(GetCurrentUser(), DateTime.UtcNow);
-        await _dbContext.Asignaciones.AddAsync(asignacion);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0)
-        {
-            var colaborador = await _dbContext.Usuarios.Where(u => u.Id == model.IdUsuario.ToString())
-                .FirstOrDefaultAsync();
-            var proyecto = await _dbContext.Proyectos.Include(p => p.Contrato).ThenInclude(c => c.Cliente)
-                .Where(p => p.Id == model.IdProyecto).FirstOrDefaultAsync();
-
-            var asignacionesColaborador = await _dbContext.Asignaciones
-                .Include(a => a.Proyecto)
-                .ThenInclude(p => p.Contrato)
-                .ThenInclude(c => c.Cliente)
-                .Where(a => a.IdColaborador == colaborador.Id)
-                .OrderBy(a => a.Proyecto.Nombre)
-                .ToListAsync();
-
-            StringBuilder sbProyectos = new StringBuilder();
-            sbProyectos.AppendLine("Proyectos asignados actualmente:");
-            foreach (var asignacionColaborador in asignacionesColaborador)
-            {
-                sbProyectos.AppendLine(
-                    $"{asignacionColaborador.Proyecto.Nombre} - {asignacionColaborador.Proyecto.Contrato.Cliente.Nombre}");
-            }
-
-            StringBuilder mensajeCorreo = new StringBuilder();
-            mensajeCorreo.AppendLine(
-                $"{colaborador.FullName}, Se le ha asignado un nuevo proyecto {proyecto.Nombre} del cliente {proyecto.Contrato.Cliente.Nombre}.");
-            /*
-            mensajeCorreo.AppendLine(sbProyectos.ToString());
-            */
-            await _emailSender.SendEmailAsync(colaborador.Email, "Asignación de proyecto", mensajeCorreo.ToString());
-
+        if (success) {
             return RedirectToAction(nameof(Asignaciones));
         }
 
-        ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Asignacion)));
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorAgregar(nameof(Asignacion)));
+        ViewBag.Proyectos = await _proyectosManager.ObtenerParaDropdownAsync();
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> EliminarAsignacion(Guid id)
-    {
-        var asignacion = await _dbContext.Asignaciones
-            .Include(a => a.ApplicationUser)
-            .Include(a => a.Proyecto)
-            .ThenInclude(p => p.Contrato)
-            .ThenInclude(c => c.Cliente)
-            .FirstOrDefaultAsync(c => c.Id == id);
+    public async Task<IActionResult> EliminarAsignacion(Guid id) {
+        Asignacion asignacion = await _proyectosManager.ObtenerAsignacionDetalleAsync(id: id);
 
-        if (asignacion == null) return NotFound();
+        if (asignacion == null) {
+            return NotFound();
+        }
 
-        return View(new EliminarAsignacionViewModel(asignacion));
+        return View(new EliminarAsignacionViewModel(asignacion: asignacion));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EliminarAsignacion(EliminarAsignacionViewModel model)
-    {
-        Asignacion asignacion = await _dbContext.Asignaciones.FindAsync(model.Id);
+    public async Task<IActionResult> EliminarAsignacion(EliminarAsignacionViewModel model) {
+        (bool success, string idColaborador, string error) = await _proyectosManager.EliminarAsignacionAsync(id: model.Id, GetCurrentUser());
 
-        if (asignacion == null) return NotFound();
+        if (success) {
+            return RedirectToAction("DetalleColaborador", "Cuentas", new { id = idColaborador });
+        }
 
-        asignacion.Eliminar(GetCurrentUser());
-        _dbContext.Asignaciones.Update(asignacion);
-        int changes = await _dbContext.SaveChangesAsync();
-
-        if (changes > 0)
-            return RedirectToAction("DetalleColaborador", "Cuentas", new { id = asignacion.IdColaborador });
-
-        ModelState.AddModelError("", Utils.MensajeErrorEliminar(nameof(Asignacion)));
-        return View(model);
+        ModelState.AddModelError("", error ?? Utils.MensajeErrorEliminar(nameof(Asignacion)));
+        return View(model: model);
     }
 
     #endregion
@@ -1005,21 +560,18 @@ public class ClientesController : BaseController
         string idUsuario = null,
         string idProyecto = null,
         DateTime? fechaInicio = null,
-        DateTime? fechaFin = null)
-    {
+        DateTime? fechaFin = null) {
         // Si no hay fechas, usar mes actual por defecto
-        if (fechaInicio == null && fechaFin == null)
-        {
+        if (fechaInicio == null && fechaFin == null) {
             (fechaInicio, fechaFin) = _sesionesManager.ObtenerRangoMesActual();
         }
 
         ViewBag.Colaboradores = await ObtenerColaboradoresDropdown();
         ViewBag.Proyectos = await ObtenerProyectosDropdown();
 
-        var sesiones = await _sesionesManager.ObtenerSesionesFiltradas(idUsuario, idProyecto, fechaInicio, fechaFin);
+        List<Sesion> sesiones = await _sesionesManager.ObtenerSesionesFiltradas(idUsuario: idUsuario, idProyecto: idProyecto, fechaInicio: fechaInicio, fechaFin: fechaFin);
 
-        var viewModel = new SesionesIndexViewModel
-        {
+        SesionesIndexViewModel viewModel = new() {
             IdUsuario = idUsuario,
             IdProyecto = idProyecto,
             FechaInicio = fechaInicio,
@@ -1027,7 +579,7 @@ public class ClientesController : BaseController
             Sesiones = sesiones
         };
 
-        return View(viewModel);
+        return View(model: viewModel);
     }
 
     [HttpGet]
@@ -1035,177 +587,132 @@ public class ClientesController : BaseController
         string idUsuario = null,
         string idProyecto = null,
         DateTime? fechaInicio = null,
-        DateTime? fechaFin = null)
-    {
-        var sesiones = await _sesionesManager.ObtenerSesionesFiltradas(idUsuario, idProyecto, fechaInicio, fechaFin);
+        DateTime? fechaFin = null) {
+        List<Sesion> sesiones = await _sesionesManager.ObtenerSesionesFiltradas(idUsuario: idUsuario, idProyecto: idProyecto, fechaInicio: fechaInicio, fechaFin: fechaFin);
+        byte[] content = _sesionesManager.ExportarSesionesExcel(sesiones: sesiones);
+        string fileName = $"Sesiones_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
-        using var workbook = new ClosedXML.Excel.XLWorkbook();
-        var worksheet = workbook.Worksheets.Add("Sesiones");
-
-        // Headers
-        worksheet.Cell(1, 1).Value = "Fecha";
-        worksheet.Cell(1, 2).Value = "Colaborador";
-        worksheet.Cell(1, 3).Value = "Cliente";
-        worksheet.Cell(1, 4).Value = "Proyecto";
-        worksheet.Cell(1, 5).Value = "Horas";
-        worksheet.Cell(1, 6).Value = "Minutos";
-        worksheet.Cell(1, 7).Value = "Detalle";
-
-        // Style headers
-        var headerRange = worksheet.Range(1, 1, 1, 7);
-        headerRange.Style.Font.Bold = true;
-        headerRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.FromHtml("#1e3a5f");
-        headerRange.Style.Font.FontColor = ClosedXML.Excel.XLColor.White;
-
-        // Data
-        int row = 2;
-        foreach (var sesion in sesiones)
-        {
-            worksheet.Cell(row, 1).Value = sesion.FechaInicio.ToString("dd/MM/yyyy");
-            worksheet.Cell(row, 2).Value = sesion.ApplicationUser?.FullName;
-            worksheet.Cell(row, 3).Value = sesion.Proyecto?.Contrato?.Cliente?.Nombre;
-            worksheet.Cell(row, 4).Value = sesion.Proyecto?.Nombre;
-            worksheet.Cell(row, 5).Value = sesion.Horas;
-            worksheet.Cell(row, 6).Value = sesion.Minutes;
-            worksheet.Cell(row, 7).Value = sesion.Descripcion;
-            row++;
-        }
-
-        worksheet.Columns().AdjustToContents();
-
-        using var stream = new MemoryStream();
-        workbook.SaveAs(stream);
-        var content = stream.ToArray();
-        var fileName = $"Sesiones_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-
-        return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        return File(fileContents: content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileDownloadName: fileName);
     }
 
     [HttpGet]
     public async Task<IActionResult> MisSesiones(
         string idProyecto = null,
         DateTime? fechaInicio = null,
-        DateTime? fechaFin = null)
-    {
+        DateTime? fechaFin = null) {
         ApplicationUser usuario = await _userManager.FindByEmailAsync(GetCurrentUser());
 
-        ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(usuario.Id);
+        ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: usuario.Id);
 
-        var sesiones = await _sesionesManager.ObtenerSesionesFiltradas(
-            usuario.Id, idProyecto, fechaInicio, fechaFin);
+        List<Sesion> sesiones = await _sesionesManager.ObtenerSesionesFiltradas(
+            idUsuario: usuario.Id, idProyecto: idProyecto, fechaInicio: fechaInicio, fechaFin: fechaFin);
 
         // Si no hay filtros, limitar a 25 sesiones
-        if (fechaInicio == null && fechaFin == null && string.IsNullOrEmpty(idProyecto))
-        {
-            sesiones = sesiones.Take(25).ToList();
+        if (fechaInicio == null && fechaFin == null && string.IsNullOrEmpty(value: idProyecto)) {
+            sesiones = sesiones.Take(count: 25).ToList();
         }
 
-        var viewModel = new SesionesIndexViewModel
-        {
+        SesionesIndexViewModel viewModel = new() {
             IdProyecto = idProyecto,
             FechaInicio = fechaInicio,
             FechaFin = fechaFin,
             Sesiones = sesiones,
-            SesionesActivas = await _sesionesManager.ObtenerSesionesActivas(usuario.Id)
+            SesionesActivas = await _sesionesManager.ObtenerSesionesActivas(idUsuario: usuario.Id)
         };
 
-        return View(viewModel);
+        return View(model: viewModel);
     }
 
     [HttpGet]
-    public async Task<IActionResult> AgregarSesion()
-    {
+    public async Task<IActionResult> AgregarSesion() {
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(GetCurrentUser());
 
         ViewBag.Servicios = await ObtenerServiciosDropdown();
-        ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(colaborador.Id);
+        ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: colaborador.Id);
 
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AgregarSesion(AgregarSesionModel model)
-    {
+    public async Task<IActionResult> AgregarSesion(AgregarSesionModel model) {
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(GetCurrentUser());
 
-        if (!ModelState.IsValid)
-        {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
 
             ViewBag.Servicios = await ObtenerServiciosDropdown();
-            ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(colaborador.Id);
+            ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: colaborador.Id);
 
-            return View(model);
+            return View(model: model);
         }
 
-        var exito = await _sesionesManager.CrearSesionManual(model, colaborador.Id, GetCurrentUser());
+        bool exito = await _sesionesManager.CrearSesionManual(model: model, idColaborador: colaborador.Id, GetCurrentUser());
 
-        if (exito) return RedirectToAction(nameof(MisSesiones));
+        if (exito) {
+            return RedirectToAction(nameof(MisSesiones));
+        }
 
         ModelState.AddModelError("", Utils.MensajeErrorAgregar(nameof(Sesion)));
-        return View(model);
+        return View(model: model);
     }
 
     [HttpGet]
-    public ActionResult ErrorIniciarSesion()
-    {
+    public ActionResult ErrorIniciarSesion() {
         return View();
     }
 
     [HttpGet]
-    public async Task<IActionResult> IniciarSesion()
-    {
+    public async Task<IActionResult> IniciarSesion() {
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(GetCurrentUser());
 
         // Validar que no tenga más de 1 sesión activa
-        var sesionesActivas = await _sesionesManager.ContarSesionesActivas(colaborador.Id);
-        if (sesionesActivas > 1)
-        {
+        int sesionesActivas = await _sesionesManager.ContarSesionesActivas(idUsuario: colaborador.Id);
+        if (sesionesActivas > 1) {
             return RedirectToAction(nameof(ErrorIniciarSesion));
         }
 
         ViewBag.Servicios = await ObtenerServiciosDropdown();
-        ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(colaborador.Id);
+        ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: colaborador.Id);
 
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> IniciarSesion(AgregarSesionModel model)
-    {
+    public async Task<IActionResult> IniciarSesion(AgregarSesionModel model) {
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(GetCurrentUser());
 
-        if (!ModelState.IsValid)
-        {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
 
             ViewBag.Servicios = await ObtenerServiciosDropdown();
-            ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(colaborador.Id);
+            ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: colaborador.Id);
 
-            return View(model);
+            return View(model: model);
         }
 
-        var (exito, error) = await _sesionesManager.IniciarSesion(model, colaborador.Id, GetCurrentUser());
+        (bool exito, string error) = await _sesionesManager.IniciarSesion(model: model, idColaborador: colaborador.Id, GetCurrentUser());
 
-        if (exito) return RedirectToAction(nameof(MisSesiones));
+        if (exito) {
+            return RedirectToAction(nameof(MisSesiones));
+        }
 
         ModelState.AddModelError("", error ?? Utils.MensajeErrorAgregar(nameof(Sesion)));
-        return View(model);
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> PausarSesion(Guid id)
-    {
-        var sesion = await _sesionesManager.ObtenerSesionPorId(id);
+    public async Task<IActionResult> PausarSesion(Guid id) {
+        Sesion sesion = await _sesionesManager.ObtenerSesionPorId(id: id);
 
-        if (sesion == null) return NotFound();
+        if (sesion == null) {
+            return NotFound();
+        }
 
-        var model = new PausarSesionModel
-        {
+        PausarSesionModel model = new() {
             IdSesion = sesion.Id,
             IdProyecto = sesion.IdProyecto,
             NombreProyecto = sesion.Proyecto.Nombre,
@@ -1215,37 +722,37 @@ public class ClientesController : BaseController
             Horas = sesion.Horas
         };
 
-        return View(model);
+        return View(model: model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> PausarSesion(PausarSesionModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<IActionResult> PausarSesion(PausarSesionModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
-            return View(model);
+            return View(model: model);
         }
 
-        var (exito, error) = await _sesionesManager.PausarSesion(model.IdSesion, model.Descripcion, GetCurrentUser());
+        (bool exito, string error) = await _sesionesManager.PausarSesion(idSesion: model.IdSesion, descripcion: model.Descripcion, GetCurrentUser());
 
-        if (exito) return RedirectToAction(nameof(MisSesiones));
+        if (exito) {
+            return RedirectToAction(nameof(MisSesiones));
+        }
 
         ModelState.AddModelError("", error ?? Utils.MensajeErrorAgregar(nameof(Sesion)));
-        return View(model);
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> ReanudarSesion(Guid id)
-    {
-        var sesion = await _sesionesManager.ObtenerSesionPorId(id);
+    public async Task<IActionResult> ReanudarSesion(Guid id) {
+        Sesion sesion = await _sesionesManager.ObtenerSesionPorId(id: id);
 
-        if (sesion == null) return NotFound();
+        if (sesion == null) {
+            return NotFound();
+        }
 
-        var model = new PausarSesionModel
-        {
+        PausarSesionModel model = new() {
             IdSesion = sesion.Id,
             IdProyecto = sesion.IdProyecto,
             NombreProyecto = sesion.Proyecto.Nombre,
@@ -1255,37 +762,37 @@ public class ClientesController : BaseController
             Horas = sesion.Horas
         };
 
-        return View(model);
+        return View(model: model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ReanudarSesion(PausarSesionModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<IActionResult> ReanudarSesion(PausarSesionModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
-            return View(model);
+            return View(model: model);
         }
 
-        var (exito, error) = await _sesionesManager.ReanudarSesion(model.IdSesion, model.Descripcion, GetCurrentUser());
+        (bool exito, string error) = await _sesionesManager.ReanudarSesion(idSesion: model.IdSesion, descripcion: model.Descripcion, GetCurrentUser());
 
-        if (exito) return RedirectToAction(nameof(MisSesiones));
+        if (exito) {
+            return RedirectToAction(nameof(MisSesiones));
+        }
 
         ModelState.AddModelError("", error ?? Utils.MensajeErrorAgregar(nameof(Sesion)));
-        return View(model);
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> FinalizarSesion(Guid id)
-    {
-        var sesion = await _sesionesManager.ObtenerSesionPorId(id);
+    public async Task<IActionResult> FinalizarSesion(Guid id) {
+        Sesion sesion = await _sesionesManager.ObtenerSesionPorId(id: id);
 
-        if (sesion == null) return NotFound();
+        if (sesion == null) {
+            return NotFound();
+        }
 
-        var model = new FinalizarSesionModel
-        {
+        FinalizarSesionModel model = new() {
             IdSesion = sesion.Id,
             IdProyecto = sesion.IdProyecto,
             NombreProyecto = sesion.Proyecto.Nombre,
@@ -1294,36 +801,61 @@ public class ClientesController : BaseController
             Descripcion = sesion.Descripcion
         };
 
-        return View(model);
+        return View(model: model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> FinalizarSesion(FinalizarSesionModel model)
-    {
-        if (!ModelState.IsValid)
-        {
+    public async Task<IActionResult> FinalizarSesion(FinalizarSesionModel model) {
+        if (!ModelState.IsValid) {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
-            return View(model);
+            return View(model: model);
         }
 
-        var (exito, error) = await _sesionesManager.FinalizarSesion(model.IdSesion, model.Descripcion, GetCurrentUser());
+        (bool exito, string error) = await _sesionesManager.FinalizarSesion(idSesion: model.IdSesion, descripcion: model.Descripcion, GetCurrentUser());
 
-        if (exito) return RedirectToAction(nameof(MisSesiones));
+        if (exito) {
+            return RedirectToAction(nameof(MisSesiones));
+        }
 
         ModelState.AddModelError("", error ?? Utils.MensajeErrorAgregar(nameof(Sesion)));
-        return View(model);
+        return View(model: model);
     }
 
     [HttpGet]
-    public async Task<IActionResult> DetalleSesion(Guid id)
-    {
-        var sesion = await _sesionesManager.ObtenerSesionPorId(id);
+    public async Task<IActionResult> DetalleSesion(Guid id) {
+        Sesion sesion = await _sesionesManager.ObtenerSesionPorId(id: id);
 
-        if (sesion == null) return NotFound();
+        if (sesion == null) {
+            return NotFound();
+        }
 
-        return View(new DetalleSesionViewModel(sesion));
+        return View(new DetalleSesionViewModel(sesion: sesion));
+    }
+
+    #endregion
+
+    #region Helpers
+
+    private async Task PrepararViewBagsCliente() {
+        ViewBag.TiposCliente = await _clientesManager.ObtenerTiposClienteParaDropdownAsync();
+    }
+
+    private async Task PrepararViewBagsContrato() {
+        ViewBag.Clientes = await _clientesManager.ObtenerClientesParaDropdownAsync();
+        ViewBag.Areas = await _areasManager.ObtenerParaDropdownAsync();
+    }
+
+    private async Task PrepararViewBagsProyecto() {
+        ViewBag.Contratos = await _clientesManager.ObtenerContratosParaDropdownAsync();
+        ViewBag.Areas = await _areasManager.ObtenerParaDropdownAsync();
+        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
+    }
+
+    private async Task PrepararViewBagsAsignacionesIndex() {
+        ViewBag.Colaboradores = await ObtenerColaboradoresDropdown();
+        ViewBag.Proyectos = await _proyectosManager.ObtenerParaDropdownAsync();
     }
 
     #endregion

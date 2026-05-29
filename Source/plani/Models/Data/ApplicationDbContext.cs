@@ -4,8 +4,11 @@ using plani.Models.Domain;
 
 namespace plani.Models.Data;
 
-public class ApplicationDbContext : DbContext
-{
+public class ApplicationDbContext : DbContext {
+    public ApplicationDbContext() { }
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options: options) { }
+
     public virtual DbSet<ApplicationUser> Usuarios { get; set; }
     public virtual DbSet<ApplicationRole> Roles { get; set; }
     public virtual DbSet<TipoCliente> TiposCliente { get; set; }
@@ -19,23 +22,14 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Sesion> Sesiones { get; set; }
     public virtual DbSet<SesionLog> SesionLogs { get; set; }
 
-    public ApplicationDbContext()
-    {
-    }
-
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-    {
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+        if (!optionsBuilder.IsConfigured) {
             optionsBuilder.UseSqlServer("DefaultConnection");
+        }
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        base.OnModelCreating(modelBuilder: modelBuilder);
 
         modelBuilder.Entity<ApplicationUser>(b => { b.ToTable("Usuarios"); });
         modelBuilder.Entity<ApplicationUser>().HasQueryFilter(e => !e.IsDeleted);
@@ -51,7 +45,7 @@ public class ApplicationDbContext : DbContext
             .HasOne(p => p.Responsable)
             .WithMany(u => u.ProyectosACargo)
             .HasForeignKey(p => p.IdResponsable)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(deleteBehavior: DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Area>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Modalidad>().HasQueryFilter(e => !e.IsDeleted);
@@ -64,6 +58,6 @@ public class ApplicationDbContext : DbContext
             .HasOne(l => l.Sesion)
             .WithMany(s => s.Logs)
             .HasForeignKey(l => l.IdSesion)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(deleteBehavior: DeleteBehavior.Cascade);
     }
 }

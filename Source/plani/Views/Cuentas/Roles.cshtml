@@ -2,7 +2,7 @@
     ViewData["Title"] = "Roles";
     ViewBag.BreadcrumbIcon = "fa-users-cog";
     ViewBag.Breadcrumbs = new[] { "Roles" };
-    var canEdit = User.IsInRole("Administrador");
+    bool canEdit = User.IsInRole("Administrador");
 }
 
 <div class="container-fluid">
@@ -13,44 +13,43 @@
                     <div class="table-responsive">
                         <table id="tablaRoles" class="table table-sm table-hover">
                             <thead class="text-dark">
-                                <tr>
-                                    <th class="col-w-30">Nombre</th>
-                                    <th class="col-w-50">Descripción</th>
-                                    <th class="col-w-20 text-right">Acciones</th>
-                                </tr>
+                            <tr>
+                                <th class="col-w-30">Nombre</th>
+                                <th class="col-w-50">Descripción</th>
+                                <th class="col-w-20 text-right">Acciones</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                @if (canEdit)
-                                {
-                                    <!-- Fila para agregar nuevo rol -->
-                                    <tr id="row-add" class="table-active">
-                                        <td>
-                                            <input type="text"
-                                                   id="add-nombre"
-                                                   class="form-control form-control-sm"
-                                                   placeholder="Nombre del rol..."
-                                                   maxlength="50" />
-                                            <small class="text-danger d-none" id="add-nombre-error"></small>
-                                        </td>
-                                        <td>
-                                            <input type="text"
-                                                   id="add-descripcion"
-                                                   class="form-control form-control-sm"
-                                                   placeholder="Descripción..."
-                                                   maxlength="250" />
-                                            <small class="text-danger d-none" id="add-descripcion-error"></small>
-                                        </td>
-                                        <td class="text-right">
-                                            <button type="button"
-                                                    class="btn btn-sm btn-success"
-                                                    id="btn-add-save">
-                                                <i class="fa fa-plus"></i> Agregar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
+                            @if (canEdit) {
+                                <!-- Fila para agregar nuevo rol -->
+                                <tr id="row-add" class="table-active">
+                                    <td>
+                                        <input type="text"
+                                               id="add-nombre"
+                                               class="form-control form-control-sm"
+                                               placeholder="Nombre del rol..."
+                                               maxlength="50"/>
+                                        <small class="text-danger d-none" id="add-nombre-error"></small>
+                                    </td>
+                                    <td>
+                                        <input type="text"
+                                               id="add-descripcion"
+                                               class="form-control form-control-sm"
+                                               placeholder="Descripción..."
+                                               maxlength="250"/>
+                                        <small class="text-danger d-none" id="add-descripcion-error"></small>
+                                    </td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                                class="btn btn-sm btn-success"
+                                                id="btn-add-save">
+                                            <i class="fa fa-plus"></i> Agregar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
 
-                                <!-- Las filas de datos se cargarán aquí via AJAX -->
+                            <!-- Las filas de datos se cargarán aquí via AJAX -->
                             </tbody>
                         </table>
                     </div>
@@ -240,7 +239,7 @@
             }
 
             // Enviar al servidor
-            const data = { nombre, descripcion };
+            const data = {nombre, descripcion};
 
             $.ajax({
                 url: '@Url.Action("AgregarRolJson")',
@@ -340,7 +339,7 @@
             }
 
             // Enviar al servidor
-            const data = { idRol: id, nombre, descripcion };
+            const data = {idRol: id, nombre, descripcion};
 
             $.ajax({
                 url: '@Url.Action("EditarRolJson")',
@@ -395,7 +394,7 @@
         // Event: Confirmar eliminación desde modal
         $('#btnConfirmarEliminar').on('click', function () {
             const id = $(this).data('id');
-            const data = { id };
+            const data = {id};
 
             $.ajax({
                 url: '@Url.Action("EliminarRolJson")',

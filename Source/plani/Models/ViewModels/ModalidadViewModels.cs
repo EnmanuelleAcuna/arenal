@@ -1,20 +1,17 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-
 using plani.Models.Domain;
 
 namespace plani.Models.ViewModels;
 
 /// <summary>
-/// ViewModel para mostrar modalidades en la lista
+///     ViewModel para mostrar modalidades en la lista
 /// </summary>
-public class ModalidadListViewModel
-{
+public class ModalidadListViewModel {
     /// <summary>
-    /// Constructor para crear desde entidad Modalidad
+    ///     Constructor para crear desde entidad Modalidad
     /// </summary>
-    public ModalidadListViewModel(Modalidad modalidad)
-    {
+    public ModalidadListViewModel(Modalidad modalidad) {
         Id = modalidad.Id.ToString();
         Nombre = modalidad.Nombre;
         Descripcion = modalidad.Descripcion;
@@ -38,57 +35,51 @@ public class ModalidadListViewModel
 }
 
 /// <summary>
-/// ViewModel para agregar nueva modalidad
+///     ViewModel para agregar nueva modalidad
 /// </summary>
-public class AgregarModalidadViewModel
-{
+public class AgregarModalidadViewModel {
     [Required(ErrorMessage = "El nombre es requerido")]
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     /// <summary>
-    /// Convierte el ViewModel a una entidad Modalidad
+    ///     Convierte el ViewModel a una entidad Modalidad
     /// </summary>
-    public Modalidad ToEntity()
-    {
-        return new Modalidad(Guid.NewGuid(), Nombre, Descripcion);
+    public Modalidad ToEntity() {
+        return new Modalidad(Guid.NewGuid(), nombre: Nombre, descripcion: Descripcion);
     }
 }
 
 /// <summary>
-/// ViewModel para editar modalidad existente
+///     ViewModel para editar modalidad existente
 /// </summary>
-public class EditarModalidadViewModel
-{
+public class EditarModalidadViewModel {
     [Required(ErrorMessage = "El id es requerido")]
     public string Id { get; set; }
 
     [Required(ErrorMessage = "El nombre es requerido")]
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     /// <summary>
-    /// Convierte el ViewModel a una entidad Modalidad para actualización
+    ///     Convierte el ViewModel a una entidad Modalidad para actualización
     /// </summary>
-    public Modalidad ToEntity()
-    {
-        return new Modalidad(Guid.Parse(Id), Nombre, Descripcion);
+    public Modalidad ToEntity() {
+        return new Modalidad(Guid.Parse(input: Id), nombre: Nombre, descripcion: Descripcion);
     }
 }
 
 /// <summary>
-/// Request para eliminar modalidad
+///     Request para eliminar modalidad
 /// </summary>
-public class EliminarModalidadRequest
-{
-    [Required]
-    public string Id { get; set; }
+public class EliminarModalidadRequest {
+    [Required] public string Id { get; set; }
 }

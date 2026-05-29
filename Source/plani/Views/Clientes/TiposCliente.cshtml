@@ -2,7 +2,7 @@
     ViewData["Title"] = "Tipos de cliente";
     ViewBag.BreadcrumbIcon = "fa-building";
     ViewBag.Breadcrumbs = new[] { "Tipos de cliente" };
-    var canEdit = User.IsInRole("Administrador") || User.IsInRole("Coordinador");
+    bool canEdit = User.IsInRole("Administrador") || User.IsInRole("Coordinador");
 }
 
 <div class="container-fluid">
@@ -13,44 +13,43 @@
                     <div class="table-responsive">
                         <table id="tablaTiposCliente" class="table table-sm table-hover">
                             <thead class="text-dark">
-                                <tr>
-                                    <th class="col-w-30">Nombre</th>
-                                    <th class="col-w-50">Descripción</th>
-                                    <th class="col-w-20 text-right">Acciones</th>
-                                </tr>
+                            <tr>
+                                <th class="col-w-30">Nombre</th>
+                                <th class="col-w-50">Descripción</th>
+                                <th class="col-w-20 text-right">Acciones</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                @if (canEdit)
-                                {
-                                    <!-- Fila para agregar nuevo tipo de cliente -->
-                                    <tr id="row-add" class="table-active">
-                                        <td>
-                                            <input type="text"
-                                                   id="add-nombre"
-                                                   class="form-control form-control-sm"
-                                                   placeholder="Nombre del tipo de cliente..."
-                                                   maxlength="255" />
-                                            <small class="text-danger d-none" id="add-nombre-error"></small>
-                                        </td>
-                                        <td>
-                                            <input type="text"
-                                                   id="add-descripcion"
-                                                   class="form-control form-control-sm"
-                                                   placeholder="Descripción..."
-                                                   maxlength="2000" />
-                                            <small class="text-danger d-none" id="add-descripcion-error"></small>
-                                        </td>
-                                        <td class="text-right">
-                                            <button type="button"
-                                                    class="btn btn-sm btn-success"
-                                                    id="btn-add-save">
-                                                <i class="fa fa-plus"></i> Agregar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
+                            @if (canEdit) {
+                                <!-- Fila para agregar nuevo tipo de cliente -->
+                                <tr id="row-add" class="table-active">
+                                    <td>
+                                        <input type="text"
+                                               id="add-nombre"
+                                               class="form-control form-control-sm"
+                                               placeholder="Nombre del tipo de cliente..."
+                                               maxlength="255"/>
+                                        <small class="text-danger d-none" id="add-nombre-error"></small>
+                                    </td>
+                                    <td>
+                                        <input type="text"
+                                               id="add-descripcion"
+                                               class="form-control form-control-sm"
+                                               placeholder="Descripción..."
+                                               maxlength="2000"/>
+                                        <small class="text-danger d-none" id="add-descripcion-error"></small>
+                                    </td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                                class="btn btn-sm btn-success"
+                                                id="btn-add-save">
+                                            <i class="fa fa-plus"></i> Agregar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
 
-                                <!-- Las filas de datos se cargarán aquí via AJAX -->
+                            <!-- Las filas de datos se cargarán aquí via AJAX -->
                             </tbody>
                         </table>
                     </div>
@@ -81,7 +80,8 @@
                 </button>
             </div>
             <div class="modal-body">
-                <h6>¿Está seguro que desea eliminar el tipo de cliente <strong><span id="nombreEliminar"></span></strong>?</h6>
+                <h6>¿Está seguro que desea eliminar el tipo de cliente
+                    <strong><span id="nombreEliminar"></span></strong>?</h6>
                 <p class="text-muted mt-3">
                     <i class="fa fa-exclamation-triangle"></i>
                     Esta acción no se puede deshacer.
@@ -240,7 +240,7 @@
             }
 
             // Enviar al servidor
-            const data = { nombre, descripcion };
+            const data = {nombre, descripcion};
 
             $.ajax({
                 url: '@Url.Action("AgregarTipoClienteJson")',
@@ -340,7 +340,7 @@
             }
 
             // Enviar al servidor
-            const data = { id, nombre, descripcion };
+            const data = {id, nombre, descripcion};
 
             $.ajax({
                 url: '@Url.Action("EditarTipoClienteJson")',
@@ -395,7 +395,7 @@
         // Event: Confirmar eliminación desde modal
         $('#btnConfirmarEliminar').on('click', function () {
             const id = $(this).data('id');
-            const data = { id };
+            const data = {id};
 
             $.ajax({
                 url: '@Url.Action("EliminarTipoClienteJson")',

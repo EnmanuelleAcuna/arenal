@@ -1,4 +1,5 @@
-﻿@model AsignacionesIndexViewModel
+﻿@using plani.Models.Domain
+@model AsignacionesIndexViewModel
 
 @{
     ViewData["Title"] = "Asignaciones";
@@ -12,11 +13,11 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <a id="btn-agregar-asignacion" asp-action="Colaboradores" asp-controller="Cuentas" class="btn btn-sm btn-primary">Agregar asignación</a>
+                    <a id="btn-agregar-asignacion" asp-action="Colaboradores" asp-controller="Cuentas" class="btn btn-sm btn-primary">Agregar
+                        asignación</a>
                     <hr/>
 
-                    @using (Html.BeginForm("Asignaciones", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("Asignaciones", "Clientes", method: FormMethod.Post, new { autocomplete = "off" })) {
                         @Html.AntiForgeryToken()
 
                         <div class="row">
@@ -46,30 +47,27 @@
 
                     <hr/>
 
-                    @if (Model.ProyectosAsignaciones.Count == 0)
-                    {
+                    @if (Model.ProyectosAsignaciones.Count == 0) {
                         <div class="alert alert-warning" role="alert">
                             No hay asignaciones registradas.
                         </div>
                     }
 
-                    @if (Model.ProyectosAsignaciones.Count > 0)
-                    {
+                    @if (Model.ProyectosAsignaciones.Count > 0) {
                         <nav aria-label="Paginación de asignaciones superior">
                             <ul class="pagination pagination-sm mb-3 asignaciones-pagination"></ul>
                         </nav>
                     }
 
                     <div id="asignaciones-container">
-                        @foreach (var proyecto in Model.ProyectosAsignaciones)
-                        {
+                        @foreach (ProyectoAsignacionesViewModel proyecto in Model.ProyectosAsignaciones) {
                             <div class="card mb-4 asignacion-card">
                                 <div class="card-header p-0-5">
-                                    <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto</h6>
+                                    <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span>
+                                        | @proyecto.NombreProyecto</h6>
                                 </div>
                                 <div class="card-body pl-4 py-2">
-                                    @foreach (var asignacion in proyecto.Asignaciones)
-                                    {
+                                    @foreach (Asignacion asignacion in proyecto.Asignaciones) {
                                         <p class="mb-0">
                                             <span class="font-weight-bold">@asignacion.ApplicationUser.FullName</span> |
                                             <span>@asignacion.Descripcion</span>
@@ -80,8 +78,7 @@
                         }
                     </div>
 
-                    @if (Model.ProyectosAsignaciones.Count > 0)
-                    {
+                    @if (Model.ProyectosAsignaciones.Count > 0) {
                         <nav aria-label="Paginación de asignaciones inferior">
                             <ul class="pagination pagination-sm mb-0 asignaciones-pagination"></ul>
                         </nav>
@@ -94,7 +91,7 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             initSelect2('#usuario-select', 'Todos los colaboradores');
             initSelect2('#proyecto-select', 'Todos los proyectos');
 
@@ -112,7 +109,7 @@
                 cards.hide();
                 cards.slice(start, end).show();
 
-                $('.asignaciones-pagination').each(function() {
+                $('.asignaciones-pagination').each(function () {
                     var pagination = $(this);
                     pagination.empty();
 
@@ -135,12 +132,12 @@
                 });
             }
 
-            $(document).on('click', '.asignaciones-pagination .page-link', function(e) {
+            $(document).on('click', '.asignaciones-pagination .page-link', function (e) {
                 e.preventDefault();
                 var page = parseInt($(this).data('page'));
                 if (page >= 1 && page <= totalPages) {
                     showPage(page);
-                    document.getElementById('btn-agregar-asignacion').scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('btn-agregar-asignacion').scrollIntoView({behavior: 'smooth'});
                 }
             });
 

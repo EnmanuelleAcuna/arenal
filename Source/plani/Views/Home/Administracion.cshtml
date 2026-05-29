@@ -115,13 +115,13 @@
     <script>
         // Configuración de colores - Paleta profesional pastel
         const chartColors = {
-            blue: { bg: 'rgba(100, 149, 237, 0.6)', border: 'rgba(65, 105, 225, 0.8)' },
-            green: { bg: 'rgba(102, 187, 106, 0.6)', border: 'rgba(56, 142, 60, 0.8)' },
-            orange: { bg: 'rgba(255, 167, 38, 0.6)', border: 'rgba(239, 108, 0, 0.8)' },
-            purple: { bg: 'rgba(149, 117, 205, 0.6)', border: 'rgba(103, 58, 183, 0.8)' },
-            teal: { bg: 'rgba(77, 182, 172, 0.6)', border: 'rgba(0, 137, 123, 0.8)' },
-            pink: { bg: 'rgba(240, 98, 146, 0.6)', border: 'rgba(194, 24, 91, 0.8)' },
-            amber: { bg: 'rgba(255, 202, 40, 0.6)', border: 'rgba(255, 160, 0, 0.8)' }
+            blue: {bg: 'rgba(100, 149, 237, 0.6)', border: 'rgba(65, 105, 225, 0.8)'},
+            green: {bg: 'rgba(102, 187, 106, 0.6)', border: 'rgba(56, 142, 60, 0.8)'},
+            orange: {bg: 'rgba(255, 167, 38, 0.6)', border: 'rgba(239, 108, 0, 0.8)'},
+            purple: {bg: 'rgba(149, 117, 205, 0.6)', border: 'rgba(103, 58, 183, 0.8)'},
+            teal: {bg: 'rgba(77, 182, 172, 0.6)', border: 'rgba(0, 137, 123, 0.8)'},
+            pink: {bg: 'rgba(240, 98, 146, 0.6)', border: 'rgba(194, 24, 91, 0.8)'},
+            amber: {bg: 'rgba(255, 202, 40, 0.6)', border: 'rgba(255, 160, 0, 0.8)'}
         };
 
         // Array de colores para asignar dinámicamente
@@ -143,11 +143,11 @@
 
         const doughnutLegend = {
             position: 'bottom',
-            labels: { padding: 15, usePointStyle: true, pointStyle: 'circle' }
+            labels: {padding: 15, usePointStyle: true, pointStyle: 'circle'}
         };
 
         const percentageTooltip = (label, suffix = '') => ({
-            label: function(context) {
+            label: function (context) {
                 let text = context.label ? context.label + ': ' : '';
                 text += context.parsed + suffix;
                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -239,8 +239,8 @@
                 },
                 options: {
                     ...baseOptions,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 10 } } }
+                    plugins: {legend: {display: false}},
+                    scales: {y: {beginAtZero: true, ticks: {stepSize: 10}}}
                 }
             });
         }
@@ -269,8 +269,8 @@
                 },
                 options: {
                     ...baseOptions,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 50 } } }
+                    plugins: {legend: {display: false}},
+                    scales: {y: {beginAtZero: true, ticks: {stepSize: 50}}}
                 }
             });
         }
@@ -281,7 +281,7 @@
             selector.innerHTML = '';
 
             const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
             // Obtener los meses disponibles (keys del diccionario)
             const mesesDisponibles = Object.keys(horasPorServicioPorMes).map(Number).sort((a, b) => a - b);
@@ -333,7 +333,7 @@
                     ...baseOptions,
                     plugins: {
                         legend: doughnutLegend,
-                        tooltip: { callbacks: percentageTooltip(' horas') }
+                        tooltip: {callbacks: percentageTooltip(' horas')}
                     }
                 }
             });
@@ -358,7 +358,7 @@
                     ...baseOptions,
                     plugins: {
                         legend: doughnutLegend,
-                        tooltip: { callbacks: percentageTooltip(' proyectos') }
+                        tooltip: {callbacks: percentageTooltip(' proyectos')}
                     }
                 }
             });
@@ -393,10 +393,10 @@
                     indexAxis: 'y',
                     ...baseOptions,
                     plugins: {
-                        legend: { display: false },
-                        tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' horas trabajadas' } }
+                        legend: {display: false},
+                        tooltip: {callbacks: {label: ctx => ctx.parsed.x + ' horas trabajadas'}}
                     },
-                    scales: { x: { beginAtZero: true, ticks: { stepSize: 50 } } }
+                    scales: {x: {beginAtZero: true, ticks: {stepSize: 50}}}
                 }
             });
         }
@@ -430,16 +430,16 @@
                     indexAxis: 'y',
                     ...baseOptions,
                     plugins: {
-                        legend: { display: false },
-                        tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' horas trabajadas' } }
+                        legend: {display: false},
+                        tooltip: {callbacks: {label: ctx => ctx.parsed.x + ' horas trabajadas'}}
                     },
-                    scales: { x: { beginAtZero: true, ticks: { stepSize: 20 } } }
+                    scales: {x: {beginAtZero: true, ticks: {stepSize: 20}}}
                 }
             });
         }
 
         // Inicializar dashboard al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             cargarDatosDashboard();
         });
     </script>

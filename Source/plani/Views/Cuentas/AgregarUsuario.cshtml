@@ -11,8 +11,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("AgregarUsuario", "Cuentas", null, FormMethod.Post, true, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("AgregarUsuario", "Cuentas", routeValues: null, method: FormMethod.Post, antiforgery: true, new { autocomplete = "off" })) {
                         @Html.AntiForgeryToken()
 
                         <div class="row">
@@ -89,8 +88,7 @@
                             </div>
                             <div class="col-sm-12 mt-2">
                                 <div class="row">
-                                    @foreach (var rol in ViewBag.ListaRoles)
-                                    {
+                                    @foreach (dynamic rol in ViewBag.ListaRoles) {
                                         <div class="col-sm-12 col-md-3 d-inline">
                                             <div class="row">
                                                 <div class="col-1 d-inline">
@@ -111,14 +109,14 @@
                             <div class="col-12">
                                 <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
                                     <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                    @Html.ActionLink("Cancelar", "Usuarios", null, null, new { @class = "btn btn-sm btn-outline-dark" })
+                                    @Html.ActionLink("Cancelar", "Usuarios", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-outline-dark" })
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row mt-3">
                             <div class="col-md-12">
-                                @Html.ValidationSummary(true, "", new { @class = "text-danger mx-n4" })
+                                @Html.ValidationSummary(excludePropertyErrors: true, "", new { @class = "text-danger mx-n4" })
                             </div>
                         </div>
                     }

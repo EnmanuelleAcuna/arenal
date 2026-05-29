@@ -6,25 +6,21 @@ using plani.Models.Domain;
 
 namespace plani.Identity;
 
-public class ApplicationUser : IdentityUser
-{
-    public ApplicationUser() : base()
-    {
+public class ApplicationUser : IdentityUser {
+    public ApplicationUser() {
         Asignaciones = new List<Asignacion>();
         Sesiones = new List<Sesion>();
         ProyectosACargo = new List<Proyecto>();
     }
 
-    public ApplicationUser(string userName) : base(userName)
-    {
+    public ApplicationUser(string userName) : base(userName: userName) {
         Asignaciones = new List<Asignacion>();
         Sesiones = new List<Sesion>();
         ProyectosACargo = new List<Proyecto>();
     }
 
     public ApplicationUser(string id, string correo, string nombre, string primerApellido,
-        string segundoApellido, string identificacion, bool activo)
-    {
+        string segundoApellido, string identificacion, bool activo) {
         Id = id;
         Email = correo.ToLower();
         UserName = correo.ToLower();
@@ -45,6 +41,56 @@ public class ApplicationUser : IdentityUser
     public string SecondLastName { get; private set; }
 
     public bool? Active { get; private set; }
+
+    public DateTime DateCreated { get; set; }
+    public string CreatedBy { get; set; }
+    public DateTime? DateUpdated { get; set; }
+    public string UpdatedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public string DeletedBy { get; set; }
+    public DateTime? DateDeleted { get; set; }
+
+    [NotMapped] public string FullName => $"{Name} {FirstLastName} {SecondLastName}";
+
+    public ICollection<Asignacion> Asignaciones { get; set; }
+    public ICollection<Sesion> Sesiones { get; set; }
+    public ICollection<Proyecto> ProyectosACargo { get; set; }
+
+    public void RegristrarCreacion(string creadoPor, DateTime creadoEl) {
+        CreatedBy = creadoPor;
+        DateCreated = creadoEl;
+    }
+
+    public void RegistrarActualizacion(string actualizadoPor, DateTime? actualizadoEl) {
+        UpdatedBy = actualizadoPor;
+        DateUpdated = actualizadoEl;
+    }
+
+    private void RegistrarEliminacion(string eliminadoPor, DateTime eliminadoEl) {
+        DeletedBy = eliminadoPor;
+        DateDeleted = eliminadoEl;
+    }
+
+    public void Eliminar(string eliminadoPor) {
+        if (IsDeleted) {
+            throw new InvalidOperationException(message: Utils.MensajeErrorObjetoYaEliminado);
+        }
+
+        IsDeleted = true;
+        RegistrarEliminacion(eliminadoPor: eliminadoPor, eliminadoEl: DateTime.UtcNow);
+    }
+
+    public void SetNewPersonalInformation(string name, string firstLastName, string secondLastName,
+        string identification) {
+        Name = name;
+        FirstLastName = firstLastName;
+        SecondLastName = secondLastName;
+        IdentificationNumber = identification;
+    }
+
+    public override string ToString() {
+        return JsonSerializer.Serialize(this);
+    }
 
     #region Identity properties that does not need to be mapped in the DB
 
@@ -69,60 +115,4 @@ public class ApplicationUser : IdentityUser
     [NotMapped] public override string NormalizedUserName { get; set; }
 
     #endregion
-
-    public DateTime DateCreated { get; set; }
-    public string CreatedBy { get; set; }
-    public DateTime? DateUpdated { get; set; }
-    public string UpdatedBy { get; set; }
-    public bool IsDeleted { get; set; }
-    public string DeletedBy { get; set; }
-    public DateTime? DateDeleted { get; set; }
-
-    public void RegristrarCreacion(string creadoPor, DateTime creadoEl)
-    {
-        CreatedBy = creadoPor;
-        DateCreated = creadoEl;
-    }
-
-    public void RegistrarActualizacion(string actualizadoPor, DateTime? actualizadoEl)
-    {
-        UpdatedBy = actualizadoPor;
-        DateUpdated = actualizadoEl;
-    }
-
-    private void RegistrarEliminacion(string eliminadoPor, DateTime eliminadoEl)
-    {
-        DeletedBy = eliminadoPor;
-        DateDeleted = eliminadoEl;
-    }
-
-    public void Eliminar(string eliminadoPor)
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException(Utils.MensajeErrorObjetoYaEliminado);
-
-        IsDeleted = true;
-        RegistrarEliminacion(eliminadoPor, DateTime.UtcNow);
-    }
-
-    [NotMapped]
-    public string FullName
-    {
-        get { return $"{Name} {FirstLastName} {SecondLastName}"; }
-    }
-
-    public ICollection<Asignacion> Asignaciones { get; set; }
-    public ICollection<Sesion> Sesiones { get; set; }
-    public ICollection<Proyecto> ProyectosACargo { get; set; }
-
-    public void SetNewPersonalInformation(string name, string firstLastName, string secondLastName,
-        string identification)
-    {
-        Name = name;
-        FirstLastName = firstLastName;
-        SecondLastName = secondLastName;
-        IdentificationNumber = identification;
-    }
-
-    public override string ToString() => JsonSerializer.Serialize(this);
 }

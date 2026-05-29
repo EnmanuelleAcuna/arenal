@@ -1,4 +1,5 @@
-﻿@model DetalleAreaViewModel
+﻿@using plani.Models.Domain
+@model DetalleAreaViewModel
 
 @{
     ViewBag.Title = "Áreas";
@@ -31,8 +32,7 @@
                                     </thead>
                                     <tbody>
 
-                                    @foreach (var servicio in Model.Servicios)
-                                    {
+                                    @foreach (Servicio servicio in Model.Servicios) {
                                         <tr>
                                             <td>@servicio.Nombre</td>
                                             <td>@servicio.TruncatedDescripcion</td>
@@ -85,8 +85,7 @@
                                     </thead>
                                     <tbody>
 
-                                    @foreach (var proyecto in Model.Proyectos)
-                                    {
+                                    @foreach (Proyecto proyecto in Model.Proyectos) {
                                         <tr>
                                             <td>@proyecto.Nombre</td>
                                             <td>@proyecto.Contrato.Cliente.Nombre</td>
@@ -101,7 +100,7 @@
 
                     <div class="row">
                         <div class="col-12">
-                            @Html.ActionLink("Áreas", "Areas", null, null, new { @class = "btn btn-sm btn-primary" })
+                            @Html.ActionLink("Áreas", "Areas", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-primary" })
                         </div>
                     </div>
                 </div>

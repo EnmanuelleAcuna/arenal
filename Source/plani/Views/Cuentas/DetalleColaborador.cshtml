@@ -1,4 +1,5 @@
-﻿@model ApplicationUser
+﻿@using plani.Models.Domain
+@model ApplicationUser
 
 @{
     ViewData["Title"] = "Colaboradores";
@@ -34,8 +35,7 @@
                                     </thead>
                                     <tbody>
 
-                                    @foreach (var asignacion in Model.Asignaciones)
-                                    {
+                                    @foreach (Asignacion asignacion in Model.Asignaciones) {
                                         <tr>
                                             <td>@asignacion.Proyecto.Nombre</td>
                                             <td>@asignacion.Proyecto.Contrato.Cliente.Nombre</td>
@@ -58,7 +58,7 @@
 
                     <div class="row">
                         <div class="col-12">
-                            @Html.ActionLink("Regresar", "Colaboradores", null, null, new { @class = "btn btn-sm btn-primary" })
+                            @Html.ActionLink("Regresar", "Colaboradores", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-primary" })
                         </div>
                     </div>
                 </div>

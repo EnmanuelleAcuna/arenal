@@ -5,12 +5,10 @@ using plani.Models.Domain;
 
 namespace plani.Models.ViewModels;
 
-public class DetalleContratoViewModel
-{
+public class DetalleContratoViewModel {
     public DetalleContratoViewModel() { }
 
-    public DetalleContratoViewModel(Contrato contrato)
-    {
+    public DetalleContratoViewModel(Contrato contrato) {
         Id = contrato.Id;
         Identificacion = contrato.Identificacion;
         Descripcion = contrato.Descripcion;
@@ -26,39 +24,45 @@ public class DetalleContratoViewModel
     public DateTime FechaInicio { get; set; }
     public DateTime? FechaFin { get; set; }
     public string LongDateFechaInicio => FechaInicio.ToString("D", new CultureInfo("es-ES"));
-    public string TruncatedDescripcion => Descripcion?.Length > 20 ? Descripcion.Substring(0, 20) + "..." : Descripcion;
+    public string TruncatedDescripcion => Descripcion?.Length > 20 ? Descripcion.Substring(startIndex: 0, length: 20) + "..." : Descripcion;
     public Cliente Cliente { get; set; }
     public Area Area { get; set; }
     public IEnumerable<Proyecto> Proyectos { get; set; }
 }
 
-public class AgregarContratoViewModel
-{
+public class AgregarContratoViewModel {
     public Guid IdCliente { get; set; }
 
     [Required(ErrorMessage = "La identificación es requerida.")]
-    [StringLength(100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
+    [StringLength(maximumLength: 100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
     public string Identificacion { get; set; }
 
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     [DisplayName("Fecha de inicio")]
     [Required(ErrorMessage = "La fecha de inicio es requerida.")]
     public DateTime FechaInicio { get; set; }
 
-    [DisplayName("Fecha de fin")]
-    public DateTime? FechaFin { get; set; }
+    [DisplayName("Fecha de fin")] public DateTime? FechaFin { get; set; }
 
     public Guid IdArea { get; set; }
+
+    public Contrato ToEntity() {
+        return new Contrato {
+            IdCliente = IdCliente,
+            Identificacion = Identificacion,
+            Descripcion = Descripcion,
+            FechaInicio = FechaInicio,
+            IdArea = IdArea
+        };
+    }
 }
 
-public class EditarContratoViewModel
-{
+public class EditarContratoViewModel {
     public EditarContratoViewModel() { }
 
-    public EditarContratoViewModel(Contrato contrato)
-    {
+    public EditarContratoViewModel(Contrato contrato) {
         Id = contrato.Id;
         IdCliente = contrato.IdCliente;
         Identificacion = contrato.Identificacion;
@@ -71,28 +75,36 @@ public class EditarContratoViewModel
     public Guid IdCliente { get; set; }
 
     [Required(ErrorMessage = "La identificación es requerida.")]
-    [StringLength(100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
+    [StringLength(maximumLength: 100, ErrorMessage = "La identificación debe tener máximo 100 caracteres.")]
     public string Identificacion { get; set; }
 
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     [DisplayName("Fecha de inicio")]
     [Required(ErrorMessage = "La fecha de inicio es requerida.")]
     public DateTime FechaInicio { get; set; }
 
-    [DisplayName("Fecha de fin")]
-    public DateTime? FechaFin { get; set; }
+    [DisplayName("Fecha de fin")] public DateTime? FechaFin { get; set; }
 
     public Guid IdArea { get; set; }
+
+    public Contrato ToEntity() {
+        return new Contrato {
+            Id = Id,
+            Identificacion = Identificacion,
+            FechaInicio = FechaInicio,
+            Descripcion = Descripcion,
+            IdCliente = IdCliente,
+            IdArea = IdArea
+        };
+    }
 }
 
-public class EliminarContratoViewModel
-{
+public class EliminarContratoViewModel {
     public EliminarContratoViewModel() { }
 
-    public EliminarContratoViewModel(Contrato contrato)
-    {
+    public EliminarContratoViewModel(Contrato contrato) {
         Id = contrato.Id;
         Identificacion = contrato.Identificacion;
         Cliente = contrato.Cliente;

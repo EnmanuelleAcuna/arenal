@@ -1,13 +1,12 @@
-@model plani.Models.ViewModels.BreadcrumbsViewModel
+@model BreadcrumbsViewModel
 
 <div class="breadcrumb-container">
     <i class="fas @Model.Icon"></i>
-    @for (int i = 0; i < Model.Breadcrumbs.Count; i++)
-    {
-        if (i > 0)
-        {
+    @for (int i = 0; i < Model.Breadcrumbs.Count; i++) {
+        if (i > 0) {
             <span class="breadcrumb-separator">/</span>
         }
-        <span class="breadcrumb-text">@Model.Breadcrumbs[i]</span>
+
+        <span class="breadcrumb-text">@Model.Breadcrumbs[index: i]</span>
     }
 </div>

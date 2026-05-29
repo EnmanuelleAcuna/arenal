@@ -1,22 +1,15 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using plani.Models;
 
 namespace plani.Identity;
 
-public class ApplicationRole : IdentityRole
-{
-    public ApplicationRole() : base()
-    {
-    }
+public class ApplicationRole : IdentityRole {
+    public ApplicationRole() { }
 
-    public ApplicationRole(string nombre) : base(nombre)
-    {
-    }
+    public ApplicationRole(string nombre) : base(roleName: nombre) { }
 
-    public ApplicationRole(string id, string nombre, string descripcion) : base(nombre)
-    {
+    public ApplicationRole(string id, string nombre, string descripcion) : base(roleName: nombre) {
         Id = id;
         Name = nombre;
         Description = descripcion;
@@ -30,7 +23,7 @@ public class ApplicationRole : IdentityRole
     // [NotMapped] public override string ConcurrencyStamp { get; set; }
 
     // [NotMapped] public override string NormalizedName { get; set; }
-    
+
     public DateTime DateCreated { get; set; }
     public string CreatedBy { get; set; }
     public DateTime? DateUpdated { get; set; }
@@ -39,32 +32,31 @@ public class ApplicationRole : IdentityRole
     public string DeletedBy { get; set; }
     public DateTime? DateDeleted { get; set; }
 
-    public void RegristrarCreacion(string creadoPor, DateTime creadoEl)
-    {
+    public void RegristrarCreacion(string creadoPor, DateTime creadoEl) {
         CreatedBy = creadoPor;
         DateCreated = creadoEl;
     }
 
-    public void RegistrarActualizacion(string actualizadoPor, DateTime actualizadoEl)
-    {
+    public void RegistrarActualizacion(string actualizadoPor, DateTime actualizadoEl) {
         UpdatedBy = actualizadoPor;
         DateUpdated = actualizadoEl;
     }
 
-    private void RegistrarEliminacion(string eliminadoPor, DateTime eliminadoEl)
-    {
+    private void RegistrarEliminacion(string eliminadoPor, DateTime eliminadoEl) {
         DeletedBy = eliminadoPor;
         DateDeleted = eliminadoEl;
     }
-    
-    public void Eliminar(string eliminadoPor)
-    {
-        if (IsDeleted)
-            throw new InvalidOperationException(Utils.MensajeErrorObjetoYaEliminado);
-        
+
+    public void Eliminar(string eliminadoPor) {
+        if (IsDeleted) {
+            throw new InvalidOperationException(message: Utils.MensajeErrorObjetoYaEliminado);
+        }
+
         IsDeleted = true;
-        RegistrarEliminacion(eliminadoPor, DateTime.UtcNow);
+        RegistrarEliminacion(eliminadoPor: eliminadoPor, eliminadoEl: DateTime.UtcNow);
     }
 
-    public override string ToString() => JsonSerializer.Serialize(this);
+    public override string ToString() {
+        return JsonSerializer.Serialize(this);
+    }
 }

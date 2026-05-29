@@ -5,24 +5,20 @@ using plani.Identity;
 namespace plani.Models.ViewComponents;
 
 /// <summary>
-/// View Component para el topbar (header).
-/// Solo se muestra si el usuario está autenticado.
+///     View Component para el topbar (header).
+///     Solo se muestra si el usuario está autenticado.
 /// </summary>
-public class TopbarViewComponent : ViewComponent
-{
+public class TopbarViewComponent : ViewComponent {
     private readonly SignInManager<ApplicationUser> _signInManager;
 
-    public TopbarViewComponent(SignInManager<ApplicationUser> signInManager)
-    {
+    public TopbarViewComponent(SignInManager<ApplicationUser> signInManager) {
         _signInManager = signInManager;
     }
 
-    public IViewComponentResult Invoke()
-    {
+    public IViewComponentResult Invoke() {
         // Si el usuario no está autenticado, no mostrar el topbar
-        if (!_signInManager.IsSignedIn(HttpContext.User))
-        {
-            return Content(string.Empty);
+        if (!_signInManager.IsSignedIn(principal: HttpContext.User)) {
+            return Content(content: string.Empty);
         }
 
         return View();

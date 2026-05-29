@@ -10,8 +10,7 @@
 
         <div class="card shadow-sm">
             <div class="card-body">
-                @using (Html.BeginForm("IniciarSesion", "Cuentas", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, true, new { autocomplete = "off" }))
-                {
+                @using (Html.BeginForm("IniciarSesion", "Cuentas", new { ViewBag.ReturnUrl }, method: FormMethod.Post, antiforgery: true, new { autocomplete = "off" })) {
                     @Html.AntiForgeryToken()
 
                     <div class="form-group">
@@ -27,7 +26,7 @@
                     </div>
 
                     <div class="center red-text font-bold">
-                        @Html.ValidationSummary(true, "", new { @class = "data-error" })
+                        @Html.ValidationSummary(excludePropertyErrors: true, "", new { @class = "data-error" })
                     </div>
 
                     <div class="w-100 text-center">
@@ -36,8 +35,7 @@
                         </button>
 
                         <small>
-                            @Html.ActionLink("¿Olvidó su contraseña?", "SolicitarContrasena", "Cuentas", null, new
-                            {
+                            @Html.ActionLink("¿Olvidó su contraseña?", "SolicitarContrasena", "Cuentas", routeValues: null, new {
                                 @class = "text-secondary", title =
                                     "¿Olvidó su contraseña?"
                             })

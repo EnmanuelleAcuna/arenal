@@ -1,4 +1,5 @@
-﻿@model AsignacionesIndexViewModel
+﻿@using plani.Models.Domain
+@model AsignacionesIndexViewModel
 
 @{
     ViewData["Title"] = "Mis asignaciones";
@@ -12,22 +13,20 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @if (Model.ProyectosAsignaciones.Count == 0)
-                    {
+                    @if (Model.ProyectosAsignaciones.Count == 0) {
                         <div class="alert alert-warning" role="alert">
                             No hay asignaciones registradas.
                         </div>
                     }
-                    
-                    @foreach (var proyecto in Model.ProyectosAsignaciones)
-                    {
+
+                    @foreach (ProyectoAsignacionesViewModel proyecto in Model.ProyectosAsignaciones) {
                         <div class="card mb-4">
                             <div class="card-header  p-0-5">
-                                <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span> | @proyecto.NombreProyecto</h6>
+                                <h6 class="mb-0"><span class="text-sc">@proyecto.NombreCliente</span>
+                                    | @proyecto.NombreProyecto</h6>
                             </div>
                             <div class="card-body pl-4">
-                                @foreach (var asignacion in proyecto.Asignaciones)
-                                {
+                                @foreach (Asignacion asignacion in proyecto.Asignaciones) {
                                     <p>
                                         Asignación: <b>@asignacion.Descripcion</b>
                                     </p>

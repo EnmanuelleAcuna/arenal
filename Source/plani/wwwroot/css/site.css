@@ -27,8 +27,8 @@ body {
 }
 
 .body-content {
-    margin-left: 0;  /* Por defecto sin sidebar (usuario no autenticado) */
-    margin-top: 0;   /* Por defecto sin topbar (usuario no autenticado) */
+    margin-left: 0; /* Por defecto sin sidebar (usuario no autenticado) */
+    margin-top: 0; /* Por defecto sin topbar (usuario no autenticado) */
     padding: 2rem;
     transition: margin-left 0.3s ease, margin-top 0.3s ease;
     min-height: 100dvh;
@@ -284,7 +284,7 @@ textarea {
 .topbar {
     position: fixed;
     top: 0;
-    left: 0;  /* Por defecto sin sidebar (usuario no autenticado) */
+    left: 0; /* Por defecto sin sidebar (usuario no autenticado) */
     right: 0;
     height: var(--topbar-height);
     background-color: var(--primary-color);
@@ -689,8 +689,12 @@ table.dataTable.table-sm .sorting_desc:after {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* ==========================================================================
@@ -722,13 +726,33 @@ table.dataTable.table-sm .sorting_desc:after {
 /* ==========================================================================
    21. TABLE COLUMN WIDTHS
    ========================================================================== */
-.col-w-15 { width: 15%; }
-.col-w-20 { width: 20%; }
-.col-w-25 { width: 25%; }
-.col-w-30 { width: 30%; }
-.col-w-40 { width: 40%; }
-.col-w-45 { width: 45%; }
-.col-w-50 { width: 50%; }
+.col-w-15 {
+    width: 15%;
+}
+
+.col-w-20 {
+    width: 20%;
+}
+
+.col-w-25 {
+    width: 25%;
+}
+
+.col-w-30 {
+    width: 30%;
+}
+
+.col-w-40 {
+    width: 40%;
+}
+
+.col-w-45 {
+    width: 45%;
+}
+
+.col-w-50 {
+    width: 50%;
+}
 
 /* ==========================================================================
    22. DASHBOARD CHARTS LAYOUT

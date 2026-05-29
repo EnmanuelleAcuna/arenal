@@ -1,4 +1,6 @@
-﻿@model SesionesIndexViewModel
+﻿@using System.Globalization
+@using plani.Models.Domain
+@model SesionesIndexViewModel
 
 @{
     ViewData["Title"] = "Sesiones";
@@ -11,9 +13,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("Sesiones", "Clientes", FormMethod.Get, new { autocomplete = "off" }))
-                    {
-
+                    @using (Html.BeginForm("Sesiones", "Clientes", method: FormMethod.Get, new { autocomplete = "off" })) {
                         <div class="row">
                             <div class="col-sm-12 col-md-4 col-lg-4">
                                 <div class="form-group">
@@ -59,18 +59,16 @@
 
                     @* Badge con resumen de sesiones *@
                     @{
-                        var totalSesiones = Model.TotalSesiones;
-                        var horasTotalesCalculadas = Model.TotalHoras;
-                        var mesActual = Model.FechaInicio?.ToString("MMMM yyyy", new System.Globalization.CultureInfo("es-ES"));
+                        int totalSesiones = Model.TotalSesiones;
+                        double horasTotalesCalculadas = Model.TotalHoras;
+                        string mesActual = Model.FechaInicio?.ToString("MMMM yyyy", new CultureInfo("es-ES"));
                     }
 
-                    @if (totalSesiones > 0)
-                    {
+                    @if (totalSesiones > 0) {
                         <div class="alert alert-info" role="alert">
                             <i class="fas fa-info-circle"></i>
                             <strong>Mostrando:</strong>
-                            @if (!string.IsNullOrEmpty(mesActual))
-                            {
+                            @if (!string.IsNullOrEmpty(value: mesActual)) {
                                 <span>@mesActual</span>
                                 <span class="mx-2">|</span>
                             }
@@ -80,8 +78,7 @@
                         </div>
                     }
 
-                    @if (Model.Sesiones == null || Model.Sesiones.Count == 0)
-                    {
+                    @if (Model.Sesiones == null || Model.Sesiones.Count == 0) {
                         <div class="alert alert-warning" role="alert">
                             No hay sesiones registradas.
                         </div>
@@ -117,10 +114,8 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @if (Model.Sesiones != null)
-                            {
-                                @foreach (var sesion in Model.Sesiones)
-                                {
+                            @if (Model.Sesiones != null) {
+                                @foreach (Sesion sesion in Model.Sesiones) {
                                     <tr>
                                         <td>@sesion.FechaInicio.ToString("dd-MM-yyyy")</td>
                                         <td>@sesion.ApplicationUser.FullName</td>
@@ -147,7 +142,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            initDataTable('#tablaSesiones', { order: [[0, 'desc']] });
+            initDataTable('#tablaSesiones', {order: [[0, 'desc']]});
             initSelect2('#usuario-select', 'Todos los colaboradores');
             initSelect2('#proyecto-select', 'Todos los proyectos');
         });

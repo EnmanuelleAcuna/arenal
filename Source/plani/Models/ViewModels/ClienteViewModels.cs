@@ -4,18 +4,14 @@ using plani.Models.Domain;
 
 namespace plani.Models.ViewModels;
 
-public class IndexClientesViewModel
-{
-    [DisplayName("Filtrar por")]
-    public string PalabraClave { get; set; }
+public class IndexClientesViewModel {
+    [DisplayName("Filtrar por")] public string PalabraClave { get; set; }
 
     public IEnumerable<Cliente> Clientes { get; set; }
 }
 
-public class DetalleClienteViewModel
-{
-    public DetalleClienteViewModel(Cliente cliente)
-    {
+public class DetalleClienteViewModel {
+    public DetalleClienteViewModel(Cliente cliente) {
         Id = cliente.Id;
         Identificacion = cliente.Identificacion;
         Nombre = cliente.Nombre;
@@ -34,31 +30,38 @@ public class DetalleClienteViewModel
     public IEnumerable<Contrato> Contratos { get; set; }
 }
 
-public class AgregarClienteViewModel
-{
+public class AgregarClienteViewModel {
     [Required(ErrorMessage = "La identificación es requerida.")]
-    [StringLength(50, ErrorMessage = "La identificación debe tener máximo 50 caracteres.")]
+    [StringLength(maximumLength: 50, ErrorMessage = "La identificación debe tener máximo 50 caracteres.")]
     public string Identificacion { get; set; }
 
     [Required(ErrorMessage = "El nombre es requerido.")]
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
-    [StringLength(500, ErrorMessage = "La dirección debe tener máximo 500 caracteres.")]
+    [StringLength(maximumLength: 500, ErrorMessage = "La dirección debe tener máximo 500 caracteres.")]
     public string Direccion { get; set; }
 
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     public Guid IdTipoCliente { get; set; }
+
+    public Cliente ToEntity() {
+        return new Cliente {
+            Identificacion = Identificacion,
+            Nombre = Nombre,
+            Descripcion = Descripcion,
+            Direccion = Direccion,
+            IdTipoCliente = IdTipoCliente
+        };
+    }
 }
 
-public class EditarClienteViewModel
-{
+public class EditarClienteViewModel {
     public EditarClienteViewModel() { }
 
-    public EditarClienteViewModel(Cliente cliente)
-    {
+    public EditarClienteViewModel(Cliente cliente) {
         Id = cliente.Id;
         Identificacion = cliente.Identificacion;
         Nombre = cliente.Nombre;
@@ -70,28 +73,37 @@ public class EditarClienteViewModel
     public Guid Id { get; set; }
 
     [Required(ErrorMessage = "La identificación es requerida.")]
-    [StringLength(50, ErrorMessage = "La identificación debe tener máximo 50 caracteres.")]
+    [StringLength(maximumLength: 50, ErrorMessage = "La identificación debe tener máximo 50 caracteres.")]
     public string Identificacion { get; set; }
 
     [Required(ErrorMessage = "El nombre es requerido.")]
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
-    [StringLength(500, ErrorMessage = "La dirección debe tener máximo 500 caracteres.")]
+    [StringLength(maximumLength: 500, ErrorMessage = "La dirección debe tener máximo 500 caracteres.")]
     public string Direccion { get; set; }
 
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     public Guid IdTipoCliente { get; set; }
+
+    public Cliente ToEntity() {
+        return new Cliente {
+            Id = Id,
+            Identificacion = Identificacion,
+            Nombre = Nombre,
+            Direccion = Direccion,
+            Descripcion = Descripcion,
+            IdTipoCliente = IdTipoCliente
+        };
+    }
 }
 
-public class EliminarClienteViewModel
-{
+public class EliminarClienteViewModel {
     public EliminarClienteViewModel() { }
 
-    public EliminarClienteViewModel(Cliente cliente)
-    {
+    public EliminarClienteViewModel(Cliente cliente) {
         Id = cliente.Id;
         Nombre = cliente.Nombre;
         Identificacion = cliente.Identificacion;

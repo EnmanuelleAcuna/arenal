@@ -2,7 +2,7 @@
     ViewData["Title"] = "Servicios";
     ViewBag.BreadcrumbIcon = "fa-briefcase";
     ViewBag.Breadcrumbs = new[] { "Servicios" };
-    var canEdit = User.IsInRole("Administrador") || User.IsInRole("Coordinador");
+    bool canEdit = User.IsInRole("Administrador") || User.IsInRole("Coordinador");
 }
 
 <div class="container-fluid">
@@ -13,58 +13,57 @@
                     <div class="table-responsive">
                         <table id="tablaServicios" class="table table-sm table-hover">
                             <thead class="text-dark">
-                                <tr>
-                                    <th class="col-w-20">Nombre</th>
-                                    <th class="col-w-25">Descripción</th>
-                                    <th class="col-w-15">Área</th>
-                                    <th class="col-w-15">Modalidad</th>
-                                    <th class="col-w-25 text-right">Acciones</th>
-                                </tr>
+                            <tr>
+                                <th class="col-w-20">Nombre</th>
+                                <th class="col-w-25">Descripción</th>
+                                <th class="col-w-15">Área</th>
+                                <th class="col-w-15">Modalidad</th>
+                                <th class="col-w-25 text-right">Acciones</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                @if (canEdit)
-                                {
-                                    <!-- Fila para agregar nuevo servicio -->
-                                    <tr id="row-add" class="table-active">
-                                        <td>
-                                            <input type="text"
-                                                   id="add-nombre"
-                                                   class="form-control form-control-sm"
-                                                   placeholder="Nombre del servicio..."
-                                                   maxlength="250" />
-                                            <small class="text-danger d-none" id="add-nombre-error"></small>
-                                        </td>
-                                        <td>
-                                            <input type="text"
-                                                   id="add-descripcion"
-                                                   class="form-control form-control-sm"
-                                                   placeholder="Descripción..."
-                                                   maxlength="2000" />
-                                            <small class="text-danger d-none" id="add-descripcion-error"></small>
-                                        </td>
-                                        <td>
-                                            <select id="add-idArea" class="form-control form-control-sm">
-                                                <option value="">Seleccione área...</option>
-                                            </select>
-                                            <small class="text-danger d-none" id="add-idArea-error"></small>
-                                        </td>
-                                        <td>
-                                            <select id="add-idModalidad" class="form-control form-control-sm">
-                                                <option value="">Seleccione modalidad...</option>
-                                            </select>
-                                            <small class="text-danger d-none" id="add-idModalidad-error"></small>
-                                        </td>
-                                        <td class="text-right">
-                                            <button type="button"
-                                                    class="btn btn-sm btn-success"
-                                                    id="btn-add-save">
-                                                <i class="fa fa-plus"></i> Agregar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
+                            @if (canEdit) {
+                                <!-- Fila para agregar nuevo servicio -->
+                                <tr id="row-add" class="table-active">
+                                    <td>
+                                        <input type="text"
+                                               id="add-nombre"
+                                               class="form-control form-control-sm"
+                                               placeholder="Nombre del servicio..."
+                                               maxlength="250"/>
+                                        <small class="text-danger d-none" id="add-nombre-error"></small>
+                                    </td>
+                                    <td>
+                                        <input type="text"
+                                               id="add-descripcion"
+                                               class="form-control form-control-sm"
+                                               placeholder="Descripción..."
+                                               maxlength="2000"/>
+                                        <small class="text-danger d-none" id="add-descripcion-error"></small>
+                                    </td>
+                                    <td>
+                                        <select id="add-idArea" class="form-control form-control-sm">
+                                            <option value="">Seleccione área...</option>
+                                        </select>
+                                        <small class="text-danger d-none" id="add-idArea-error"></small>
+                                    </td>
+                                    <td>
+                                        <select id="add-idModalidad" class="form-control form-control-sm">
+                                            <option value="">Seleccione modalidad...</option>
+                                        </select>
+                                        <small class="text-danger d-none" id="add-idModalidad-error"></small>
+                                    </td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                                class="btn btn-sm btn-success"
+                                                id="btn-add-save">
+                                            <i class="fa fa-plus"></i> Agregar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
 
-                                <!-- Las filas de datos se cargarán aquí via AJAX -->
+                            <!-- Las filas de datos se cargarán aquí via AJAX -->
                             </tbody>
                         </table>
                     </div>
@@ -127,9 +126,9 @@
             mostrarLoading(true);
 
             Promise.all([
-                $.ajax({ url: '@Url.Action("ObtenerAreas")', type: 'GET', dataType: 'json' }),
-                $.ajax({ url: '@Url.Action("ObtenerModalidades")', type: 'GET', dataType: 'json' })
-            ]).then(function([areasResponse, modalidadesResponse]) {
+                $.ajax({url: '@Url.Action("ObtenerAreas")', type: 'GET', dataType: 'json'}),
+                $.ajax({url: '@Url.Action("ObtenerModalidades")', type: 'GET', dataType: 'json'})
+            ]).then(function ([areasResponse, modalidadesResponse]) {
                 if (areasResponse.success && modalidadesResponse.success) {
                     areas = areasResponse.data;
                     modalidades = modalidadesResponse.data;
@@ -144,7 +143,7 @@
                     mostrarNotificacion('Error al cargar catálogos', 'danger');
                     mostrarLoading(false);
                 }
-            }).catch(function() {
+            }).catch(function () {
                 mostrarNotificacion('Error de conexión al cargar catálogos', 'danger');
                 mostrarLoading(false);
             });
@@ -153,7 +152,7 @@
         // Llenar dropdown con opciones
         function llenarDropdown(selector, items) {
             const select = $(selector);
-            items.forEach(function(item) {
+            items.forEach(function (item) {
                 select.append($('<option>', {
                     value: item.id,
                     text: item.nombre
@@ -323,7 +322,7 @@
             }
 
             // Enviar al servidor
-            const data = { nombre, descripcion, idArea, idModalidad };
+            const data = {nombre, descripcion, idArea, idModalidad};
 
             $.ajax({
                 url: '@Url.Action("AgregarServicioJson")',
@@ -437,7 +436,7 @@
             }
 
             // Enviar al servidor
-            const data = { id, nombre, descripcion, idArea, idModalidad };
+            const data = {id, nombre, descripcion, idArea, idModalidad};
 
             $.ajax({
                 url: '@Url.Action("EditarServicioJson")',
@@ -496,7 +495,7 @@
         // Event: Confirmar eliminación desde modal
         $('#btnConfirmarEliminar').on('click', function () {
             const id = $(this).data('id');
-            const data = { id };
+            const data = {id};
 
             $.ajax({
                 url: '@Url.Action("EliminarServicioJson")',

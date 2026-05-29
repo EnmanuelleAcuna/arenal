@@ -10,13 +10,13 @@
             <div class="card-body">
                 <div class="form-group">
                     <p class="text-justified">
-                        Se ha enviado un correo con instrucciones para establecer la contraseña, por favor revise su correo.
+                        Se ha enviado un correo con instrucciones para establecer la contraseña, por favor revise su
+                        correo.
                     </p>
                 </div>
 
                 <div class="w-100 text-center">
-                    @Html.ActionLink("Iniciar sesión", "IniciarSesion", "Cuentas", null, new
-                    {
+                    @Html.ActionLink("Iniciar sesión", "IniciarSesion", "Cuentas", routeValues: null, new {
                         @class = "btn btn-sm btn-primary btn-block font-bold",
                         title = "Iniciar sesión"
                     })

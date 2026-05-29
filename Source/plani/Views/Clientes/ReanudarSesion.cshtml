@@ -11,8 +11,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("ReanudarSesion", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("ReanudarSesion", "Clientes", method: FormMethod.Post, new { autocomplete = "off" })) {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.IdSesion)
                         @Html.HiddenFor(model => model.IdProyecto)
@@ -20,7 +19,7 @@
 
                         <div class="row">
                             <div class="col-md-12">
-                                @Html.ValidationSummary(true, "")
+                                @Html.ValidationSummary(excludePropertyErrors: true, "")
                             </div>
                         </div>
 
@@ -52,7 +51,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <input value="Reanudar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Cancelar", "MisSesiones", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "MisSesiones", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }

@@ -1,4 +1,5 @@
-﻿@model IndexProyectosViewModel
+﻿@using plani.Models.Domain
+@model IndexProyectosViewModel
 
 @{
     ViewData["Title"] = "Proyectos";
@@ -12,8 +13,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                    {
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador")) {
                         <a asp-action="AgregarProyecto" class="btn btn-sm btn-primary">Agregar proyecto</a>
                         <hr/>
                     }
@@ -29,8 +29,7 @@
                             </thead>
                             <tbody>
 
-                            @foreach (var item in Model.Proyectos)
-                            {
+                            @foreach (Proyecto item in Model.Proyectos) {
                                 <tr>
                                     <td>
                                         <div>@item.Nombre</div>
@@ -43,8 +42,7 @@
                                                 Detalle
                                             </a>
 
-                                            @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                                            {
+                                            @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador")) {
                                                 <a class="btn btn-sm btn-outline-primary" asp-controller="Clientes" asp-action="EditarProyecto" asp-route-id="@item.Id">
                                                     <i class="fa fa-edit"></i>
                                                 </a>

@@ -1,8 +1,7 @@
-@model plani.Models.ViewModels.UserHeaderViewModel
+@model UserHeaderViewModel
 
 <div class="topbar-right">
-    @if (Model.IsAuthenticated)
-    {
+    @if (Model.IsAuthenticated) {
         <div class="user-menu">
             <div class="user-avatar">@Model.UserInitials</div>
             <div>
@@ -19,8 +18,7 @@
             </button>
         </form>
     }
-    else
-    {
+    else {
         <a class="btn-logout text-decoration-none"
            asp-controller="Cuentas"
            asp-action="IniciarSesion">

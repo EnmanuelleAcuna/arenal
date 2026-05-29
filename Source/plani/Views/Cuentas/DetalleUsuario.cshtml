@@ -25,12 +25,10 @@
                         <div class="col-sm-12 col-md-6">
                             <p>
                                 Estado:
-                                @if (Model.Activo)
-                                {
+                                @if (Model.Activo) {
                                     <span class="badge badge-success">Activo</span>
                                 }
-                                else
-                                {
+                                else {
                                     <span class="badge badge-secondary">Inactivo</span>
                                 }
                             </p>
@@ -41,18 +39,15 @@
                     <div class="row mt-4">
                         <div class="col-12">
                             <h6 class="text-dark mb-3">Roles Asignados</h6>
-                            @if (Model.Roles.Any())
-                            {
+                            @if (Model.Roles.Any()) {
                                 <div class="row">
-                                    @foreach (var rol in Model.Roles)
-                                    {
+                                    @foreach (ApplicationRole rol in Model.Roles) {
                                         <div class="col-sm-12 col-md-4 col-lg-3 mb-2">
                                             <div class="card">
                                                 <div class="card-body py-2 px-3">
                                                     <i class="fa fa-user-tag text-primary mr-2"></i>
                                                     <strong>@rol.Name</strong>
-                                                    @if (!string.IsNullOrEmpty(rol.Description))
-                                                    {
+                                                    @if (!string.IsNullOrEmpty(value: rol.Description)) {
                                                         <p class="text-muted small mb-0 mt-1">@rol.Description</p>
                                                     }
                                                 </div>
@@ -61,8 +56,7 @@
                                     }
                                 </div>
                             }
-                            else
-                            {
+                            else {
                                 <p class="text-muted small">Este usuario no tiene roles asignados.</p>
                             }
                         </div>
@@ -71,7 +65,7 @@
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                @Html.ActionLink("Usuarios", "Usuarios", null, null, new { @class = "btn btn-sm btn-primary" })
+                                @Html.ActionLink("Usuarios", "Usuarios", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-primary" })
                                 @Html.ActionLink("Editar", "EditarUsuario", new { id = Model.IdUsuario }, new { @class = "btn btn-sm btn-outline-secondary" })
                             </div>
                         </div>
