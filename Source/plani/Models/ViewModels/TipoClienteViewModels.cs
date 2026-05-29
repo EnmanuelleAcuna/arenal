@@ -1,20 +1,17 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-
 using plani.Models.Domain;
 
 namespace plani.Models.ViewModels;
 
 /// <summary>
-/// ViewModel para mostrar tipos de cliente en la lista
+///     ViewModel para mostrar tipos de cliente en la lista
 /// </summary>
-public class TipoClienteListViewModel
-{
+public class TipoClienteListViewModel {
     /// <summary>
-    /// Constructor para crear desde entidad TipoCliente
+    ///     Constructor para crear desde entidad TipoCliente
     /// </summary>
-    public TipoClienteListViewModel(TipoCliente tipoCliente)
-    {
+    public TipoClienteListViewModel(TipoCliente tipoCliente) {
         Id = tipoCliente.Id.ToString();
         Nombre = tipoCliente.Nombre;
         Descripcion = tipoCliente.Descripcion;
@@ -38,78 +35,70 @@ public class TipoClienteListViewModel
 }
 
 /// <summary>
-/// ViewModel para agregar nuevo tipo de cliente
+///     ViewModel para agregar nuevo tipo de cliente
 /// </summary>
-public class AgregarTipoClienteViewModel
-{
+public class AgregarTipoClienteViewModel {
     [Required(ErrorMessage = "El nombre es requerido")]
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
     [DisplayName("Descripción")]
     [Required(ErrorMessage = "La descripción es requerida")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     /// <summary>
-    /// Convierte el ViewModel a una entidad TipoCliente
+    ///     Convierte el ViewModel a una entidad TipoCliente
     /// </summary>
-    public TipoCliente ToEntity()
-    {
+    public TipoCliente ToEntity() {
         return new TipoCliente(
             Guid.NewGuid(),
-            Nombre,
-            Descripcion
+            nombre: Nombre,
+            descripcion: Descripcion
         );
     }
 }
 
 /// <summary>
-/// ViewModel para editar tipo de cliente existente
+///     ViewModel para editar tipo de cliente existente
 /// </summary>
-public class EditarTipoClienteViewModel
-{
+public class EditarTipoClienteViewModel {
     [Required(ErrorMessage = "El id es requerido")]
     public string Id { get; set; }
 
     [Required(ErrorMessage = "El nombre es requerido")]
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
     [DisplayName("Descripción")]
     [Required(ErrorMessage = "La descripción es requerida")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     /// <summary>
-    /// Convierte el ViewModel a una entidad TipoCliente para actualización
+    ///     Convierte el ViewModel a una entidad TipoCliente para actualización
     /// </summary>
-    public TipoCliente ToEntity()
-    {
+    public TipoCliente ToEntity() {
         return new TipoCliente(
-            Guid.Parse(Id),
-            Nombre,
-            Descripcion
+            Guid.Parse(input: Id),
+            nombre: Nombre,
+            descripcion: Descripcion
         );
     }
 }
 
 /// <summary>
-/// Request para eliminar tipo de cliente
+///     Request para eliminar tipo de cliente
 /// </summary>
-public class EliminarTipoClienteRequest
-{
-    [Required]
-    public string Id { get; set; }
+public class EliminarTipoClienteRequest {
+    [Required] public string Id { get; set; }
 }
 
 /// <summary>
-/// ViewModel para detalle de tipo de cliente
+///     ViewModel para detalle de tipo de cliente
 /// </summary>
-public class DetalleTipoClienteViewModel
-{
-    public DetalleTipoClienteViewModel(TipoCliente tipoCliente)
-    {
+public class DetalleTipoClienteViewModel {
+    public DetalleTipoClienteViewModel(TipoCliente tipoCliente) {
         Id = tipoCliente.Id;
         Nombre = tipoCliente.Nombre;
         Descripcion = tipoCliente.Descripcion;

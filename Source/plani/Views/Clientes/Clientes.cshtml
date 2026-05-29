@@ -1,4 +1,5 @@
-﻿@model IndexClientesViewModel
+﻿@using plani.Models.Domain
+@model IndexClientesViewModel
 
 @{
     ViewData["Title"] = "Clientes";
@@ -12,8 +13,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                    {
+                    @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador")) {
                         <a asp-action="AgregarCliente" class="btn btn-sm btn-primary">Agregar cliente</a>
                         <hr/>
                     }
@@ -30,8 +30,7 @@
                             </thead>
                             <tbody>
 
-                            @foreach (var item in Model.Clientes)
-                            {
+                            @foreach (Cliente item in Model.Clientes) {
                                 <tr>
                                     <td>
                                         <div>@item.Nombre</div>
@@ -48,8 +47,7 @@
                                                 Detalle
                                             </a>
 
-                                            @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador"))
-                                            {
+                                            @if (User.IsInRole("Administrador") || User.IsInRole("Coordinador")) {
                                                 <a class="btn btn-sm btn-outline-primary" asp-controller="Clientes" asp-action="EditarCliente" asp-route-id="@item.Id">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
@@ -83,10 +81,10 @@
                 }
             });
         });
-    
+
         function limpiarFiltro() {
             document.getElementById("PalabraClave").value = "";
             window.location.href = window.location.href.split('?')[0];
         }
-	</script>
+    </script>
 }

@@ -11,29 +11,28 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("AsignarProyecto", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("AsignarProyecto", "Clientes", method: FormMethod.Post, new { autocomplete = "off" })) {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.IdUsuario)
 
-                        @if (!ViewData.ModelState.IsValid)
-                        {
+                        @if (!ViewData.ModelState.IsValid) {
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                 <h5 class="alert-heading">
                                     <i class="fas fa-exclamation-triangle"></i> Error
                                 </h5>
                                 <div class="validation-summary-errors mb-0">
-                                    @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+                                    @Html.ValidationSummary(excludePropertyErrors: false, "", new { @class = "mb-0" })
                                 </div>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                         }
-                        
+
                         <div class="row">
                             <div class="col-md-12">
-                                <p>Asignar un proyecto al colaborador <b>@Html.DisplayFor(model => model.NombreColaborador)</b></p>
+                                <p>Asignar un proyecto al colaborador
+                                    <b>@Html.DisplayFor(model => model.NombreColaborador)</b></p>
                             </div>
                         </div>
 
@@ -45,7 +44,7 @@
                                     @Html.ValidationMessageFor(model => model.IdProyecto)
                                 </div>
                             </div>
-                            
+
                             <div class="col-sm-2">
                                 <div class="form-group">
                                     <label for="HorasEstimadas">Horas estimadas</label>
@@ -67,7 +66,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Cancelar", "Colaboradores", "Cuentas", null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "Colaboradores", "Cuentas", routeValues: null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }
@@ -80,7 +79,7 @@
 @section Scripts{
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             initSelect2('#proyecto-select', 'Seleccione proyecto');
         });
     </script>

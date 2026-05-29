@@ -1,3 +1,4 @@
+@using plani.Models.Domain
 @model DetalleSesionViewModel
 
 @{
@@ -28,28 +29,26 @@
                             <p>Horas: @Model.Horas</p>
                             <p>Minutos: @Model.Minutes</p>
 
-                            @if (Model.FechaInicio is { Hour: 6, Minute: 0, Second: 0 })
-                            {
-                                <p>Inicio:&nbsp;<b>@(Model.DateCreated.AddHours(-6).ToString("dd-MM-yyyy"))</b></p>
+                            @if (Model.FechaInicio is { Hour: 6, Minute: 0, Second: 0 }) {
+                                <p>Inicio:&nbsp;<b>@(Model.DateCreated.AddHours(value: -6).ToString("dd-MM-yyyy"))</b></p>
                             }
-                            else
-                            {
-                                <p>Inicio:&nbsp;<b>@(Model.DateCreated.AddHours(-6).ToString("dd-MM-yyyy hh:mm:ss tt"))</b></p>
+                            else {
+                                <p>
+                                    Inicio:&nbsp;<b>@(Model.DateCreated.AddHours(value: -6).ToString("dd-MM-yyyy hh:mm:ss tt"))</b>
+                                </p>
                             }
 
-                            @if (Model.FechaFin is { Hour: 6, Minute: 0, Second: 0 })
-                            {
-                                <p>Fin:&nbsp;<b>@(Model.FechaFin?.AddHours(-6).ToString("dd-MM-yyyy"))</b></p>
+                            @if (Model.FechaFin is { Hour: 6, Minute: 0, Second: 0 }) {
+                                <p>Fin:&nbsp;<b>@(Model.FechaFin?.AddHours(value: -6).ToString("dd-MM-yyyy"))</b></p>
                             }
-                            else
-                            {
-                                <p>Fin:&nbsp;<b>@(Model.FechaFin?.AddHours(-6).ToString("dd-MM-yyyy hh:mm:ss tt"))</b></p>
+                            else {
+                                <p>Fin:&nbsp;<b>@(Model.FechaFin?.AddHours(value: -6).ToString("dd-MM-yyyy hh:mm:ss tt"))</b>
+                                </p>
                             }
                         </div>
                     </div>
 
-                    @if (Model.Logs != null && Model.Logs.Count > 0)
-                    {
+                    @if (Model.Logs != null && Model.Logs.Count > 0) {
                         <hr/>
                         <h6>Historial de eventos</h6>
                         <div class="table-responsive">
@@ -63,11 +62,10 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                @foreach (var log in Model.Logs)
-                                {
+                                @foreach (SesionLog log in Model.Logs) {
                                     <tr>
                                         <td>@log.TipoEventoDescripcion</td>
-                                        <td>@log.Fecha.AddHours(-6).ToString("dd-MM-yyyy hh:mm:ss tt")</td>
+                                        <td>@log.Fecha.AddHours(value: -6).ToString("dd-MM-yyyy hh:mm:ss tt")</td>
                                         <td>@log.TiempoFormateado</td>
                                         <td>@log.CreadoPor</td>
                                     </tr>

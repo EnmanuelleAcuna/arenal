@@ -11,13 +11,12 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("AgregarSesion", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("AgregarSesion", "Clientes", method: FormMethod.Post, new { autocomplete = "off" })) {
                         @Html.AntiForgeryToken()
 
                         <div class="row">
                             <div class="col-md-12">
-                                @Html.ValidationSummary(true, "")
+                                @Html.ValidationSummary(excludePropertyErrors: true, "")
                             </div>
                         </div>
 
@@ -29,11 +28,11 @@
                                     @Html.ValidationMessageFor(model => model.IdProyecto)
                                 </div>
                             </div>
-                            
+
                             <div class="col-sm-12 col-md-2">
                                 <div class="form-group">
                                     <label for="Fecha">Fecha</label>
-                                    @Html.EditorFor(model => model.Fecha, new { htmlAttributes = new { @class = "form-control form-control-sm", @placeholder = "", @type = "date" } })
+                                    @Html.EditorFor(model => model.Fecha, new { htmlAttributes = new { @class = "form-control form-control-sm", placeholder = "", type = "date" } })
                                     @Html.ValidationMessageFor(model => model.Fecha)
                                 </div>
                             </div>
@@ -45,7 +44,7 @@
                                     @Html.ValidationMessageFor(model => model.IdServicio)
                                 </div>
                             </div>
-                            
+
                             <div class="col-sm-1">
                                 <div class="form-group">
                                     <label for="Horas">Horas</label>
@@ -53,7 +52,7 @@
                                     @Html.ValidationMessageFor(model => model.Horas, "", new { @class = "text-danger" })
                                 </div>
                             </div>
-                            
+
                             <div class="col-sm-1">
                                 <div class="form-group">
                                     <label for="Minutos">Minutos</label>
@@ -75,7 +74,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Cancelar", "MisSesiones", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "MisSesiones", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }
@@ -88,7 +87,7 @@
 @section Scripts{
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             initSelect2('#proyecto-select', 'Seleccione proyecto');
             initSelect2('#servicio-select', 'Seleccione servicio');
         });

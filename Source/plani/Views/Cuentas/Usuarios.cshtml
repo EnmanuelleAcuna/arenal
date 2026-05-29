@@ -19,37 +19,36 @@
                     <div class="table-responsive">
                         <table id="tablaUsuarios" class="table table-hover table-sm text-nowrap">
                             <thead>
-                                <tr>
-                                    <th class="text-secondary">Nombre</th>
-                                    <th class="text-secondary">Correo</th>
-                                    <th class="text-secondary">Roles</th>
-                                    <th class="text-secondary">Estado</th>
-                                    <th class="text-secondary"></th>
-                                </tr>
+                            <tr>
+                                <th class="text-secondary">Nombre</th>
+                                <th class="text-secondary">Correo</th>
+                                <th class="text-secondary">Roles</th>
+                                <th class="text-secondary">Estado</th>
+                                <th class="text-secondary"></th>
+                            </tr>
                             </thead>
                             <tbody>
-                                @foreach (var usuario in Model)
-                                {
-                                    <tr>
-                                        <td>@usuario.Nombre</td>
-                                        <td>@usuario.Correo</td>
-                                        <td>@usuario.Roles</td>
-                                        <td>@usuario.Estado</td>
-                                        <td class="text-right">
-                                            <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                                <a class="btn btn-sm btn-outline-secondary font-weight-bold"
-                                                    asp-action="DetalleUsuario"
-                                                    asp-route-id="@usuario.IdUsuario">Detalle</a>
-                                                <a class="btn btn-sm btn-outline-primary"
-                                                    asp-action="EditarUsuario"
-                                                    asp-route-id="@usuario.IdUsuario">Modificar</a>
-                                                <a class="btn btn-sm btn-outline-danger"
-                                                    asp-action="EliminarUsuario"
-                                                    asp-route-id="@usuario.IdUsuario">Eliminar</a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
+                            @foreach (UsuariosIndexViewModel usuario in Model) {
+                                <tr>
+                                    <td>@usuario.Nombre</td>
+                                    <td>@usuario.Correo</td>
+                                    <td>@usuario.Roles</td>
+                                    <td>@usuario.Estado</td>
+                                    <td class="text-right">
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
+                                            <a class="btn btn-sm btn-outline-secondary font-weight-bold"
+                                               asp-action="DetalleUsuario"
+                                               asp-route-id="@usuario.IdUsuario">Detalle</a>
+                                            <a class="btn btn-sm btn-outline-primary"
+                                               asp-action="EditarUsuario"
+                                               asp-route-id="@usuario.IdUsuario">Modificar</a>
+                                            <a class="btn btn-sm btn-outline-danger"
+                                               asp-action="EliminarUsuario"
+                                               asp-route-id="@usuario.IdUsuario">Eliminar</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
                             </tbody>
                         </table>
                     </div>
@@ -65,7 +64,7 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            initDataTable('#tablaUsuarios', { lengthChange: false });
+            initDataTable('#tablaUsuarios', {lengthChange: false});
         });
     </script>
 }

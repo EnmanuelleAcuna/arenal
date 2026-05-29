@@ -4,8 +4,7 @@ using plani.Models.Domain;
 
 namespace plani.Models.ViewModels;
 
-public class ProyectoSesionesViewModel
-{
+public class ProyectoSesionesViewModel {
     public Guid IdProyecto { get; set; }
     public string NombreProyecto { get; set; }
     public string NombreCliente { get; set; }
@@ -16,8 +15,7 @@ public class ProyectoSesionesViewModel
     public int CantidadSesiones => Sesiones?.Count ?? 0;
 }
 
-public class SesionesIndexViewModel
-{
+public class SesionesIndexViewModel {
     public List<ProyectoSesionesViewModel> ProyectosSesiones { get; set; }
     public List<Sesion> SesionesActivas { get; set; }
     public List<Sesion> Sesiones { get; set; }
@@ -26,21 +24,16 @@ public class SesionesIndexViewModel
     public double TotalHoras => Sesiones?.Sum(s => s.Horas + s.Minutes / 60.0) ?? ProyectosSesiones?.Sum(p => p.TotalHoras) ?? 0;
     public double TotalMinutos => Sesiones?.Sum(s => s.Minutes) ?? ProyectosSesiones?.Sum(p => p.TotalMinutos) ?? 0;
 
-    [DisplayName("Colaborador")]
-    public string IdUsuario { get; set; }
+    [DisplayName("Colaborador")] public string IdUsuario { get; set; }
 
-    [DisplayName("Cliente & Proyecto")]
-    public string IdProyecto { get; set; }
+    [DisplayName("Cliente & Proyecto")] public string IdProyecto { get; set; }
 
-    [DisplayName("Inicio")]
-    public DateTime? FechaInicio { get; set; }
+    [DisplayName("Inicio")] public DateTime? FechaInicio { get; set; }
 
-    [DisplayName("Fin")]
-    public DateTime? FechaFin { get; set; }
+    [DisplayName("Fin")] public DateTime? FechaFin { get; set; }
 }
 
-public class AgregarSesionModel
-{
+public class AgregarSesionModel {
     public string NombreColaborador { get; set; }
     public Guid IdProyecto { get; set; }
     public Guid IdUsuario { get; set; }
@@ -48,14 +41,13 @@ public class AgregarSesionModel
     public DateTime Fecha { get; set; }
     public int Horas { get; set; }
 
-    [Range(0, 59, ErrorMessage = "Los minutos deben estar entre 0 y 59.")]
+    [Range(minimum: 0, maximum: 59, ErrorMessage = "Los minutos deben estar entre 0 y 59.")]
     public int Minutos { get; set; }
 
     public string Descripcion { get; set; }
 }
 
-public class PausarSesionModel
-{
+public class PausarSesionModel {
     public Guid IdSesion { get; set; }
     public string NombreColaborador { get; set; }
     public Guid IdProyecto { get; set; }
@@ -69,8 +61,7 @@ public class PausarSesionModel
     public int Minutos { get; set; }
 }
 
-public class FinalizarSesionModel
-{
+public class FinalizarSesionModel {
     public Guid IdSesion { get; set; }
     public string NombreColaborador { get; set; }
     public Guid IdProyecto { get; set; }
@@ -82,12 +73,10 @@ public class FinalizarSesionModel
     public string Descripcion { get; set; }
 }
 
-public class DetalleSesionViewModel
-{
+public class DetalleSesionViewModel {
     public DetalleSesionViewModel() { }
 
-    public DetalleSesionViewModel(Sesion sesion)
-    {
+    public DetalleSesionViewModel(Sesion sesion) {
         Id = sesion.Id;
         NombreColaborador = sesion.ApplicationUser?.FullName;
         NombreProyecto = sesion.Proyecto?.Nombre;

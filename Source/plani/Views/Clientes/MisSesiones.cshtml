@@ -1,4 +1,5 @@
-﻿@model SesionesIndexViewModel
+﻿@using plani.Models.Domain
+@model SesionesIndexViewModel
 
 @{
     ViewData["Title"] = "Mis sesiones";
@@ -18,15 +19,13 @@
                     <hr/>
 
                     <h6>Sesiones activas</h6>
-                    @if (Model.SesionesActivas.Count == 0)
-                    {
+                    @if (Model.SesionesActivas.Count == 0) {
                         <div class="alert alert-warning" role="alert">
                             No hay sesiones activas.
                         </div>
                     }
 
-                    @foreach (var sesion in Model.SesionesActivas)
-                    {
+                    @foreach (Sesion sesion in Model.SesionesActivas) {
                         <div class="card mb-4">
                             <div class="card-body">
                                 <h6><span class="text-sc">@sesion.Proyecto.Contrato.Cliente.Nombre</span>
@@ -34,18 +33,15 @@
                                 </h6>
                                 <p>@sesion.FechaInicio.ToString("dd-MM-yyyy") - @sesion.Descripcion</p>
                                 <div class="btn-group btn-group-sm" role="group" aria-label="Acciones">
-                                    @if (sesion.Estado != plani.Models.Domain.EstadoSesion.Finalizada)
-                                    {
-                                        if (sesion.Estado == plani.Models.Domain.EstadoSesion.Pausada)
-                                        {
+                                    @if (sesion.Estado != EstadoSesion.Finalizada) {
+                                        if (sesion.Estado == EstadoSesion.Pausada) {
                                             <a class="btn btn-sm btn-primary" asp-controller="Clientes"
                                                asp-action="ReanudarSesion"
                                                asp-route-id="@sesion.Id">
                                                 Reanudar sesión
                                             </a>
                                         }
-                                        else
-                                        {
+                                        else {
                                             <a class="btn btn-sm btn-success" asp-controller="Clientes"
                                                asp-action="PausarSesion"
                                                asp-route-id="@sesion.Id">
@@ -53,8 +49,7 @@
                                             </a>
                                         }
 
-                                        @if (sesion.Estado == plani.Models.Domain.EstadoSesion.Activa)
-                                        {
+                                        @if (sesion.Estado == EstadoSesion.Activa) {
                                             <a class="btn btn-sm btn-dark" asp-controller="Clientes"
                                                asp-action="FinalizarSesion"
                                                asp-route-id="@sesion.Id">
@@ -75,8 +70,7 @@
 
                     <h6>Mis ultimas sesiones</h6>
 
-                    @using (Html.BeginForm("MisSesiones", "Clientes", FormMethod.Get, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("MisSesiones", "Clientes", method: FormMethod.Get, new { autocomplete = "off" })) {
                         <div class="row mb-4">
                             <div class="col-sm-12 col-md-6 col-lg-8">
                                 <div class="form-group">
@@ -106,14 +100,12 @@
                         </div>
                     }
 
-                    @if (Model.Sesiones == null || Model.Sesiones.Count == 0)
-                    {
+                    @if (Model.Sesiones == null || Model.Sesiones.Count == 0) {
                         <div class="alert alert-warning" role="alert">
                             No hay sesiones registradas.
                         </div>
                     }
-                    else
-                    {
+                    else {
                         <div class="card mb-4">
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -129,8 +121,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach (var sesion in Model.Sesiones)
-                                        {
+                                        @foreach (Sesion sesion in Model.Sesiones) {
                                             <tr>
                                                 <td>@sesion.FechaInicio.ToString("dd-MM-yyyy")</td>
                                                 <td>@sesion.Proyecto.Contrato.Cliente.Nombre</td>
@@ -261,7 +252,7 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             initSelect2('#proyecto-select', 'Todos los proyectos');
         });
     </script>

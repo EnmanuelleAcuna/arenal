@@ -13,8 +13,7 @@
 		<h6 class="mt-3 text-danger">Error al procesar la solicitud.</h6>
 	</div>
 
-	@if (Model.ShowRequestId)
-	{
+	@if (Model.ShowRequestId) {
 		<div class="col-12 text-center">
 			<p>
 				<strong>Request Id:</strong> <code>@Model.RequestId</code>
@@ -22,8 +21,7 @@
 		</div>
 	}
 
-	@if (!String.IsNullOrEmpty(Model.ExceptionMessage))
-	{
+	@if (!string.IsNullOrEmpty(value: Model.ExceptionMessage)) {
 		<div class="col-12">
 			<p>
 				<small class="d-block">@Model.ExceptionMessage</small>

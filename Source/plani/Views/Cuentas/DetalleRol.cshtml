@@ -32,8 +32,7 @@
 
                                     <tbody>
 
-                                    @foreach (ApplicationUser usuario in Model.Usuarios)
-                                    {
+                                    @foreach (ApplicationUser usuario in Model.Usuarios) {
                                         <tr>
                                             <td>@usuario.FullName</td>
                                             <td>@usuario.Email.ToLower()</td>
@@ -48,7 +47,7 @@
 
                     <div class="row">
                         <div class="col-12">
-                            @Html.ActionLink("Regresar", "Roles", null, null, new { @class = "btn btn-sm btn-primary" })
+                            @Html.ActionLink("Regresar", "Roles", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-primary" })
                         </div>
                     </div>
                 </div>

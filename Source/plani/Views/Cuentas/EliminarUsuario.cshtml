@@ -11,14 +11,13 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("EliminarUsuario", "Cuentas", FormMethod.Post, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("EliminarUsuario", "Cuentas", method: FormMethod.Post, new { autocomplete = "off" })) {
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(model => model.IdUsuario)
 
                         <div class="row">
                             <div class="col-md-12">
-                                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+                                @Html.ValidationSummary(excludePropertyErrors: true, "", new { @class = "alert alert-danger" })
                             </div>
                         </div>
 
@@ -37,7 +36,7 @@
                             <div class="col-12 mt-2">
                                 <div class="btn-group btn-group-sm" role="group" aria-label="">
                                     <input value="Eliminar" class="btn btn-sm btn-outline-light text-danger" type="submit"/>
-                                    @Html.ActionLink("Cancelar", "Usuarios", null, null, new { @class = "btn btn-sm btn-outline-light text-secondary" })
+                                    @Html.ActionLink("Cancelar", "Usuarios", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-outline-light text-secondary" })
                                 </div>
                             </div>
                         </div>

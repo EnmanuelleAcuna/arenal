@@ -24,8 +24,7 @@
                             </thead>
                             <tbody>
 
-                            @foreach (var item in Model)
-                            {
+                            @foreach (UsuariosIndexViewModel item in Model) {
                                 <tr>
                                     <td>@item.NumeroIdentificacion</td>
                                     <td>@item.Nombre</td>
@@ -54,6 +53,6 @@
 
 @section Scripts {
     <script type="text/javascript">
-		
-	</script>
+
+    </script>
 }

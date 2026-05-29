@@ -4,20 +4,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace plani.Models.Domain;
 
 /// <summary>
-/// Registro de eventos de una sesión de trabajo (auditoría)
+///     Registro de eventos de una sesión de trabajo (auditoría)
 /// </summary>
 [Table("SesionLogs")]
-public class SesionLog
-{
-    public SesionLog()
-    {
+public class SesionLog {
+    public SesionLog() {
         Id = Guid.NewGuid();
         FechaCreacion = DateTime.UtcNow;
     }
 
     public SesionLog(Guid idSesion, TipoEventoSesion tipoEvento, DateTime fecha, int horas, int minutos, string creadoPor)
-        : this()
-    {
+        : this() {
         IdSesion = idSesion;
         TipoEvento = tipoEvento;
         Fecha = fecha;
@@ -26,54 +23,51 @@ public class SesionLog
         CreadoPor = creadoPor;
     }
 
-    [Key]
-    public Guid Id { get; set; }
+    [Key] public Guid Id { get; set; }
 
-    [ForeignKey(nameof(Sesion))]
-    public Guid IdSesion { get; set; }
+    [ForeignKey(nameof(Sesion))] public Guid IdSesion { get; set; }
 
     /// <summary>
-    /// Sesión a la que pertenece este log
+    ///     Sesión a la que pertenece este log
     /// </summary>
     public Sesion Sesion { get; set; }
 
     /// <summary>
-    /// Tipo de evento (Inicio, Pausa, Reanudacion, Finalizacion)
+    ///     Tipo de evento (Inicio, Pausa, Reanudacion, Finalizacion)
     /// </summary>
     public TipoEventoSesion TipoEvento { get; set; }
 
     /// <summary>
-    /// Fecha y hora UTC del evento
+    ///     Fecha y hora UTC del evento
     /// </summary>
     public DateTime Fecha { get; set; }
 
     /// <summary>
-    /// Horas calculadas desde el evento anterior (0 para Inicio y Reanudación)
+    ///     Horas calculadas desde el evento anterior (0 para Inicio y Reanudación)
     /// </summary>
     public int HorasCalculadas { get; set; }
 
     /// <summary>
-    /// Minutos calculados desde el evento anterior (0 para Inicio y Reanudación)
+    ///     Minutos calculados desde el evento anterior (0 para Inicio y Reanudación)
     /// </summary>
     public int MinutosCalculados { get; set; }
 
     /// <summary>
-    /// Usuario que generó el evento
+    ///     Usuario que generó el evento
     /// </summary>
-    [StringLength(256)]
+    [StringLength(maximumLength: 256)]
     public string CreadoPor { get; set; }
 
     /// <summary>
-    /// Fecha de creación del registro
+    ///     Fecha de creación del registro
     /// </summary>
     public DateTime FechaCreacion { get; set; }
 
     /// <summary>
-    /// Descripción legible del tipo de evento
+    ///     Descripción legible del tipo de evento
     /// </summary>
     [NotMapped]
-    public string TipoEventoDescripcion => TipoEvento switch
-    {
+    public string TipoEventoDescripcion => TipoEvento switch {
         TipoEventoSesion.Inicio => "Inicio",
         TipoEventoSesion.Pausa => "Pausa",
         TipoEventoSesion.Reanudacion => "Reanudación",
@@ -82,7 +76,7 @@ public class SesionLog
     };
 
     /// <summary>
-    /// Tiempo formateado (ej: "2h 30m")
+    ///     Tiempo formateado (ej: "2h 30m")
     /// </summary>
     [NotMapped]
     public string TiempoFormateado =>

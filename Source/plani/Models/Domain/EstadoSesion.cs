@@ -1,22 +1,21 @@
 namespace plani.Models.Domain;
 
 /// <summary>
-/// Estados posibles de una sesión de trabajo
+///     Estados posibles de una sesión de trabajo
 /// </summary>
-public enum EstadoSesion
-{
+public enum EstadoSesion {
     /// <summary>
-    /// Sesión en curso (el contador está corriendo)
+    ///     Sesión en curso (el contador está corriendo)
     /// </summary>
     Activa = 1,
 
     /// <summary>
-    /// Sesión pausada (el contador está detenido temporalmente)
+    ///     Sesión pausada (el contador está detenido temporalmente)
     /// </summary>
     Pausada = 2,
 
     /// <summary>
-    /// Sesión finalizada (no se puede modificar)
+    ///     Sesión finalizada (no se puede modificar)
     /// </summary>
     Finalizada = 3
 }

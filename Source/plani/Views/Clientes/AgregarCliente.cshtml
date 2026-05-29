@@ -11,13 +11,12 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    @using (Html.BeginForm("AgregarCliente", "Clientes", FormMethod.Post, new { autocomplete = "off" }))
-                    {
+                    @using (Html.BeginForm("AgregarCliente", "Clientes", method: FormMethod.Post, new { autocomplete = "off" })) {
                         @Html.AntiForgeryToken()
 
                         <div class="row">
                             <div class="col-md-12">
-                                @Html.ValidationSummary(true, "")
+                                @Html.ValidationSummary(excludePropertyErrors: true, "")
                             </div>
                         </div>
 
@@ -70,7 +69,7 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <input value="Guardar" class="btn btn-sm btn-primary" type="submit"/>
-                                @Html.ActionLink("Cancelar", "Clientes", null, null, new { @class = "btn btn-sm btn-secondary" })
+                                @Html.ActionLink("Cancelar", "Clientes", controllerName: null, routeValues: null, new { @class = "btn btn-sm btn-secondary" })
                             </div>
                         </div>
                     }
@@ -83,7 +82,7 @@
 @section Scripts{
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             initSelect2('#tipocliente-select', 'Seleccione tipo de cliente');
         });
     </script>

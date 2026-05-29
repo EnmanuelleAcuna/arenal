@@ -1,20 +1,17 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-
 using plani.Models.Domain;
 
 namespace plani.Models.ViewModels;
 
 /// <summary>
-/// ViewModel para mostrar áreas en la lista
+///     ViewModel para mostrar áreas en la lista
 /// </summary>
-public class AreaListViewModel
-{
+public class AreaListViewModel {
     /// <summary>
-    /// Constructor para crear desde entidad Area
+    ///     Constructor para crear desde entidad Area
     /// </summary>
-    public AreaListViewModel(Area area)
-    {
+    public AreaListViewModel(Area area) {
         Id = area.Id.ToString();
         Nombre = area.Nombre;
         Descripcion = area.Descripcion;
@@ -38,57 +35,51 @@ public class AreaListViewModel
 }
 
 /// <summary>
-/// ViewModel para agregar nueva área
+///     ViewModel para agregar nueva área
 /// </summary>
-public class AgregarAreaViewModel
-{
+public class AgregarAreaViewModel {
     [Required(ErrorMessage = "El nombre es requerido")]
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     /// <summary>
-    /// Convierte el ViewModel a una entidad Area
+    ///     Convierte el ViewModel a una entidad Area
     /// </summary>
-    public Area ToEntity()
-    {
-        return new Area(Guid.NewGuid(), Nombre, Descripcion);
+    public Area ToEntity() {
+        return new Area(Guid.NewGuid(), nombre: Nombre, descripcion: Descripcion);
     }
 }
 
 /// <summary>
-/// ViewModel para editar área existente
+///     ViewModel para editar área existente
 /// </summary>
-public class EditarAreaViewModel
-{
+public class EditarAreaViewModel {
     [Required(ErrorMessage = "El id es requerido")]
     public string Id { get; set; }
 
     [Required(ErrorMessage = "El nombre es requerido")]
-    [StringLength(255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
+    [StringLength(maximumLength: 255, ErrorMessage = "El nombre debe tener máximo 255 caracteres.")]
     public string Nombre { get; set; }
 
     [DisplayName("Descripción")]
-    [StringLength(2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
+    [StringLength(maximumLength: 2000, ErrorMessage = "La descripción debe tener máximo 2000 caracteres.")]
     public string Descripcion { get; set; }
 
     /// <summary>
-    /// Convierte el ViewModel a una entidad Area para actualización
+    ///     Convierte el ViewModel a una entidad Area para actualización
     /// </summary>
-    public Area ToEntity()
-    {
-        return new Area(Guid.Parse(Id), Nombre, Descripcion);
+    public Area ToEntity() {
+        return new Area(Guid.Parse(input: Id), nombre: Nombre, descripcion: Descripcion);
     }
 }
 
 /// <summary>
-/// Request para eliminar área
+///     Request para eliminar área
 /// </summary>
-public class EliminarAreaRequest
-{
-    [Required]
-    public string Id { get; set; }
+public class EliminarAreaRequest {
+    [Required] public string Id { get; set; }
 }
