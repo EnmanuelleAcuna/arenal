@@ -13,13 +13,14 @@ namespace plani.Controllers;
 public class ClientesController : BaseController {
     private readonly AreasManager _areasManager;
     private readonly ClientesManager _clientesManager;
+    private readonly ColaboradoresManager _colaboradoresManager;
     private readonly ILogger<ClientesController> _logger;
     private readonly ProyectosManager _proyectosManager;
+    private readonly ServiciosManager _serviciosManager;
     private readonly SesionesManager _sesionesManager;
     private readonly ApplicationUserManager _userManager;
 
     public ClientesController(
-        ApplicationDbContext dbContext,
         ApplicationUserManager userManager,
         ApplicationRoleManager roleManager,
         IConfiguration configuration,
@@ -29,14 +30,18 @@ public class ClientesController : BaseController {
         SesionesManager sesionesManager,
         ClientesManager clientesManager,
         AreasManager areasManager,
-        ProyectosManager proyectosManager)
-        : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment, dbContext: dbContext) {
+        ProyectosManager proyectosManager,
+        ColaboradoresManager colaboradoresManager,
+        ServiciosManager serviciosManager)
+        : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment) {
         _logger = logger;
         _userManager = userManager;
         _sesionesManager = sesionesManager;
         _clientesManager = clientesManager;
         _areasManager = areasManager;
         _proyectosManager = proyectosManager;
+        _colaboradoresManager = colaboradoresManager;
+        _serviciosManager = serviciosManager;
     }
 
     [HttpGet]
@@ -566,8 +571,8 @@ public class ClientesController : BaseController {
             (fechaInicio, fechaFin) = _sesionesManager.ObtenerRangoMesActual();
         }
 
-        ViewBag.Colaboradores = await ObtenerColaboradoresDropdown();
-        ViewBag.Proyectos = await ObtenerProyectosDropdown();
+        ViewBag.Colaboradores = await _colaboradoresManager.ObtenerParaDropdownAsync();
+        ViewBag.Proyectos = await _proyectosManager.ObtenerParaDropdownAsync();
 
         List<Sesion> sesiones = await _sesionesManager.ObtenerSesionesFiltradas(idUsuario: idUsuario, idProyecto: idProyecto, fechaInicio: fechaInicio, fechaFin: fechaFin);
 
@@ -602,7 +607,7 @@ public class ClientesController : BaseController {
         DateTime? fechaFin = null) {
         ApplicationUser usuario = await _userManager.FindByEmailAsync(GetCurrentUser());
 
-        ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: usuario.Id);
+        ViewBag.Proyectos = await _proyectosManager.ObtenerAsignadosParaDropdownAsync(idUsuario: usuario.Id);
 
         List<Sesion> sesiones = await _sesionesManager.ObtenerSesionesFiltradas(
             idUsuario: usuario.Id, idProyecto: idProyecto, fechaInicio: fechaInicio, fechaFin: fechaFin);
@@ -627,8 +632,8 @@ public class ClientesController : BaseController {
     public async Task<IActionResult> AgregarSesion() {
         ApplicationUser colaborador = await _userManager.FindByEmailAsync(GetCurrentUser());
 
-        ViewBag.Servicios = await ObtenerServiciosDropdown();
-        ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: colaborador.Id);
+        ViewBag.Servicios = await _serviciosManager.ObtenerParaDropdownAsync();
+        ViewBag.Proyectos = await _proyectosManager.ObtenerAsignadosParaDropdownAsync(idUsuario: colaborador.Id);
 
         return View();
     }
@@ -642,8 +647,8 @@ public class ClientesController : BaseController {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
 
-            ViewBag.Servicios = await ObtenerServiciosDropdown();
-            ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: colaborador.Id);
+            ViewBag.Servicios = await _serviciosManager.ObtenerParaDropdownAsync();
+            ViewBag.Proyectos = await _proyectosManager.ObtenerAsignadosParaDropdownAsync(idUsuario: colaborador.Id);
 
             return View(model: model);
         }
@@ -673,8 +678,8 @@ public class ClientesController : BaseController {
             return RedirectToAction(nameof(ErrorIniciarSesion));
         }
 
-        ViewBag.Servicios = await ObtenerServiciosDropdown();
-        ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: colaborador.Id);
+        ViewBag.Servicios = await _serviciosManager.ObtenerParaDropdownAsync();
+        ViewBag.Proyectos = await _proyectosManager.ObtenerAsignadosParaDropdownAsync(idUsuario: colaborador.Id);
 
         return View();
     }
@@ -688,8 +693,8 @@ public class ClientesController : BaseController {
             ModelState.AddModelError("",
                 string.Concat(Utils.MensajeErrorAgregar(nameof(Sesion)), GetModelStateErrors()));
 
-            ViewBag.Servicios = await ObtenerServiciosDropdown();
-            ViewBag.Proyectos = await ObtenerProyectosAsignadosDropdown(idUsuario: colaborador.Id);
+            ViewBag.Servicios = await _serviciosManager.ObtenerParaDropdownAsync();
+            ViewBag.Proyectos = await _proyectosManager.ObtenerAsignadosParaDropdownAsync(idUsuario: colaborador.Id);
 
             return View(model: model);
         }
@@ -850,11 +855,11 @@ public class ClientesController : BaseController {
     private async Task PrepararViewBagsProyecto() {
         ViewBag.Contratos = await _clientesManager.ObtenerContratosParaDropdownAsync();
         ViewBag.Areas = await _areasManager.ObtenerParaDropdownAsync();
-        ViewBag.Responsables = await ObtenerColaboradoresDropdown();
+        ViewBag.Responsables = await _colaboradoresManager.ObtenerParaDropdownAsync();
     }
 
     private async Task PrepararViewBagsAsignacionesIndex() {
-        ViewBag.Colaboradores = await ObtenerColaboradoresDropdown();
+        ViewBag.Colaboradores = await _colaboradoresManager.ObtenerParaDropdownAsync();
         ViewBag.Proyectos = await _proyectosManager.ObtenerParaDropdownAsync();
     }
 

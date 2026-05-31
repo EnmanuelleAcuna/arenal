@@ -18,9 +18,8 @@ public class HomeController : BaseController {
         IHttpContextAccessor contextAccesor,
         ILogger<HomeController> logger,
         IWebHostEnvironment environment,
-        DashboardManager dashboardManager,
-        ApplicationDbContext dbContext)
-        : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment, dbContext: dbContext) {
+        DashboardManager dashboardManager)
+        : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment) {
         _userManager = userManager;
         _logger = logger;
         _dashboardManager = dashboardManager;

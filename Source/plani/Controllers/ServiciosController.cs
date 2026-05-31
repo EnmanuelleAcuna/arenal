@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using plani.Identity;
-using plani.Models.Data;
 using plani.Models.Domain;
 using plani.Models.Managers;
 using plani.Models.ViewModels;
@@ -12,13 +10,11 @@ namespace plani.Controllers;
 [Authorize]
 public class ServiciosController : BaseController {
     private readonly AreasManager _areasManager;
-    private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<ServiciosController> _logger;
     private readonly ModalidadesManager _modalidadesManager;
     private readonly ServiciosManager _serviciosManager;
 
     public ServiciosController(
-        ApplicationDbContext dbContext,
         AreasManager areasManager,
         ModalidadesManager modalidadesManager,
         ServiciosManager serviciosManager,
@@ -28,8 +24,7 @@ public class ServiciosController : BaseController {
         IHttpContextAccessor contextAccesor,
         ILogger<ServiciosController> logger,
         IWebHostEnvironment environment)
-        : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment, dbContext: dbContext) {
-        _dbContext = dbContext;
+        : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment) {
         _areasManager = areasManager;
         _modalidadesManager = modalidadesManager;
         _serviciosManager = serviciosManager;
@@ -45,15 +40,7 @@ public class ServiciosController : BaseController {
 
     [HttpGet]
     public async Task<IActionResult> DetalleArea(Guid id) {
-        Area area = await _dbContext.Areas
-            .AsNoTracking()
-            .Include(a => a.Servicios)
-            .Include(a => a.Contratos)
-            .ThenInclude(c => c.Cliente)
-            .Include(a => a.Proyectos)
-            .ThenInclude(p => p.Contrato)
-            .ThenInclude(p => p.Cliente)
-            .FirstOrDefaultAsync(a => a.Id == id);
+        Area area = await _areasManager.ObtenerDetalleAsync(id: id);
 
         if (area == null) {
             return NotFound();
@@ -132,9 +119,7 @@ public class ServiciosController : BaseController {
 
     [HttpGet]
     public async Task<IActionResult> DetalleModalidad(Guid id) {
-        Modalidad modalidad = await _dbContext.Modalidades
-            .Include(a => a.Servicios)
-            .FirstOrDefaultAsync(a => a.Id == id);
+        Modalidad modalidad = await _modalidadesManager.ObtenerDetalleAsync(id: id);
 
         if (modalidad == null) {
             return NotFound();

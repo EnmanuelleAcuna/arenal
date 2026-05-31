@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models;
 using plani.Models.Data;
+using plani.Models.Managers;
 using plani.Models.ViewModels;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
@@ -14,7 +15,7 @@ namespace plani.Controllers;
 
 [Authorize]
 public class CuentasController : BaseController {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly ColaboradoresManager _colaboradoresManager;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<CuentasController> _logger;
     private readonly ApplicationRoleManager _roleManager;
@@ -29,15 +30,14 @@ public class CuentasController : BaseController {
         IEmailSender emailSender,
         ILogger<CuentasController> logger,
         IWebHostEnvironment environment,
-        ApplicationDbContext dbContext)
-        : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment, dbContext: dbContext) {
+        ColaboradoresManager colaboradoresManager)
+        : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment) {
         _userManager = userManager;
         _roleManager = roleManager;
         _signInManager = signInManager;
         _emailSender = emailSender;
         _logger = logger;
-
-        _dbContext = dbContext;
+        _colaboradoresManager = colaboradoresManager;
     }
 
     #region Autenticación
@@ -455,12 +455,7 @@ public class CuentasController : BaseController {
 
     [HttpGet]
     public async Task<IActionResult> DetalleColaborador(Guid id) {
-        ApplicationUser model = await _dbContext.Usuarios
-            .Include(u => u.Asignaciones)
-            .ThenInclude(a => a.Proyecto)
-            .ThenInclude(p => p.Contrato)
-            .ThenInclude(c => c.Cliente)
-            .FirstOrDefaultAsync(a => a.Id == id.ToString());
+        ApplicationUser model = await _colaboradoresManager.ObtenerDetalleAsync(id: id.ToString());
 
         if (model == null) {
             return NotFound();

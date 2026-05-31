@@ -263,6 +263,11 @@ public class ClientesManager {
                 return (false, "Cliente no encontrado");
             }
 
+            clienteActualizado.Identificacion = clienteActualizado.Identificacion?.Trim();
+            clienteActualizado.Nombre = clienteActualizado.Nombre?.Trim();
+            clienteActualizado.Descripcion = clienteActualizado.Descripcion?.Trim();
+            clienteActualizado.Direccion = clienteActualizado.Direccion?.Trim();
+
             cliente.Actualizar(cliente: clienteActualizado, actualizadoPor: usuarioActual);
             _dbContext.Clientes.Update(entity: cliente);
             int changes = await _dbContext.SaveChangesAsync();
