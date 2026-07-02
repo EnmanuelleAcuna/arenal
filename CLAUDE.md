@@ -27,10 +27,12 @@ cd Source/plani && libman restore
 
 ## Architecture
 
-**Stack**: ASP.NET Core 6.0 MVC monolithic application with SQL Server (Azure)
+**Stack**: ASP.NET Core MVC monolithic application with SQL Server (Azure)
+
+> Full architecture reference: [`Documentation/ARQUITECTURA.md`](Documentation/ARQUITECTURA.md)
 
 **Key directories** (`Source/plani/`):
-- `Controllers/` - MVC controllers inheriting from `BaseController` (handles auth, roles & shared dropdowns)
+- `Controllers/` - MVC controllers inheriting from `BaseController` (HTTP/auth-only helpers; controllers never touch `DbContext`)
 - `Models/Domain/` - Domain entities (Base class with soft-delete, audit trail)
 - `Models/Managers/` - Business logic managers (one per domain area)
 - `Models/ViewModels/` - ViewModels (one file per entity group, constructors accept Domain entities)
@@ -47,12 +49,13 @@ cd Source/plani && libman restore
 - `ProyectosManager` - Proyectos, Asignaciones (CRUD, validations, email notifications, Excel export)
 - `SesionesManager` - Sesiones (real-time sessions, pause/resume/finalize, time calculation, logs)
 - `AreasManager` - Áreas (CRUD, validations, dropdowns)
-- `ServiciosManager` - Servicios, Modalidades
+- `ServiciosManager` - Servicios (CRUD, validations, dropdowns)
+- `ModalidadesManager` - Modalidades (CRUD, validations)
 - `ColaboradoresManager` - Collaborator-specific queries
 - `DashboardManager` - Dashboard aggregations
 
 **Patterns**:
-- **Manager pattern**: Controllers delegate all business logic and data access to Managers. Controllers should NOT use `_dbContext` directly — use the appropriate Manager instead. `BaseController` provides shared dropdown helpers (`ObtenerColaboradoresDropdown`, `ObtenerProyectosDropdown`).
+- **Manager pattern**: Controllers delegate all business logic and data access to Managers. Controllers do NOT use `_dbContext` directly — use the appropriate Manager instead. Dropdown data comes from each domain manager's `ObtenerParaDropdownAsync` (not from `BaseController`, which is HTTP/auth-only).
 - **Soft-delete with validation**: All entities use `IsDeleted` flag. Delete operations validate dependencies (e.g., a Client with active Projects cannot be deleted).
 - Audit trail: Entities track `CreatedBy`, `UpdatedBy`, `DeletedBy` with timestamps
 - Database-first: No EF migrations; schema in `SQL/` folder
@@ -67,7 +70,7 @@ Roles: Admin, Coordinador, Colaborador (users can have multiple roles)
 
 ## Database
 
-Uses both Entity Framework Core and Dapper. Two DbContexts:
+Uses Entity Framework Core (database-first; no EF migrations — schema in `SQL/`). Two DbContexts:
 - `ApplicationDbContext` - Main application data
 - `IdentityDBContext` - Identity tables
 

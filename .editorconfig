@@ -1,0 +1,25 @@
+# EditorConfig — https://editorconfig.org
+# Codifica el estilo YA existente y consistente del proyecto, para que `dotnet format`
+# no genere churn. Alcance mínimo intencional (ver Documentation/ARQUITECTURA.md §10).
+#
+# NOTA: los finales de línea (mayormente CRLF) y el charset (un archivo con BOM) están
+# mezclados en el repo. NO se fuerzan aquí a propósito: normalizarlos requiere un
+# .gitattributes + una pasada dedicada en su propio commit, para no ensuciar diffs ahora.
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+
+[*.{json,csproj,props,targets,config}]
+indent_size = 2
+
+[*.cs]
+# Namespaces con ámbito de archivo (estilo actual del proyecto)
+csharp_style_namespace_declarations = file_scoped:warning
+# Llaves en la misma línea (K&R) — estilo actual
+csharp_new_line_before_open_brace = none
+csharp_new_line_before_else = false
+csharp_new_line_before_catch = false
+csharp_new_line_before_finally = false
