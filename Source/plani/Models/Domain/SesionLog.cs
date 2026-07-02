@@ -9,7 +9,8 @@ namespace plani.Models.Domain;
 [Table("SesionLogs")]
 public class SesionLog {
     public SesionLog() {
-        Id = Guid.NewGuid();
+        // El Id lo genera EF (PK Guid store-generated por convención). NO setearlo acá: si se setea,
+        // EF asume que un log nuevo agregado a una sesión existente "ya existe" e intenta UPDATE.
         FechaCreacion = DateTime.UtcNow;
     }
 

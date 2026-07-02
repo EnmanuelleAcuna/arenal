@@ -176,28 +176,12 @@ public class SesionesManager {
     public async Task<bool> CrearSesionManual(AgregarSesionModel model, string idColaborador, string userEmail) {
         DateTime fechaUtc = TimeZoneInfo.ConvertTimeToUtc(dateTime: model.Fecha, sourceTimeZone: _zonaHoraria);
 
-        Sesion sesion = new() {
-            IdColaborador = idColaborador,
-            IdProyecto = model.IdProyecto,
-            IdServicio = model.IdServicio,
-            Horas = model.Horas,
-            Minutes = model.Minutos,
-            Descripcion = model.Descripcion,
-            FechaInicio = fechaUtc,
-            FechaFin = fechaUtc,
-            Estado = EstadoSesion.Finalizada
-        };
+        Sesion sesion = Sesion.CrearManual(
+            idProyecto: model.IdProyecto, idServicio: model.IdServicio,
+            horas: model.Horas, minutos: model.Minutos, descripcion: model.Descripcion,
+            idColaborador: idColaborador, usuario: userEmail, fecha: fechaUtc, ahora: DateTime.UtcNow);
 
-        sesion.RegristrarCreacion(creadoPor: userEmail, creadoEl: DateTime.UtcNow);
         await _dbContext.Sesiones.AddAsync(entity: sesion);
-
-        // Crear log de inicio y finalización para sesiones manuales
-        SesionLog logInicio = new(idSesion: sesion.Id, tipoEvento: TipoEventoSesion.Inicio, fecha: fechaUtc, horas: 0, minutos: 0, creadoPor: userEmail);
-        SesionLog logFin = new(idSesion: sesion.Id, tipoEvento: TipoEventoSesion.Finalizacion, fecha: fechaUtc, horas: model.Horas, minutos: model.Minutos, creadoPor: userEmail);
-
-        await _dbContext.SesionLogs.AddAsync(entity: logInicio);
-        await _dbContext.SesionLogs.AddAsync(entity: logFin);
-
         return await _dbContext.SaveChangesAsync() > 0;
     }
 
@@ -205,38 +189,24 @@ public class SesionesManager {
     ///     Inicia una nueva sesión en tiempo real
     /// </summary>
     public async Task<(bool exito, string error)> IniciarSesion(AgregarSesionModel model, string idColaborador, string userEmail) {
-        // Validar que no tenga más de 1 sesión activa
+        // Validar que no tenga más de 1 sesión activa (regla cross-entity: vive en el manager)
         int sesionesActivas = await ContarSesionesActivas(idUsuario: idColaborador);
         if (sesionesActivas > 1) {
             return (false, "No puede iniciar una nueva sesión si tiene dos sesiones activas.");
         }
 
-        DateTime ahora = DateTime.UtcNow;
+        Sesion sesion = Sesion.Iniciar(
+            idProyecto: model.IdProyecto, idServicio: model.IdServicio,
+            descripcion: model.Descripcion, idColaborador: idColaborador,
+            usuario: userEmail, ahora: DateTime.UtcNow);
 
-        Sesion sesion = new() {
-            IdColaborador = idColaborador,
-            IdProyecto = model.IdProyecto,
-            IdServicio = model.IdServicio,
-            FechaInicio = ahora,
-            Horas = 0,
-            Minutes = 0,
-            Descripcion = model.Descripcion,
-            Estado = EstadoSesion.Activa
-        };
-
-        sesion.RegristrarCreacion(creadoPor: userEmail, creadoEl: ahora);
         await _dbContext.Sesiones.AddAsync(entity: sesion);
-
-        // Crear log de inicio
-        SesionLog logInicio = new(idSesion: sesion.Id, tipoEvento: TipoEventoSesion.Inicio, fecha: ahora, horas: 0, minutos: 0, creadoPor: userEmail);
-        await _dbContext.SesionLogs.AddAsync(entity: logInicio);
-
         bool guardado = await _dbContext.SaveChangesAsync() > 0;
         return (guardado, guardado ? null : "Error al iniciar la sesión.");
     }
 
     /// <summary>
-    ///     Pausa una sesión activa y calcula el tiempo transcurrido
+    ///     Pausa una sesión activa. La entidad valida la transición y calcula el tiempo del tramo.
     /// </summary>
     public async Task<(bool exito, string error)> PausarSesion(Guid idSesion, string descripcion, string userEmail) {
         Sesion sesion = await _dbContext.Sesiones
@@ -247,34 +217,21 @@ public class SesionesManager {
             return (false, "Sesión no encontrada.");
         }
 
-        if (sesion.Estado != EstadoSesion.Activa) {
-            return (false, "Solo puede pausar una sesión activa.");
+        try {
+            sesion.Pausar(descripcion: descripcion, usuario: userEmail, ahora: DateTime.UtcNow);
+        }
+        catch (InvalidOperationException ex) {
+            _logger.LogWarning(exception: ex, "Transición inválida al pausar la sesión {IdSesion}", idSesion);
+            return (false, ex.Message);
         }
 
-        DateTime ahora = DateTime.UtcNow;
-
-        // Calcular tiempo transcurrido desde el último evento de inicio o reanudación
-        (int horas, int minutos) = CalcularTiempoDesdeUltimoEvento(logs: sesion.Logs, fechaHasta: ahora);
-
-        // Crear log de pausa
-        SesionLog logPausa = new(idSesion: sesion.Id, tipoEvento: TipoEventoSesion.Pausa, fecha: ahora, horas: horas, minutos: minutos, creadoPor: userEmail);
-        await _dbContext.SesionLogs.AddAsync(entity: logPausa);
-
-        // Actualizar tiempo acumulado en la sesión
-        AgregarTiempo(sesion: sesion, horas: horas, minutos: minutos);
-
-        sesion.Estado = EstadoSesion.Pausada;
-        sesion.Descripcion = descripcion;
-        sesion.RegistrarActualizacion(actualizadoPor: userEmail, actualizadoEl: ahora);
-
-        _dbContext.Sesiones.Update(entity: sesion);
+        // La sesión ya viene trackeada: el cambio de estado y el log nuevo se detectan en SaveChanges.
         bool guardado = await _dbContext.SaveChangesAsync() > 0;
-
         return (guardado, guardado ? null : "Error al pausar la sesión.");
     }
 
     /// <summary>
-    ///     Reanuda una sesión pausada
+    ///     Reanuda una sesión pausada. La entidad valida la transición.
     /// </summary>
     public async Task<(bool exito, string error)> ReanudarSesion(Guid idSesion, string descripcion, string userEmail) {
         Sesion sesion = await _dbContext.Sesiones
@@ -285,28 +242,20 @@ public class SesionesManager {
             return (false, "Sesión no encontrada.");
         }
 
-        if (sesion.Estado != EstadoSesion.Pausada) {
-            return (false, "Solo puede reanudar una sesión pausada.");
+        try {
+            sesion.Reanudar(descripcion: descripcion, usuario: userEmail, ahora: DateTime.UtcNow);
+        }
+        catch (InvalidOperationException ex) {
+            _logger.LogWarning(exception: ex, "Transición inválida al reanudar la sesión {IdSesion}", idSesion);
+            return (false, ex.Message);
         }
 
-        DateTime ahora = DateTime.UtcNow;
-
-        // Crear log de reanudación (tiempo 0, solo marca el punto de reinicio)
-        SesionLog logReanudacion = new(idSesion: sesion.Id, tipoEvento: TipoEventoSesion.Reanudacion, fecha: ahora, horas: 0, minutos: 0, creadoPor: userEmail);
-        await _dbContext.SesionLogs.AddAsync(entity: logReanudacion);
-
-        sesion.Estado = EstadoSesion.Activa;
-        sesion.Descripcion = descripcion;
-        sesion.RegistrarActualizacion(actualizadoPor: userEmail, actualizadoEl: ahora);
-
-        _dbContext.Sesiones.Update(entity: sesion);
         bool guardado = await _dbContext.SaveChangesAsync() > 0;
-
         return (guardado, guardado ? null : "Error al reanudar la sesión.");
     }
 
     /// <summary>
-    ///     Finaliza una sesión y calcula el tiempo total
+    ///     Finaliza una sesión. La entidad valida la transición y calcula el tiempo del último tramo.
     /// </summary>
     public async Task<(bool exito, string error)> FinalizarSesion(Guid idSesion, string descripcion, string userEmail) {
         Sesion sesion = await _dbContext.Sesiones
@@ -317,77 +266,21 @@ public class SesionesManager {
             return (false, "Sesión no encontrada.");
         }
 
-        if (sesion.Estado == EstadoSesion.Finalizada) {
-            return (false, "La sesión ya está finalizada.");
+        try {
+            sesion.Finalizar(descripcion: descripcion, usuario: userEmail, ahora: DateTime.UtcNow);
+        }
+        catch (InvalidOperationException ex) {
+            _logger.LogWarning(exception: ex, "Transición inválida al finalizar la sesión {IdSesion}", idSesion);
+            return (false, ex.Message);
         }
 
-        if (sesion.Estado == EstadoSesion.Pausada) {
-            return (false, "Debe reanudar la sesión antes de finalizarla.");
-        }
-
-        DateTime ahora = DateTime.UtcNow;
-
-        // Calcular tiempo transcurrido desde el último evento de inicio o reanudación
-        (int horas, int minutos) = CalcularTiempoDesdeUltimoEvento(logs: sesion.Logs, fechaHasta: ahora);
-
-        // Crear log de finalización
-        SesionLog logFin = new(idSesion: sesion.Id, tipoEvento: TipoEventoSesion.Finalizacion, fecha: ahora, horas: horas, minutos: minutos, creadoPor: userEmail);
-        await _dbContext.SesionLogs.AddAsync(entity: logFin);
-
-        // Actualizar tiempo acumulado en la sesión
-        AgregarTiempo(sesion: sesion, horas: horas, minutos: minutos);
-
-        sesion.FechaFin = ahora;
-        sesion.Estado = EstadoSesion.Finalizada;
-        sesion.Descripcion = descripcion;
-        sesion.RegistrarActualizacion(actualizadoPor: userEmail, actualizadoEl: ahora);
-
-        _dbContext.Sesiones.Update(entity: sesion);
         bool guardado = await _dbContext.SaveChangesAsync() > 0;
-
         return (guardado, guardado ? null : "Error al finalizar la sesión.");
     }
 
     #endregion
 
     #region Métodos auxiliares
-
-    /// <summary>
-    ///     Calcula el tiempo transcurrido desde el último evento de inicio o reanudación
-    /// </summary>
-    private (int horas, int minutos) CalcularTiempoDesdeUltimoEvento(ICollection<SesionLog> logs, DateTime fechaHasta) {
-        // Buscar el último evento de inicio o reanudación
-        SesionLog ultimoEventoActivo = logs
-            .Where(l => l.TipoEvento == TipoEventoSesion.Inicio || l.TipoEvento == TipoEventoSesion.Reanudacion)
-            .OrderByDescending(l => l.Fecha)
-            .FirstOrDefault();
-
-        if (ultimoEventoActivo == null) {
-            _logger.LogWarning("No se encontró evento de inicio o reanudación para calcular tiempo");
-            return (0, 0);
-        }
-
-        TimeSpan diferencia = fechaHasta - ultimoEventoActivo.Fecha;
-
-        int horas = (int)diferencia.TotalHours;
-        int minutos = diferencia.Minutes;
-
-        return (horas, minutos);
-    }
-
-    /// <summary>
-    ///     Agrega tiempo a la sesión y normaliza los minutos
-    /// </summary>
-    private void AgregarTiempo(Sesion sesion, int horas, int minutos) {
-        sesion.Horas += horas;
-        sesion.Minutes += minutos;
-
-        // Normalizar si los minutos exceden 60
-        if (sesion.Minutes >= 60) {
-            sesion.Horas += sesion.Minutes / 60;
-            sesion.Minutes = sesion.Minutes % 60;
-        }
-    }
 
     /// <summary>
     ///     Obtiene el rango de fechas del mes actual
