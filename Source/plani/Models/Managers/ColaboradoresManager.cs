@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models.Data;
+using plani.Models.Domain;
 
 namespace plani.Models.Managers;
 
@@ -31,6 +32,35 @@ public class ColaboradoresManager {
     /// </summary>
     public async Task<ApplicationUser> ObtenerPorIdAsync(string id) {
         return await _dbContext.Usuarios.FindAsync(id);
+    }
+
+    /// <summary>
+    ///     Valida si un colaborador puede ser eliminado.
+    ///     Retorna el mensaje de error si tiene dependencias activas, o null si se puede eliminar.
+    /// </summary>
+    public async Task<string> ValidarEliminacionAsync(string id) {
+        bool tieneAsignaciones = await _dbContext.Asignaciones
+            .AnyAsync(a => a.IdColaborador == id && !a.IsDeleted);
+
+        if (tieneAsignaciones) {
+            return "No se puede eliminar el usuario porque tiene asignaciones activas";
+        }
+
+        bool tieneSesionesSinFinalizar = await _dbContext.Sesiones
+            .AnyAsync(s => s.IdColaborador == id && s.Estado != EstadoSesion.Finalizada && !s.IsDeleted);
+
+        if (tieneSesionesSinFinalizar) {
+            return "No se puede eliminar el usuario porque tiene sesiones activas o pausadas";
+        }
+
+        bool esResponsableDeProyectos = await _dbContext.Proyectos
+            .AnyAsync(p => p.IdResponsable == id && !p.IsDeleted);
+
+        if (esResponsableDeProyectos) {
+            return "No se puede eliminar el usuario porque es responsable de proyectos activos";
+        }
+
+        return null;
     }
 
     /// <summary>

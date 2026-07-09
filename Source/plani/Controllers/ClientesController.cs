@@ -495,6 +495,11 @@ public class ClientesController : BaseController {
     [HttpGet]
     public async Task<IActionResult> AsignarProyecto(Guid id) {
         ApplicationUser colaborador = await _userManager.FindByIdAsync(id.ToString());
+
+        if (colaborador == null) {
+            return NotFound();
+        }
+
         AgregarAsignacionModel model = new() {
             NombreColaborador = colaborador.FullName,
             IdUsuario = id

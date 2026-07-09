@@ -118,7 +118,7 @@
                                 @foreach (Sesion sesion in Model.Sesiones) {
                                     <tr>
                                         <td>@sesion.FechaInicio.ToString("dd-MM-yyyy")</td>
-                                        <td>@sesion.ApplicationUser.FullName</td>
+                                        <td>@(sesion.ApplicationUser?.FullName ?? "Colaborador eliminado")</td>
                                         <td>@sesion.Proyecto.Contrato.Cliente.Nombre</td>
                                         <td>@sesion.Proyecto.Nombre</td>
                                         <td>@sesion.Horas</td>

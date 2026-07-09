@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using plani.Identity;
 using plani.Models;
 using plani.Models.Data;
+using plani.Models.Managers;
 using plani.Models.ViewModels;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
@@ -14,6 +15,7 @@ namespace plani.Controllers;
 
 [Authorize]
 public class CuentasController : BaseController {
+    private readonly ColaboradoresManager _colaboradoresManager;
     private readonly ApplicationDbContext _dbContext;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<CuentasController> _logger;
@@ -29,13 +31,15 @@ public class CuentasController : BaseController {
         IEmailSender emailSender,
         ILogger<CuentasController> logger,
         IWebHostEnvironment environment,
-        ApplicationDbContext dbContext)
+        ApplicationDbContext dbContext,
+        ColaboradoresManager colaboradoresManager)
         : base(userManager: userManager, roleManager: roleManager, configuration: configuration, contextAccessor: contextAccesor, environment: environment, dbContext: dbContext) {
         _userManager = userManager;
         _roleManager = roleManager;
         _signInManager = signInManager;
         _emailSender = emailSender;
         _logger = logger;
+        _colaboradoresManager = colaboradoresManager;
 
         _dbContext = dbContext;
     }
@@ -296,6 +300,12 @@ public class CuentasController : BaseController {
         ApplicationUser usuario = await _userManager.FindByIdAsync(userId: modelo.IdUsuario);
         if (usuario == null) {
             return NotFound();
+        }
+
+        string errorValidacion = await _colaboradoresManager.ValidarEliminacionAsync(id: usuario.Id);
+        if (errorValidacion != null) {
+            ModelState.AddModelError("", errorValidacion);
+            return View(model: modelo);
         }
 
         usuario.Eliminar(GetCurrentUser());

@@ -193,6 +193,8 @@ public class DashboardManager {
             .ToListAsync();
 
         var horasPorColaborador = sesionesDelMes
+            // El filtro global de soft-delete deja ApplicationUser en null si el colaborador fue eliminado
+            .Where(s => s.ApplicationUser != null)
             .GroupBy(s => new {
                 s.ApplicationUser.Id,
                 NombreCompleto = $"{s.ApplicationUser.Name} {s.ApplicationUser.FirstLastName}"
