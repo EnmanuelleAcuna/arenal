@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 .idea/
 
+# Claude Code — configuración local/personal (no compartir)
+.claude/settings.local.json
+
